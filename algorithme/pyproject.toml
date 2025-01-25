@@ -3,9 +3,9 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "python_template"
+name = "potentiel_solaire"
 version = "0.1.0"
-description = "Template"
+description = "Evaluer le potentiel solaire des établissements scolaires"
 authors = ["DataForGood"]
 license = " MIT"
 readme = "README.md"
