@@ -32,6 +32,10 @@ Par exemple pour Ubuntu 23.04+:
 L'installation avec l'installateur officiel nécessitant quelques étapes supplémentaires,
 se référer à la [documentation officielle](https://python-poetry.org/docs/#installing-with-the-official-installer).
 
+## Naviguer dans le dossier algorithme
+
+    cd algorithme
+
 ## Utiliser un venv python
 
     python3 -m venv .venv
