@@ -60,6 +60,8 @@ Mettre à jour les dépendances:
 
 [Installer les precommit](https://pre-commit.com/)
 
+    cd ../    
+    
     pre-commit run --all-files
 
 ## Utiliser Tox pour tester votre code
