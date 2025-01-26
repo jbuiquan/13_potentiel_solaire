@@ -6,21 +6,25 @@ on:
     branches: [main]
 
 jobs:
-  pre-commit:
+  pre-commit-algorithme:
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./algorithme
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
     - name: Install poetry
-      working-directory: algorithme
+      working-directory: ${{env.working-directory}}
       run: |
         python -m pip install "poetry>=1.8.5,<2"
         poetry export --with dev --format=requirements.txt --output=requirements.txt
     - name: set PY
+      working-directory: ${{env.working-directory}}
       run: echo "PY=$(python -c 'import hashlib, sys;print(hashlib.sha256(sys.version.encode()+sys.executable.encode()).hexdigest())')" >> $GITHUB_ENV
     - uses: actions/cache@v1
       with:
         path: ~/.cache/pre-commit
-        key: pre-commit|${{ env.PY }}|${{ hashFiles('.pre-commit-config.yaml') }}
+        key: pre-commit|${{ env.PY }}|${{ hashFiles('./algorithme/.pre-commit-config.yaml') }}
     - uses: pre-commit/action@v3.0.0

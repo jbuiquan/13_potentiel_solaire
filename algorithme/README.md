@@ -59,8 +59,6 @@ Mettre à jour les dépendances:
 ## Lancer les precommit-hook localement
 
 [Installer les precommit](https://pre-commit.com/)
-
-    cd ../    
     
     pre-commit run --all-files
 
