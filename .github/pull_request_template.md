@@ -1,5 +1,5 @@
 ### Description
-- Nocodb : _insérer le lien vers la tâche Nocodb correspondante_
+Nocodb : _insérer le lien vers la tâche Nocodb correspondante_
 
 Cette PR a pour objectif de _à renseigner_
 
