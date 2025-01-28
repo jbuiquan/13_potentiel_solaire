@@ -1,8 +1,10 @@
 ### Description
-Merci de mettre à minima le lien vers la tâche Nocodb.
+- Nocodb : _insérer le lien vers la tâche Nocodb correspondante_
+
+Cette PR a pour objectif de _à renseigner_
 
 ### Comment tester ?
-Merci d'indiquer comment tester les modifications apportées.
+_Merci d'indiquer comment tester les modifications apportées._
 
 ### Pour faciliter la validation de ma PR
 - [ ] Les pre-commit passent
