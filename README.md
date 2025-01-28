@@ -1,68 +1,58 @@
-# Template DataForGood
+![banner](docs/banner.png)
 
-This file will become your README and also the index of your
-documentation.
+# Potentiel s(c)olaire
 
-# Contributing
+Évaluer et cartographier le potentiel photovoltaïque des établissements scolaires pour accélérer la transition énergétique.
 
-## Installer Poetry
+Projet initié par [Greenpeace](https://www.greenpeace.fr/) et [Dataforgood](https://dataforgood.fr/) lors de la saison 13 (2025).
 
-Plusieurs [méthodes d'installation](https://python-poetry.org/docs/#installation) sont décrites dans la documentation de poetry dont:
+## Glossaire
+- [Description courte](#description-courte)
+- [Description longue](#description-longue)
+- [Description du livrable](#description-du-livrable)
+- [Contexte et importance du projet](#contexte-et-importance-du-projet)
+- [Résultats et impact](#résultats-et-impact)
+- [Contribuer](#contribuer)
+- [Installation](#installation)
 
-- avec pipx
-- avec l'installateur officiel
+## Description courte
+Un projet pour évaluer et visualiser le potentiel photovoltaïque des toitures des établissements scolaires en France, afin d'accélérer leur transition énergétique et sensibiliser à l'importance des énergies renouvelables.
 
-Chaque méthode a ses avantages et inconvénients. Par exemple, la méthode pipx nécessite d'installer pipx au préable, l'installateur officiel utilise curl pour télécharger un script qui doit ensuite être exécuté et comporte des instructions spécifiques pour la completion des commandes poetry selon le shell utilisé (bash, zsh, etc...).
+## Description longue
+La transition énergétique est l'un des principaux défis de notre époque, et les toitures des établissements scolaires en France représentent une opportunité majeure encore inexploitée. Pourtant, aucune base de données nationale n’existe actuellement pour évaluer le potentiel solaire de ces bâtiments publics, freinant ainsi leur développement dans le domaine des énergies renouvelables.
 
-L'avantage de pipx est que l'installation de pipx est documentée pour linux, windows et macos. D'autre part, les outils installées avec pipx bénéficient d'un environment d'exécution isolé, ce qui est permet de fiabiliser leur fonctionnement. Finalement, l'installation de poetry, voire d'autres outils est relativement simple avec pipx.
+Le projet Potentiel s(c)olaire vise à répondre à ce manque d'information en développant une méthodologie complète pour :
+- Identifier les toitures des établissements scolaires en France.
+- Évaluer leur potentiel photovoltaïque, en prenant en compte des paramètres techniques, géographiques et climatiques.
+- Rendre ces informations accessibles via une interface web interactive, permettant aux décideurs locaux, chefs d’établissements et citoyens de visualiser les données et d’agir en faveur du déploiement de l’énergie solaire. 
 
-Cependant, libre à toi d'utiliser la méthode qui te convient le mieux ! Quelque soit la méthode choisie, il est important de ne pas installer poetry dans l'environnement virtuel qui sera créé un peu plus tard dans ce README pour les dépendances de la base de code de ce repo git.
+Ce projet s'inscrit dans une campagne plus large menée par Greenpeace, visant à sensibiliser les citoyens et à inciter les décideurs politiques à intégrer les énergies renouvelables dans les infrastructures publiques, tout en offrant un outil concret pour orienter les priorités et les investissements.
 
-### Installation de Poetry avec pipx
+## Description du livrable
+- Algorithme d'évaluation automatisée du potentiel solaire des toitures : Développement d’un modèle combinant données géographiques, climatiques et cadastrales pour calculer la faisabilité technique et le rendement potentiel.
+- Base de données nationale : Une base exhaustive regroupant les données sur les établissements scolaires et leur potentiel photovoltaïque.
+- Interface web interactive : Un outil public de visualisation des résultats, accessible par territoire ou établissement.
+- Documentation technique détaillée : Méthodologie complète permettant la reproductibilité et l’amélioration des résultats.
+- Rapport d’analyse : Application pilote sur deux territoires, détaillant les résultats obtenus et proposant des recommandations concrètes.
 
-Suivre les instructions pour [installer pipx](https://pipx.pypa.io/stable/#install-pipx) selon ta plateforme (linux, windows, etc...)
+## Contexte et importance du projet
+Le secteur éducatif représente un levier clé pour initier et démontrer la faisabilité de la transition énergétique dans les bâtiments publics. Avec des surfaces de toitures considérables inexplorées et un cadre éducatif propice à la sensibilisation, les établissements scolaires sont un point de départ stratégique pour promouvoir l'énergie solaire en France.
 
-Par exemple pour Ubuntu 23.04+:
+Ce projet contribuera à :
+1. Outiller les décideurs : Grâce à des données fiables et détaillées, les collectivités et chefs d’établissements auront une base solide pour prioriser les investissements dans le solaire.
+2. Sensibiliser les citoyens : L’interface web sera un vecteur de transparence et d’éducation sur les énergies renouvelables et leurs bénéfices locaux.
+3. Accélérer la transition énergétique : En valorisant le potentiel des bâtiments publics, ce projet incitera à une généralisation du recours aux énergies renouvelables sur tout le territoire.
 
-    sudo apt update
-    sudo apt install pipx
-    pipx ensurepath
+## Résultats et impact
+- Données concrètes pour agir : Une base nationale offrant une vision claire du potentiel solaire des écoles, permettant de structurer les projets photovoltaïques à l’échelle locale et nationale.
+- Accélération des investissements solaires : En outillant les décideurs, le projet facilitera le passage de l’intention à l’action dans le déploiement des énergies renouvelables.
+- Sensibilisation du grand public : Grâce à une interface conviviale et des campagnes associées, les citoyens seront mieux informés des opportunités locales et de leur rôle dans la transition énergétique.
 
-[Installer Poetry avec pipx](https://python-poetry.org/docs/#installing-with-pipx):
+## Contribuer
+- [Rejoindre](https://dataforgood.fr/join) la communauté Data For Good
+- Sur le slack Data For Good, rejoindre le canal _#13_potentiel_solaire_ et se présenter
 
-    pipx install poetry
-
-### Installation de Poetry avec l'installateur officiel
-
-L'installation avec l'installateur officiel nécessitant quelques étapes supplémentaires,
-se référer à la [documentation officielle](https://python-poetry.org/docs/#installing-with-the-official-installer).
-
-## Utiliser un venv python
-
-    python3 -m venv .venv
-
-    source .venv/bin/activate
-
-## Utiliser Poetry
-
-Installer les dépendances:
-
-    poetry install
-
-Ajouter une dépendance:
-
-    poetry add pandas
-
-Mettre à jour les dépendances:
-
-    poetry update
-
-## Lancer les precommit-hook localement
-
-[Installer les precommit](https://pre-commit.com/)
-
-    pre-commit run --all-files
-
-## Utiliser Tox pour tester votre code
-
-    tox -vv
+## Installation
+La stack technique est divisée en deux parties :
+- [Algorithme](algorithme/README.md) : pour évaluer le potentiel solaire des établissements scolaires
+- [Application](application/README.md) : interface publique interactive avec la visualisation des résultats
