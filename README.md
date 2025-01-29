@@ -12,7 +12,7 @@ Projet initié par [Greenpeace](https://www.greenpeace.fr/) et [Dataforgood](htt
 - [Description du livrable](#description-du-livrable)
 - [Contexte et importance du projet](#contexte-et-importance-du-projet)
 - [Résultats et impact](#résultats-et-impact)
-- [Contribuer](#contribuer)
+- [Contribuer](CONTRIBUTING.md)
 - [Installation](#installation)
 
 ## Description courte
@@ -47,10 +47,6 @@ Ce projet contribuera à :
 - Données concrètes pour agir : Une base nationale offrant une vision claire du potentiel solaire des écoles, permettant de structurer les projets photovoltaïques à l’échelle locale et nationale.
 - Accélération des investissements solaires : En outillant les décideurs, le projet facilitera le passage de l’intention à l’action dans le déploiement des énergies renouvelables.
 - Sensibilisation du grand public : Grâce à une interface conviviale et des campagnes associées, les citoyens seront mieux informés des opportunités locales et de leur rôle dans la transition énergétique.
-
-## Contribuer
-- [Rejoindre](https://dataforgood.fr/join) la communauté Data For Good
-- Sur le slack Data For Good, rejoindre le canal _#13_potentiel_solaire_ et se présenter
 
 ## Installation
 La stack technique est divisée en deux parties :
