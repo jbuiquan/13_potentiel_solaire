@@ -11,8 +11,8 @@ wget https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annu
 mv geojson fr-en-annuaire-education.geojson
 fi
 
-if [ ! -f ./BDTOPO_3-4_TOUSTHEMES_SHP_LAMB93_D093_2024-12-15.7z ]; then
-    wget https://data.geopf.fr/telechargement/download/BDTOPO/BDTOPO_3-4_TOUSTHEMES_SHP_LAMB93_D093_2024-12-15/BDTOPO_3-4_TOUSTHEMES_SHP_LAMB93_D093_2024-12-15.7z
+if [ ! -f ./BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15.7z ]; then
+    wget https://data.geopf.fr/telechargement/download/BDTOPO/BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15/BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15.7z
 fi
 
 if [ ! -f ./PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01.7z ]; then
@@ -22,4 +22,4 @@ fi
 # May need sudo apt-get install p7zip-full
 
 7z x PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01.7z
-7z x BDTOPO_3-4_TOUSTHEMES_SHP_LAMB93_D093_2024-12-15.7z
+7z x BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15.7z
