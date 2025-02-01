@@ -1,3 +1,9 @@
+# Glossaire
+- [Installation](#installation)
+- [Recuperer les données](data/README.md)
+- [Tester & verifier son code](#tester--verifier-son-code)
+
+
 # Installation
 
 ## Installer Poetry
@@ -55,6 +61,9 @@ Ajouter une dépendance:
 Mettre à jour les dépendances:
 
     poetry update
+
+
+# Tester & verifier son code
 
 ## Lancer les precommit-hook localement
 
