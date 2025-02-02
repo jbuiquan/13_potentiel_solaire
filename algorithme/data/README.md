@@ -1,21 +1,16 @@
 ## Recuperation des données brutes
 
-1. Installer p7zip-full
+Etre dans le dossier algorithme
 
-```bash
-    sudo apt-get install p7zip-full
-```
+    cd algorithme
 
-2. Se déplacer dans le dossier algorithme/data
+Installer les dépendances & activer l'environnement
 
-```bash
-    cd algorithme/data
-```
+    poetry install
+    poetry shell
 
-3. Lancer le script de recuperation
+Lancer le script de recuperation
 
-```bash
-    sh get_data.sh
-```
+    extract-sample-data
 
 Une fois ce script réussi, les données dézippées devraient être visibles dans ce dossier data.
