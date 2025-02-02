@@ -1,12 +1,13 @@
 # Glossaire
 - [Installation](#installation)
+- [Mettre à jour ou modifier son environnement](#mettre-à-jour-ou-modifier-son-environnement)
 - [Recuperer les données](data/README.md)
 - [Tester & verifier son code](#tester--verifier-son-code)
 
 
 # Installation
 
-## Installer Poetry
+## 1. Installer Poetry
 
 Plusieurs [méthodes d'installation](https://python-poetry.org/docs/#installation) sont décrites dans la documentation de poetry dont:
 
@@ -19,7 +20,7 @@ L'avantage de pipx est que l'installation de pipx est documentée pour linux, wi
 
 Cependant, libre à toi d'utiliser la méthode qui te convient le mieux ! Quelque soit la méthode choisie, il est important de ne pas installer poetry dans l'environnement virtuel qui sera créé un peu plus tard dans ce README pour les dépendances de la base de code de ce repo git.
 
-### Installation de Poetry avec pipx
+### 1.1 Installation de Poetry avec pipx
 
 Suivre les instructions pour [installer pipx](https://pipx.pypa.io/stable/#install-pipx) selon ta plateforme (linux, windows, etc...)
 
@@ -33,35 +34,42 @@ Par exemple pour Ubuntu 23.04+:
 
     pipx install poetry
 
-### Installation de Poetry avec l'installateur officiel
+### 1.2 Installation de Poetry avec l'installateur officiel
 
 L'installation avec l'installateur officiel nécessitant quelques étapes supplémentaires,
 se référer à la [documentation officielle](https://python-poetry.org/docs/#installing-with-the-official-installer).
 
-## Naviguer dans le dossier algorithme
+### 1.3 Configurer poetry pour créer les environnements virtuels au sein du projet
+
+    poetry config virtualenvs.in-project true
+
+## 2. Installer les dépendances et le package potentiel_solaire
+
+### 2.1 Naviguer dans le dossier algorithme
 
     cd algorithme
 
-## Utiliser un venv python
+### 2.2 Installer les dépendances
 
-    python3 -m venv .venv
+    poetry install --with dev
 
-    source .venv/bin/activate
+### 2.3 Verifier le venv ainsi créé
 
-## Utiliser Poetry
+    poetry env info
 
-Installer les dépendances:
+### 2.4 Activer l'environnement
 
-    poetry install
+    poetry shell
 
-Ajouter une dépendance:
+# Mettre à jour ou modifier son environnement
+
+### Ajouter une dépendance
 
     poetry add pandas
 
-Mettre à jour les dépendances:
+### Mettre à jour les dépendances
 
     poetry update
-
 
 # Tester & verifier son code
 
