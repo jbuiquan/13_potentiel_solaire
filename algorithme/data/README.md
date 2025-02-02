@@ -17,3 +17,5 @@
 ```bash
     sh get_data.sh
 ```
+
+Une fois ce script réussi, les données dézippées devraient être visibles dans ce dossier data.
