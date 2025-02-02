@@ -61,7 +61,7 @@ se référer à la [documentation officielle](https://python-poetry.org/docs/#in
 
     poetry shell
 
-# Mettre à jour ou modifier son environnement
+# Modifier les dépendances
 
 ### Ajouter une dépendance
 
