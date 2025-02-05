@@ -76,6 +76,8 @@ def main():
          "contour-des-departements.geojson"),
         ("https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/exports/geojson",
          "fr-en-annuaire-education.geojson"),
+        ("https://geoweb.iau-idf.fr/agsmap1/rest/services/OPENDATA/OpendataIAU4/MapServer/26/query?outFields=*&where=1%3D1&f=geojson",
+         "potentiel-solaire.geojson"),
         ("https://data.smartidf.services/api/explore/v2.1/catalog/datasets/potentiel-gisement-solaire-brut-au-bati0/exports/geojson",
          "potentiel-gisement-solaire-brut-au-bati.geojson"),
         ("https://data.geopf.fr/telechargement/download/BDTOPO/BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15/BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15.7z",
