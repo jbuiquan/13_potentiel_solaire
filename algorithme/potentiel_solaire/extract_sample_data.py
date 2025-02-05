@@ -1,13 +1,21 @@
 import os
-
 import requests
 import py7zr
-
 from potentiel_solaire.constants import DATA_FOLDER
 from potentiel_solaire.logger import get_logger
 
 logger = get_logger()
 
+def file_exists(filename, data_folder=DATA_FOLDER):
+    """Check if the geojson file exists."""
+    filepath = data_folder / filename
+    return os.path.exists(filepath)
+
+def folder_exists(filename, data_folder=DATA_FOLDER):
+    """Check if the extracted 7z file exists."""
+    folder_name = filename.replace('.7z', '')
+    folder_path = data_folder / folder_name
+    return os.path.exists(folder_path)
 
 def download_file(url, filename, data_folder=DATA_FOLDER):
     """Download a file from a URL if it does not already exist."""
@@ -25,7 +33,6 @@ def download_file(url, filename, data_folder=DATA_FOLDER):
     else:
         logger.info(f"{filename} already exists, skipping download.")
 
-
 def extract_7z(filename, data_folder=DATA_FOLDER):
     """Extract a .7z archive if it exists."""
     filepath = data_folder / filename
@@ -37,7 +44,6 @@ def extract_7z(filename, data_folder=DATA_FOLDER):
     else:
         logger.info(f"File {filename} not found, skipping extraction.")
 
-
 def delete_7z(filename, data_folder=DATA_FOLDER):
     """Delete a .7z archive if it exists."""
     filepath = data_folder / filename
@@ -47,7 +53,6 @@ def delete_7z(filename, data_folder=DATA_FOLDER):
     else:
         logger.warning(f"File {filename} not found, skipping deletion.")
 
-
 def main():
     # Define file URLs and names
     files = [
@@ -55,20 +60,29 @@ def main():
          "contour-des-departements.geojson"),
         ("https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/exports/geojson",
          "fr-en-annuaire-education.geojson"),
+        ("https://data.smartidf.services/api/explore/v2.1/catalog/datasets/potentiel-gisement-solaire-brut-au-bati0/exports/geojson",
+         "potentiel-gisement-solaire-brut-au-bati.geojson"),
         ("https://data.geopf.fr/telechargement/download/BDTOPO/BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15/BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15.7z",
          "BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15.7z"),
         ("https://data.geopf.fr/telechargement/download/PARCELLAIRE-EXPRESS/PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01/PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01.7z",
          "PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01.7z")
     ]
 
-    # Download files
     for url, filename in files:
-        download_file(url, filename)
         if filename.endswith(".7z"):
-            # Extract .7z files
-            extract_7z(filename)
-            delete_7z(filename)
-
+            if not folder_exists(filename):
+                download_file(url, filename)
+                extract_7z(filename)
+                delete_7z(filename)
+            else:
+                logger.info(f"Folder for {filename} already exists, skipping download and extraction.")
+        elif filename.endswith(".geojson"):
+            if not file_exists(filename):
+                download_file(url, filename)
+            else:
+                logger.info(f"GeoJSON file {filename} already exists, skipping download.")
+        else:
+            download_file(url, filename)
 
 if __name__ == "__main__":
     main()
