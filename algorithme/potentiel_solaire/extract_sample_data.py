@@ -54,6 +54,21 @@ def delete_7z(filename, data_folder=DATA_FOLDER):
     else:
         logger.warning(f"File {filename} not found, skipping deletion.")
 
+def convert_geojson_to_gpkg(geojson_filename, data_folder=DATA_FOLDER):
+    """Conversion du fichier GeoJSON en GPKG et suppression du GeoJSON après conversion."""
+    geojson_path = data_folder / geojson_filename
+    gpkg_filename = geojson_filename.replace(".geojson", ".gpkg")
+    gpkg_path = data_folder / gpkg_filename
+
+    if os.path.exists(geojson_path):
+        logger.info(f"Conversion de {geojson_filename} en {gpkg_filename}...")
+        gdf = gpd.read_file(geojson_path)
+        gdf.to_file(gpkg_path, driver="GPKG")
+        os.remove(geojson_path)  
+        logger.info(f"Conversion terminée et suppression de {geojson_filename}.")
+    else:
+        logger.warning(f"Le fichier {geojson_filename} n'existe pas, conversion annulée.")
+
 def main():
     # Define file URLs and names
     files = [
