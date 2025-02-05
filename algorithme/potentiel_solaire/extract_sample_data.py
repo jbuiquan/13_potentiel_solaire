@@ -55,7 +55,11 @@ def delete_7z(filename, data_folder=DATA_FOLDER):
         logger.warning(f"File {filename} not found, skipping deletion.")
 
 def convert_geojson_to_gpkg(geojson_filename, data_folder=DATA_FOLDER):
-    """Conversion du fichier GeoJSON en GPKG mais en conservant l'original."""
+    """Convertit uniquement 'potentiel-gisement-solaire-brut-au-bati.geojson' en GPKG."""
+    if geojson_filename != "potentiel-gisement-solaire-brut-au-bati.geojson":
+        logger.info(f"Conversion ignorée pour {geojson_filename}, seule 'potentiel-gisement-solaire-brut-au-bati.geojson' est concernée.")
+        return
+
     geojson_path = data_folder / geojson_filename
     gpkg_filename = geojson_filename.replace(".geojson", ".gpkg")
     gpkg_path = data_folder / gpkg_filename
@@ -64,7 +68,7 @@ def convert_geojson_to_gpkg(geojson_filename, data_folder=DATA_FOLDER):
         logger.info(f"Conversion de {geojson_filename} en {gpkg_filename}...")
         gdf = gpd.read_file(geojson_path)
         gdf.to_file(gpkg_path, driver="GPKG")
-        logger.info(f"Conversion terminée. (Le fichier {geojson_filename} est conservé)")
+        logger.info(f"Conversion terminée pour {geojson_filename}.")
     else:
         logger.warning(f"Le fichier {geojson_filename} n'existe pas, conversion annulée.")
 
@@ -93,14 +97,21 @@ def main():
                 delete_7z(filename)
             else:
                 logger.info(f"Folder for {filename} already exists, skipping download and extraction.")
+
         elif filename.endswith(".geojson"):
-            gpkg_filename = filename.replace(".geojson", ".gpkg")
-            if not file_exists(gpkg_filename):  
+            if filename == "potentiel-gisement-solaire-brut-au-bati.geojson":  # <---- Uniquement ce fichier !
+                gpkg_filename = filename.replace(".geojson", ".gpkg")
+                if not file_exists(gpkg_filename):  
+                    if not file_exists(filename):
+                        download_file(url, filename)
+                    convert_geojson_to_gpkg(filename)
+                else:
+                    logger.info(f"GPKG file {gpkg_filename} already exists, skipping conversion.")
+            else:
+                # Télécharger les autres GeoJSON sans conversion
                 if not file_exists(filename):
                     download_file(url, filename)
-                convert_geojson_to_gpkg(filename)  # <--------- Conversion du GeoJSON en GPKG
-            else:
-                logger.info(f"GPKG file {gpkg_filename} already exists, skipping download and conversion.")
+
         else:
             download_file(url, filename)
 
