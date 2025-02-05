@@ -55,9 +55,11 @@ def delete_7z(filename, data_folder=DATA_FOLDER):
         logger.warning(f"File {filename} not found, skipping deletion.")
 
 def convert_geojson_to_gpkg(geojson_filename, data_folder=DATA_FOLDER):
-    """Convertit uniquement 'potentiel-gisement-solaire-brut-au-bati.geojson' en GPKG."""
-    if geojson_filename != "potentiel-gisement-solaire-brut-au-bati.geojson":
-        logger.info(f"Conversion ignorée pour {geojson_filename}, seule 'potentiel-gisement-solaire-brut-au-bati.geojson' est concernée.")
+    """Convertir uniquement certains fichiers GeoJSON en GPKG."""
+    files_to_convert = ["potentiel-gisement-solaire-brut-au-bati.geojson", "potentiel-solaire.geojson"]
+    
+    if geojson_filename not in files_to_convert:
+        logger.info(f"Conversion ignorée pour {geojson_filename}, seuls {files_to_convert} sont concernés.")
         return
 
     geojson_path = data_folder / geojson_filename
@@ -75,18 +77,12 @@ def convert_geojson_to_gpkg(geojson_filename, data_folder=DATA_FOLDER):
 def main():
     # Define file URLs and names
     files = [
-        ("https://www.data.gouv.fr/fr/datasets/r/90b9341a-e1f7-4d75-a73c-bbc010c7feeb",
-         "contour-des-departements.geojson"),
-        ("https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/exports/geojson",
-         "fr-en-annuaire-education.geojson"),
-        ("https://geoweb.iau-idf.fr/agsmap1/rest/services/OPENDATA/OpendataIAU4/MapServer/26/query?outFields=*&where=1%3D1&f=geojson",
-         "potentiel-solaire.geojson"),
-        ("https://data.smartidf.services/api/explore/v2.1/catalog/datasets/potentiel-gisement-solaire-brut-au-bati0/exports/geojson",
-         "potentiel-gisement-solaire-brut-au-bati.geojson"),
-        ("https://data.geopf.fr/telechargement/download/BDTOPO/BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15/BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15.7z",
-         "BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15.7z"),
-        ("https://data.geopf.fr/telechargement/download/PARCELLAIRE-EXPRESS/PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01/PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01.7z",
-         "PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01.7z")
+        ("https://www.data.gouv.fr/fr/datasets/r/90b9341a-e1f7-4d75-a73c-bbc010c7feeb", "contour-des-departements.geojson"),
+        ("https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/exports/geojson", "fr-en-annuaire-education.geojson"),
+        ("https://geoweb.iau-idf.fr/agsmap1/rest/services/OPENDATA/OpendataIAU4/MapServer/26/query?outFields=*&where=1%3D1&f=geojson", "potentiel-solaire.geojson"),
+        ("https://data.smartidf.services/api/explore/v2.1/catalog/datasets/potentiel-gisement-solaire-brut-au-bati0/exports/geojson", "potentiel-gisement-solaire-brut-au-bati.geojson"),
+        ("https://data.geopf.fr/telechargement/download/BDTOPO/BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15/BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15.7z", "BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15.7z"),
+        ("https://data.geopf.fr/telechargement/download/PARCELLAIRE-EXPRESS/PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01/PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01.7z", "PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01.7z")
     ]
 
     for url, filename in files:
@@ -97,10 +93,9 @@ def main():
                 delete_7z(filename)
             else:
                 logger.info(f"Folder for {filename} already exists, skipping download and extraction.")
-
         elif filename.endswith(".geojson"):
-            if filename == "potentiel-gisement-solaire-brut-au-bati.geojson":  # <---- Uniquement ce fichier !
-                gpkg_filename = filename.replace(".geojson", ".gpkg")
+            gpkg_filename = filename.replace(".geojson", ".gpkg")
+            if filename in ["potentiel-gisement-solaire-brut-au-bati.geojson", "potentiel-solaire.geojson"]:
                 if not file_exists(gpkg_filename):  
                     if not file_exists(filename):
                         download_file(url, filename)
@@ -108,10 +103,8 @@ def main():
                 else:
                     logger.info(f"GPKG file {gpkg_filename} already exists, skipping conversion.")
             else:
-                # Télécharger les autres GeoJSON sans conversion
                 if not file_exists(filename):
                     download_file(url, filename)
-
         else:
             download_file(url, filename)
 
