@@ -1,6 +1,7 @@
 import os
 import requests
 import py7zr
+import geopandas as gpd
 from potentiel_solaire.constants import DATA_FOLDER
 from potentiel_solaire.logger import get_logger
 
@@ -77,10 +78,13 @@ def main():
             else:
                 logger.info(f"Folder for {filename} already exists, skipping download and extraction.")
         elif filename.endswith(".geojson"):
-            if not file_exists(filename):
-                download_file(url, filename)
+            gpkg_filename = filename.replace(".geojson", ".gpkg")
+            if not file_exists(gpkg_filename):  
+                if not file_exists(filename):
+                    download_file(url, filename)
+                convert_geojson_to_gpkg(filename)  # <--------- Conversion du GeoJSON en GPKG
             else:
-                logger.info(f"GeoJSON file {filename} already exists, skipping download.")
+                logger.info(f"GPKG file {gpkg_filename} already exists, skipping download and conversion.")
         else:
             download_file(url, filename)
 
