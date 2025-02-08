@@ -1,4 +1,3 @@
-import sys
 import os
 import requests
 import py7zr
