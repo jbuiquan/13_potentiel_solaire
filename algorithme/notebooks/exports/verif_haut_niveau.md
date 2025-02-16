@@ -23,8 +23,8 @@ src = DATA_FOLDER / "saint_denis_reference_data.gpkg"
 layers = fiona.listlayers(src)
 
 for layer in layers:
-    gdf = gpd.read_file(src, layer=layer)
-    print(f"* Couche: {layer} avec {len(gdf)} éléments.")
+    gdf_sd = gpd.read_file(src, layer=layer)
+    print(f"* Couche: {layer} avec {len(gdf_sd)} éléments.")
 ```
 
     * Couche: annuaire_education avec 88 éléments.
@@ -45,12 +45,14 @@ ecoles = gpd.read_file(src, layer="annuaire_education")
 ecoles_seules = gpd.read_file(src, layer="annuaire_education_sans_zone") 
 potentiel = gpd.read_file(src, layer="potentielsolaire_toitures")
 batiments_ecoles = gpd.read_file(src, layer="bdtopo_batiment")
+stdenis = gpd.read_file(src, layer="perimetre_st_denis")
 ```
 
 
 ```python
 fig1, ax1 = plt.subplots(figsize=(15, 15))
 zones.plot(ax=ax1, color='black', alpha=0.5, label='Zones')
+stdenis.plot(ax=ax1, color='black', alpha=0.5, label='Zones')
 ecoles.plot(ax=ax1, color='green', alpha=0.5, label='Ecoles avec zone')
 ecoles_seules.plot(ax=ax1, color='red', alpha=0.5, label='Ecole seules sans zone')
 batiments_ecoles.plot(ax=ax1, facecolor='yellow', edgecolor='red', linewidth=0.5, alpha=0.8, label='Saint-Denis')
@@ -61,7 +63,7 @@ ax1.legend()
 plt.show()
 ```
 
-    /tmp/ipykernel_287957/4027241553.py:9: UserWarning: Legend does not support handles for PatchCollection instances.
+    /tmp/ipykernel_301604/64737190.py:10: UserWarning: Legend does not support handles for PatchCollection instances.
     See: https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html#implementing-a-custom-legend-handler
       ax1.legend()
 
@@ -445,7 +447,7 @@ batiments_calcules.groupby('forme')
 
 
 
-    <pandas.core.groupby.generic.DataFrameGroupBy object at 0x7726ef6b2ce0>
+    <pandas.core.groupby.generic.DataFrameGroupBy object at 0x7fe1158660b0>
 
 
 
@@ -495,5 +497,173 @@ plt.show()
 
     
 ![png](verif_haut_niveau_files/verif_haut_niveau_16_0.png)
+    
+
+
+# Ajout de la layer potentiel solaire 
+
+PV_Sol_Polygon.gpkg
+* Couche: PV_Sol avec 2016422 éléments.
+* Couche: layer_styles avec 1 éléments.
+
+
+```python
+mask_stdenis = stdenis.to_crs(2154)
+```
+
+
+```python
+src = DATA_FOLDER / "ENR_1-0_POT-SOL-SOL_GPKG_LAMB93_FXX_2024-04-01/1_DONNEES_LIVRAISON/PV_Sol_Polygon.gpkg"
+layers = fiona.listlayers(src)
+
+```
+
+
+```python
+enrpot = gpd.read_file(src, layer="PV_Sol", mask = mask_stdenis)
+enrpot
+```
+
+    /home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/pyogrio/core.py:279: RuntimeWarning: Field format 'character varying(256)' not supported
+      return ogr_read_info(
+    /home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/pyogrio/core.py:279: RuntimeWarning: Field format 'character varying(30)' not supported
+      return ogr_read_info(
+    /home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/pyogrio/core.py:279: RuntimeWarning: Field format 'character varying' not supported
+      return ogr_read_info(
+    /home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/pyogrio/core.py:279: RuntimeWarning: Field format 'timestamp with time zone' not supported
+      return ogr_read_info(
+    /home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/geopandas/io/file.py:497: UserWarning: More than one layer found in 'PV_Sol_Polygon.gpkg': 'PV_Sol' (default), 'layer_styles'. Specify layer parameter to avoid this warning.
+      crs = pyogrio.read_info(path_or_bytes).get("crs")
+
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>objectid</th>
+      <th>classe</th>
+      <th>region</th>
+      <th>geometry</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1356053</td>
+      <td>Réseaux routiers et ferroviaires</td>
+      <td>Île-de-France</td>
+      <td>MULTIPOLYGON (((656436.5 6894531, 656438.799 6...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>871998</td>
+      <td>Inadapté sauf exception</td>
+      <td>Île-de-France</td>
+      <td>MULTIPOLYGON (((654025.136 6867560.505, 654013...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>872121</td>
+      <td>Inadapté sauf exception</td>
+      <td>Île-de-France</td>
+      <td>MULTIPOLYGON (((652984.728 6867576.176, 652985...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>871992</td>
+      <td>Inadapté sauf exception</td>
+      <td>Île-de-France</td>
+      <td>MULTIPOLYGON (((653831.991 6867843.593, 653815...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>872122</td>
+      <td>Inadapté sauf exception</td>
+      <td>Île-de-France</td>
+      <td>MULTIPOLYGON (((653407.343 6867644.803, 653399...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>872075</td>
+      <td>Inadapté sauf exception</td>
+      <td>Île-de-France</td>
+      <td>MULTIPOLYGON (((655113.813 6871546.614, 655116...</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>888472</td>
+      <td>Inadapté sauf exception</td>
+      <td>Île-de-France</td>
+      <td>MULTIPOLYGON (((653591.409 6871971.731, 653583...</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>872037</td>
+      <td>Inadapté sauf exception</td>
+      <td>Île-de-France</td>
+      <td>MULTIPOLYGON (((655070.762 6870563.567, 655066...</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>872038</td>
+      <td>Inadapté sauf exception</td>
+      <td>Île-de-France</td>
+      <td>MULTIPOLYGON (((654812.921 6870547.068, 654722...</td>
+    </tr>
+    <tr>
+      <th>210</th>
+      <td>888498</td>
+      <td>Inadapté sauf exception</td>
+      <td>Île-de-France</td>
+      <td>MULTIPOLYGON (((655921.662 6872724.47, 656039....</td>
+    </tr>
+  </tbody>
+</table>
+<p>211 rows × 4 columns</p>
+</div>
+
+
+
+# Representing the area for StDenis
+
+
+```python
+enrpot.clip(mask_stdenis).plot()
+```
+
+
+
+
+    <Axes: >
+
+
+
+
+    
+![png](verif_haut_niveau_files/verif_haut_niveau_23_1.png)
     
 
