@@ -14,7 +14,7 @@ from potentiel_solaire.constants import DATA_FOLDER
 # Executer ci dessous ci besoin pour récupérer les données
 # !extract-sample-data
 # Et pour sauver une version markdown des notebooks, utiliser
-# jupyter nbconvert donnees_par_ecole.ipynb --to markdown --output-dir=exports/
+# jupyter nbconvert verif_haut_niveau.ipynb --to markdown --output-dir=exports/
 ```
 
 
@@ -34,6 +34,7 @@ for layer in layers:
     * Couche: cadastre_parcellaire avec 477 éléments.
     * Couche: potentielsolaire_bati avec 496 éléments.
     * Couche: potentielsolaire_toitures avec 357 éléments.
+    * Couche: perimetre_st_denis avec 1 éléments.
     * Couche: identifiers avec 88 éléments.
 
 
@@ -60,7 +61,7 @@ ax1.legend()
 plt.show()
 ```
 
-    /tmp/ipykernel_281035/4027241553.py:9: UserWarning: Legend does not support handles for PatchCollection instances.
+    /tmp/ipykernel_287957/4027241553.py:9: UserWarning: Legend does not support handles for PatchCollection instances.
     See: https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html#implementing-a-custom-legend-handler
       ax1.legend()
 
@@ -116,15 +117,10 @@ test["ratio"] = test["production"] / test["calcul_naif"]
 ratio = test["ratio"].mean()
 batiments_calcules["calcul_naif"] = 1100*batiments_calcules["surface_calculee"]
 batiments_calcules["calcul_naif_maj"] = 1100*batiments_calcules["surface_calculee"]*ratio
+batiments_calcules["ratio_surface"] = batiments_calcules["surf_util"]/batiments_calcules["surface_calculee"]
 batiments_calcules
 ```
 
-    /home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/geopandas/geodataframe.py:1819: SettingWithCopyWarning: 
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
-    
-    See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-      super().__setitem__(key, value)
     /home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/geopandas/geodataframe.py:1819: SettingWithCopyWarning: 
     A value is trying to be set on a copy of a slice from a DataFrame.
     Try using .loc[row_indexer,col_indexer] = value instead
@@ -167,6 +163,7 @@ batiments_calcules
       <th>cleabs</th>
       <th>geometry</th>
       <th>calcul_naif_maj</th>
+      <th>ratio_surface</th>
     </tr>
   </thead>
   <tbody>
@@ -185,6 +182,7 @@ batiments_calcules
       <td>BATIMENT0000000318256828</td>
       <td>POLYGON ((2.36719 48.93004, 2.36696 48.93002, ...</td>
       <td>153562.836115</td>
+      <td>0.610771</td>
     </tr>
     <tr>
       <th>1</th>
@@ -201,6 +199,7 @@ batiments_calcules
       <td>BATIMENT0000000243404073</td>
       <td>POLYGON ((2.36013 48.91242, 2.36015 48.91213, ...</td>
       <td>205215.938582</td>
+      <td>0.190433</td>
     </tr>
     <tr>
       <th>2</th>
@@ -217,6 +216,7 @@ batiments_calcules
       <td>BATIMENT0000000229477227</td>
       <td>POLYGON ((2.35275 48.94371, 2.35246 48.94377, ...</td>
       <td>6202.651070</td>
+      <td>0.017501</td>
     </tr>
     <tr>
       <th>3</th>
@@ -233,6 +233,7 @@ batiments_calcules
       <td>BATIMENT0000000002629660</td>
       <td>POLYGON ((2.34956 48.93933, 2.34964 48.93942, ...</td>
       <td>151825.278652</td>
+      <td>0.297440</td>
     </tr>
     <tr>
       <th>4</th>
@@ -249,9 +250,11 @@ batiments_calcules
       <td>BATIMENT0000000229478106</td>
       <td>POLYGON ((2.38134 48.93547, 2.38129 48.93551, ...</td>
       <td>26637.466764</td>
+      <td>0.293420</td>
     </tr>
     <tr>
       <th>...</th>
+      <td>...</td>
       <td>...</td>
       <td>...</td>
       <td>...</td>
@@ -281,6 +284,7 @@ batiments_calcules
       <td>BATIMENT0000000243407957</td>
       <td>POLYGON ((2.36258 48.9433, 2.36253 48.94327, 2...</td>
       <td>983.594895</td>
+      <td>0.331097</td>
     </tr>
     <tr>
       <th>350</th>
@@ -297,6 +301,7 @@ batiments_calcules
       <td>BATIMENT0000000243408047</td>
       <td>POLYGON ((2.36454 48.94175, 2.36454 48.94174, ...</td>
       <td>1520.148276</td>
+      <td>0.214233</td>
     </tr>
     <tr>
       <th>351</th>
@@ -313,6 +318,7 @@ batiments_calcules
       <td>BATIMENT0000000243404353</td>
       <td>POLYGON ((2.37179 48.92651, 2.37176 48.9265, 2...</td>
       <td>1053.344335</td>
+      <td>0.000000</td>
     </tr>
     <tr>
       <th>355</th>
@@ -329,6 +335,7 @@ batiments_calcules
       <td>BATIMENT0000000353683846</td>
       <td>POLYGON ((2.36253 48.90733, 2.36314 48.90729, ...</td>
       <td>37770.242428</td>
+      <td>0.617930</td>
     </tr>
     <tr>
       <th>356</th>
@@ -345,10 +352,11 @@ batiments_calcules
       <td>BATIMENT0000000353684505</td>
       <td>POLYGON ((2.37993 48.93571, 2.37987 48.93554, ...</td>
       <td>24753.723617</td>
+      <td>0.267510</td>
     </tr>
   </tbody>
 </table>
-<p>308 rows × 13 columns</p>
+<p>308 rows × 14 columns</p>
 </div>
 
 
@@ -414,5 +422,78 @@ batiments_calcules[batiments_calcules.indic2 > 0].plot.scatter( \
 
     
 ![png](verif_haut_niveau_files/verif_haut_niveau_12_1.png)
+    
+
+
+
+```python
+batiments_calcules.forme.unique()
+```
+
+
+
+
+    array(['plat', 'Npans', 'toit2pentes', 'petit_toit'], dtype=object)
+
+
+
+
+```python
+batiments_calcules.groupby('forme')
+```
+
+
+
+
+    <pandas.core.groupby.generic.DataFrameGroupBy object at 0x7726ef6b2ce0>
+
+
+
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+
+groups = batiments_calcules.groupby('forme')
+
+# Plot
+fig, ax = plt.subplots()
+ax.margins(0.05) # Optional, just adds 5% padding to the autoscaling
+for name, group in groups:
+    if name == "plat":
+        pass
+    else:
+        ax.plot(group.production, group.ratio_surface, marker='o', linestyle='', label=name)
+ax.legend()
+plt.title("Revue des ratios surfaceutile / surfacetotale en fonction des types de toits\n")
+plt.show()
+```
+
+
+    
+![png](verif_haut_niveau_files/verif_haut_niveau_15_0.png)
+    
+
+
+
+```python
+groups = batiments_calcules.groupby('forme')
+
+# Plot
+fig, ax = plt.subplots()
+ax.margins(0.05) # Optional, just adds 5% padding to the autoscaling
+for name, group in groups:
+    if name == "plat":
+        ax.plot(group.production, group.ratio_surface, marker='o', linestyle='', label=name)
+ax.legend()
+plt.title("Revue des ratios surfaceutile / surfacetotale pour les toits plats\n")
+plt.show()
+```
+
+
+    
+![png](verif_haut_niveau_files/verif_haut_niveau_16_0.png)
     
 
