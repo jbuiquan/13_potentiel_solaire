@@ -14,9 +14,15 @@ export interface EtablissementProperties {
   potentiel_solaire: number;
   protection: boolean;
 }
-export type Etablissement = Etablissements["features"][number];
 
-export type Etablissements = GeoJSON.FeatureCollection<
+export type Etablissement = EtablissementProperties & {
+  longitude: number;
+  latitude: number;
+};
+
+export type EtablissementGeojson = EtablissementsGeojson["features"][number];
+
+export type EtablissementsGeojson = GeoJSON.FeatureCollection<
   GeoJSON.Geometry,
   EtablissementProperties
 >;
