@@ -54,12 +54,11 @@ def getOmbreUnitaire(ombres_potentielles, h, i, shape_batiment, resolution=10):
     # @TODO: Rajouter plus d'heures
     heures = [12]
 
-    ombres_toit = []
     ombre_totale = []
-    for i, saison in enumerate(jours_cles):
-        for heure in heures:
+    for _, saison in enumerate(jours_cles):
+        for _ in heures:
             angle_solaire = np.radians(saisons[saison])
-            for ix, row in ombres_potentielles.iterrows():
+            for _, row in ombres_potentielles.iterrows():
                 hauteur_relative = row["hauteur"] - h
                 distance_ombre = hauteur_relative / np.tan(angle_solaire)
                 # @TODO: pourquoi hardcoder 45 ci-dessous?
@@ -76,7 +75,7 @@ def getOmbreUnitaire(ombres_potentielles, h, i, shape_batiment, resolution=10):
 
 def getOmbre(batiments_ecole, batiments_hauts):
     ombres = []
-    for ix, row in batiments_ecole.iterrows():
+    for _, row in batiments_ecole.iterrows():
         h = row["hauteur"]
         i = row["cleabs_left__bat"]
         shape_batiment = row["geometry"]
