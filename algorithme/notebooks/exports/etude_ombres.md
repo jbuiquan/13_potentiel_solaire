@@ -15,7 +15,10 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import contextily as cx
 from pathlib import Path
-
+from shapely import Polygon
+import pandas as pd
+import os, rasterio
+from rasterio.plot import show
 from potentiel_solaire.features.ombres import getBatimentsEcoles, getOmbre, getBatiments
 ```
 
@@ -175,16 +178,13 @@ def getOmbreUnitaire(ombres_potentielles, h, i, shape_batiment, resolution=10):
     for _, saison in enumerate(jours_cles):
         for heure in heures:
             X, Y = get_sun_position(POS[0], POS[1], saisons[saison], heure)
-            #print(X,Y-180)
             X = np.radians(X)
             Y = np.radians(Y-180)            
             for _, row in ombres_potentielles.iterrows():
                 hauteur_relative = row["hauteur"] - h
                 distance_ombre = hauteur_relative / np.tan(X)
-                # @TODO: pourquoi hardcoder 45 ci-dessous?
                 deplacement_x = distance_ombre * np.sin(Y)
                 deplacement_y = distance_ombre * np.cos(Y)
-
                 ombre_projetee = []
                 for r in range(resolution+1):
                     ombre_projetee.append(translate(row["geometry"], xoff=r*deplacement_x/resolution, yoff=r*deplacement_y/resolution))
@@ -232,5 +232,231 @@ fig.show()
 
     
 ![png](etude_ombres_files/etude_ombres_19_0.png)
+    
+
+
+# Exploration des ombres des arbres
+
+On commence par calibrer hauteur de la BD TOPO vs hauteur donnée dans les MNS
+
+
+```python
+batiments_ecole = batiments_ecole.to_crs(epsg=6933)
+batiments_ecole["surface_calculee"] = batiments_ecole.area
+batiments_ecole = batiments_ecole.to_crs(epsg=2154)
+batiments_pour_calibration = batiments_ecole.sort_values(by="surface_calculee",ascending=False).dropna(subset="hauteur")[["cleabs_left__bat","surface_calculee","hauteur","geometry"]]
+batiments_pour_calibration
+```
+
+
+```python
+import rasterio.mask
+from rasterio.features import shapes
+```
+
+On créé un modele de surface autour de l'école.
+
+
+```python
+geotiff_cached = "../data/cache/mns/"+ID+".masked.tif"
+
+with rasterio.open(geotiff_cached) as img:
+    out_image, out_transform = rasterio.mask.mask(img, batiments_pour_calibration[0:1].geometry, crop=True)
+    out_meta = img.meta
+offset_hauteur = batiments_pour_calibration[0:1].hauteur.iloc[0] - np.mean(out_image[np.nonzero(out_image)])
+print("* Hauteur cf data Batiment ecole:\t", batiments_pour_calibration[0:1].hauteur.iloc[0])
+print("* Hauteur cf data MNS:\t", np.mean(out_image[np.nonzero(out_image)]))
+print("* Offset:\t",offset_hauteur)
+geome = ecole_cible.geometry.total_bounds
+A = "0"+str(int(geome[0]//1000))
+B = str(int(geome[1]//1000)+1)
+tile = "/MNS-Correl_1-0__TIFF_LAMB93_D093_2024-01-01/MNS-Correl/1_DONNEES_LIVRAISON_2024-11-00179/MNS-C_0M50_TIF_LAMB93_D93-2024/93-2024-"+A+"-"+B+"-LA93-0M50.tif"
+path = DATA_FOLDER / tile
+with rasterio.open("../data/"+str(path)) as img:
+    out_image, out_transform = rasterio.mask.mask(img, ecole_cible.geometry, crop=True)
+    out_meta = img.meta
+
+out_meta.update({"driver": "GTiff",
+                "height": out_image.shape[1],
+                "width": out_image.shape[2],
+                "transform": out_transform})
+
+with rasterio.open("../data/cache/mns/"+ID+".masked.tif", "w", **out_meta) as dest:
+    dest.write(out_image)
+
+with rasterio.open("../data/cache/mns/"+ID+".masked.tif") as img:
+    out_image, out_transform = rasterio.mask.mask(img, batiments_ecole.geometry, invert=True)
+    out_meta = img.meta
+out_image = out_image + offset_hauteur
+hmin = batiments_pour_calibration.hauteur.min()
+out_image = np.where(out_image<hmin*1.05, 0, out_image)
+
+# Essayons d'avoir 3 couches de hauteur
+steps = 3
+processed = out_image - hmin
+hmax = np.max(processed)
+G = hmax/steps
+OUT = (((processed+G+1)//G)*G)-G+hmin
+OUT = np.where(OUT<0, 0, OUT)
+plt.imshow(OUT[0])
+
+out_meta.update({"driver": "GTiff",
+                "height": OUT.shape[1],
+                "width": OUT.shape[2],
+                "transform": out_transform})
+
+with rasterio.open("../data/cache/mns/"+ID+".nobats_masked.tif", "w", **out_meta) as dest:
+    dest.write(OUT)
+
+with rasterio.open("../data/cache/mns/"+ID+".nobats_masked.tif") as src:
+    image = src.read(1)
+    imgtoshow = src.read()
+
+img_arbres = rasterio.open("../data/cache/mns/"+ID+".nobats_masked.tif")
+```
+
+    * Hauteur cf data Batiment ecole:	 7.9
+    * Hauteur cf data MNS:	 41.835487
+    * Offset:	 -33.93548736572266
+
+
+
+    
+![png](etude_ombres_files/etude_ombres_25_1.png)
+    
+
+
+On créée ensuite les formes des arbres
+
+
+```python
+ombres_mns = []
+mask = image != 0
+results = (
+            {'properties': {'raster_val': v}, 'geometry': s}
+            for i, (s, v)
+            in enumerate(
+                shapes(image, mask=mask, transform=src.transform)))
+for x in results:
+    #print(x)
+    ombres_mns.append([x["properties"]["raster_val"], Polygon(x["geometry"]["coordinates"][0]) ])
+df = pd.DataFrame(ombres_mns,columns = ["hauteur","geometry"])
+gdf = gpd.GeoDataFrame(df,geometry="geometry",crs = ecole_cible.crs)
+gdf
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>hauteur</th>
+      <th>geometry</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3.900000</td>
+      <td>POLYGON ((654060 6870709, 654060 6870708.5, 65...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>10.701257</td>
+      <td>POLYGON ((654058.5 6870708.5, 654058.5 6870708...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10.701257</td>
+      <td>POLYGON ((654060.5 6870708.5, 654060.5 6870708...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.900000</td>
+      <td>POLYGON ((654061 6870708.5, 654061 6870708, 65...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10.701257</td>
+      <td>POLYGON ((654062.5 6870708, 654062.5 6870707.5...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>337</th>
+      <td>17.502514</td>
+      <td>POLYGON ((654156.5 6870607, 654156.5 6870605.5...</td>
+    </tr>
+    <tr>
+      <th>338</th>
+      <td>10.701257</td>
+      <td>POLYGON ((654153 6870613, 654153 6870612.5, 65...</td>
+    </tr>
+    <tr>
+      <th>339</th>
+      <td>3.900000</td>
+      <td>POLYGON ((654169 6870602, 654169 6870601.5, 65...</td>
+    </tr>
+    <tr>
+      <th>340</th>
+      <td>3.900000</td>
+      <td>POLYGON ((654179 6870610.5, 654179 6870610, 65...</td>
+    </tr>
+    <tr>
+      <th>341</th>
+      <td>10.701257</td>
+      <td>POLYGON ((654192.5 6870626, 654192.5 6870625.5...</td>
+    </tr>
+  </tbody>
+</table>
+<p>342 rows × 2 columns</p>
+</div>
+
+
+
+On réutilise ici la fonction 'getOmbre' avant en passant plutot la forme des arbres (plutot que des batiments)
+
+
+```python
+ombres_bis = getOmbre(batiments_ecole, gdf)
+```
+
+
+```python
+# Et on représente les ombres
+fig, ax = plt.subplots(figsize=(15,5))
+ecole_cible.plot(ax=ax, alpha=0.2, color ="green", edgecolor='yellow')
+cx.add_basemap(ax, crs=ecole_cible.crs, source=cx.providers.GeoportailFrance.orthos )
+show(img_arbres, ax=ax, alpha=0.7)
+batiments_ecole.plot(ax=ax, alpha=0.6, linewidth=1,facecolor="none", edgecolor='red', label="batiments")
+batiments_ecole.plot(ax=ax, alpha=0.8,column="hauteur",legend=True,figsize=(15,5),cmap="RdBu_r")
+ombres.plot(ax=ax, alpha=0.9, color ="black")
+ombres_bis.plot(ax=ax, alpha=0.9, color ="grey")
+ax.set_title("Ombres des batiments (en noir) et des arbres (en gris) sur les batiments (échelle en mètres)\nEcole ID: "+ID+"\n") 
+fig.show()
+```
+
+
+    
+![png](etude_ombres_files/etude_ombres_30_0.png)
     
 
