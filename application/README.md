@@ -53,7 +53,24 @@ node -v # Doit afficher "v22.14.0".
 npm -v # Doit afficher "10.9.2".
 ```
 
-La version doit être supérieure à la version 18.18 ([version minimum requise](https://nextjs.org/docs/app/getting-started/installation#system-requirements)), il est conseillé d'utiliser une version LTS (Long Term Support).
+Pour windows, il faudra ajouter les variables d'environnement pour pouvoir utiliser node après avoir ouvert un nouveau terminal.
+
+```powershell
+# Vérifier la version de Node.js :
+node -v # Affichera une erreur car Node n'est pas reconnu
+
+fnm env --use-on-cd
+# Vérifier la version de Node.js :
+node -v # Doit afficher "v22.14.0".
+```
+
+Pour éviter d'avoir à jouer cette commande à chaque fois, on peut l'ajouter au fichier de profil du terminal.
+
+> Cela se produit parce que fnm doit modifier votre PATH de manière dynamique lors du changement de version de Node. Définir un PATH statique dans les variables d'environnement de Windows ne suffit pas.
+
+Il existe différentes façon de faire selon le terminal utilisé (voir [shell setup](https://github.com/Schniz/fnm?tab=readme-ov-file#shell-setup)).
+
+La version de `Node` doit être supérieure à la version 18.18 ([version minimum requise](https://nextjs.org/docs/app/getting-started/installation#system-requirements)), il est conseillé d'utiliser une version LTS (Long Term Support).
 
 Les exemples seront données avec `npm` mais d'autres gestionnaire de paquets pourraient être utilisés (`yarn` / `pnpm`).
 
