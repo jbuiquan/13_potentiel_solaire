@@ -7,6 +7,10 @@
 %autoreload 2
 ```
 
+    The autoreload extension is already loaded. To reload it, use:
+      %reload_ext autoreload
+
+
 ### Imports
 
 
@@ -20,6 +24,8 @@ import pandas as pd
 import os, rasterio
 from rasterio.plot import show
 from potentiel_solaire.features.ombres import getBatimentsEcoles, getOmbre, getBatiments
+from potentiel_solaire.features.ombres import get_sun_position
+import numpy as np
 ```
 
 
@@ -33,10 +39,12 @@ warnings.filterwarnings('ignore')
 # Executer ci dessous ci besoin pour récupérer les données
 # !extract-sample-data
 # Et pour sauver une version markdown des notebooks, utiliser
-# jupyter nbconvert donnees_par_ecole.ipynb --to markdown --output-dir=exports/
+# jupyter nbconvert etude_ombres.ipynb --to markdown --output-dir=exports/
 ```
 
 ### Chargement des Bâtiments et Zones Éducatives
+
+### Pour St Denis
 
 
 ```python
@@ -48,7 +56,15 @@ ecoles = gpd.read_file(saint_denis_path, layer="bdtopo_education").to_crs(2154)
 batiments = gpd.read_file(saint_denis_path, layer="bdtopo_batiment").to_crs(2154)
 ```
 
-# Création des ombres
+### Batiments non écoles
+
+
+```python
+tous_batiments = DATA_FOLDER / "BDTOPO_3-4_TOUSTHEMES_GPKG_LAMB93_D093_2024-12-15/BDTOPO/1_DONNEES_LIVRAISON_2024-12-00134/BDT_3-4_GPKG_LAMB93_D093-ED2024-12-15/BDT_3-4_GPKG_LAMB93_D093-ED2024-12-15.gpkg"
+
+```
+
+# Création des ombres sur différents jours pour la couche bâtiments
 
 
 ```python
@@ -65,85 +81,7 @@ ID = "SURFACTI0000000002555648"
 
 
 ```python
-# Capture des batiments proches
-batiments_ecole, ecole_cible, zone = getBatimentsEcoles(ID, ecoles, batiments)
-batiments_proches = getBatiments(ID, ecoles, batiments, rayon = 100)
-# Et on créé les ombres
-ombres = getOmbre(batiments_ecole, batiments_proches)
-```
-
-
-```python
-# Et on représente les ombres
-fig, ax = plt.subplots(figsize=(15,5))
-ecole_cible.plot(ax=ax, alpha=0.2, color ="green", edgecolor='yellow')
-batiments_ecole.plot(ax=ax, alpha=0.6, linewidth=1,facecolor="none", edgecolor='red', label="batiments")
-batiments_ecole.plot(ax=ax, alpha=0.5,column="hauteur",legend=True,figsize=(15,5),cmap="RdBu_r")
-ombres.plot(ax=ax, alpha=0.9, color ="black")
-ax.set_title("Ombres portées (en noir) sur les batiments (echelle en mètres)\nEcole ID: "+ID+"\n") 
-cx.add_basemap(ax, crs=ecole_cible.crs, source=cx.providers.GeoportailFrance.orthos )
-fig.show()
-```
-
-
-    
-![png](etude_ombres_files/etude_ombres_12_0.png)
-    
-
-
-# Essayons maintenant avec une date heure
-
-
-```python
-import ephem
-from datetime import datetime
-import math
-
-def get_sun_position(latitude, longitude, date, hour):
-    """
-    Calculate sun's position (altitude and azimuth) for given coordinates, date and hour
-    
-    Args:
-        latitude (float): Latitude in degrees (-90 to 90)
-        longitude (float): Longitude in degrees (-180 to 180)
-        date (str): Date in format 'YYYY-MM-DD'
-        hour (int): Hour of the day (0-23)
-    
-    Returns:
-        tuple: (altitude in degrees, azimuth in degrees)
-    """
-    # Create observer object
-    observer = ephem.Observer()
-    observer.lat = str(latitude)
-    observer.lon = str(longitude)
-    
-    # Parse the date string and set the specified hour
-    specified_date = datetime.strptime(date, '%Y-%m-%d')
-    specified_date = specified_date.replace(hour=hour, minute=0, second=0)
-    observer.date = specified_date
-    
-    # Calculate sun's position
-    sun = ephem.Sun()
-    sun.compute(observer)
-    
-    # Convert altitude and azimuth to degrees
-    altitude = math.degrees(sun.alt)
-    azimuth = math.degrees(sun.az)
-    
-    return altitude, azimuth
-```
-
-
-```python
-import geopandas as gpd
-from shapely.affinity import translate
-from shapely.ops import unary_union
-from shapely import intersection
-import numpy as np
-```
-
-
-```python
+# Test de l'angle du soleil à une certaine position, date et heure
 a, b= get_sun_position(42, 3, "2024-06-21", 12)
 a,b 
 ```
@@ -157,81 +95,48 @@ a,b
 
 
 ```python
-
-def getOmbreUnitaire(ombres_potentielles, h, i, shape_batiment, resolution=10):
-    # @TODO: Docstring à écrire
-    saisons = {
-        "hiver": "2024-12-21",       # Soleil bas en hiver (21 décembre)
-        "printemps": "2024-03-21",   # Équinoxe (21 mars)
-        "été": "2024-06-21",         # Soleil haut en été (21 juin)
-        "automne": "2024-09-21"      # Équinoxe (21 septembre)
-    }
-
-    jours_cles = list(saisons.keys())
-
-    # Heures à considérer
-    heures = [10,12,14,16]
-    # @TODO à tweaker
-    POS = [43,2]
-    
-    ombre_totale = []
-    for _, saison in enumerate(jours_cles):
-        for heure in heures:
-            X, Y = get_sun_position(POS[0], POS[1], saisons[saison], heure)
-            X = np.radians(X)
-            Y = np.radians(Y-180)            
-            for _, row in ombres_potentielles.iterrows():
-                hauteur_relative = row["hauteur"] - h
-                distance_ombre = hauteur_relative / np.tan(X)
-                deplacement_x = distance_ombre * np.sin(Y)
-                deplacement_y = distance_ombre * np.cos(Y)
-                ombre_projetee = []
-                for r in range(resolution+1):
-                    ombre_projetee.append(translate(row["geometry"], xoff=r*deplacement_x/resolution, yoff=r*deplacement_y/resolution))
-                ombre_projetee = unary_union(ombre_projetee)
-                ombrage = intersection(ombre_projetee,shape_batiment) # ombre_projetee shape_batiment
-                ombre_totale.append(ombrage)
-    ombre_totale = unary_union(ombre_totale)
-    return ombre_totale
-
-def getOmbre(batiments_ecole, batiments_hauts):
-    ombres = []
-    for _, row in batiments_ecole.iterrows():
-        h = row["hauteur"]
-        i = row["cleabs_left__bat"]
-        shape_batiment = row["geometry"]
-        ombres_potentielles = batiments_hauts[(batiments_hauts.hauteur > h)]
-        ombres_potentielles_shapes = getOmbreUnitaire(ombres_potentielles, h, i, shape_batiment,resolution=10)
-        if not ombres_potentielles_shapes.is_empty:
-            ombres.append(ombres_potentielles_shapes)
-    ombres = unary_union(ombres)
-    ombres = gpd.GeoDataFrame(geometry=[ombres], crs=2154)
-    ombres["geometries"] = ombres.apply(lambda x: [g for g in x.geometry.geoms], axis=1)
-    ombres = ombres.explode(column="geometries").drop(columns="geometry").set_geometry("geometries").rename_geometry("geometry").reset_index(drop=True)
-    return ombres
+# Capture des batiments proches
+batiments_ecole, ecole_cible, zone = getBatimentsEcoles(ID, ecoles, batiments)
+batiments_proches = getBatiments(ID, ecoles, batiments, rayon = 100)
+# Et on créé les ombres
 ```
 
 
 ```python
-ombres = getOmbre(batiments_ecole, batiments_proches)
+zone = ecoles[ecoles.cleabs_left == ID]["geometry"].iloc[0]
+buffer_en_m = 50
+# Passage en mètres
+zone_with_buffer = ecoles[ecoles.cleabs_left == ID].to_crs(epsg=6933)
+# Add buffer de 100m
+zone_with_buffer = zone_with_buffer.buffer(buffer_en_m) 
+# Repassage en Lamb93
+zone_with_buffer = zone_with_buffer.to_crs(epsg=2154)
+```
+
+
+```python
+bats = gpd.read_file(tous_batiments, layer="batiment", mask=zone_with_buffer).clip(zone_with_buffer)
+bats = bats.to_crs(2154)
+ombres = getOmbre(batiments_ecole, bats)
 ```
 
 
 ```python
 # Et on représente les ombres
 fig, ax = plt.subplots(figsize=(15,5))
-ecole_cible.plot(ax=ax, alpha=0.2, color ="green", edgecolor='yellow')
+zone_with_buffer.plot(ax=ax, alpha=0.2, color ="pink", edgecolor='yellow')
 batiments_ecole.plot(ax=ax, alpha=0.6, linewidth=1,facecolor="none", edgecolor='red', label="batiments")
-batiments_ecole.plot(ax=ax, alpha=0.8,column="hauteur",legend=True,figsize=(15,5),cmap="RdBu_r")
+bats.plot(ax=ax, alpha=1, color="darkgreen",figsize=(15,5))
+batiments_ecole.plot(ax=ax, alpha=0.9,column="hauteur",legend=True,figsize=(15,5),cmap="RdBu_r")
 ombres.plot(ax=ax, alpha=0.9, color ="black")
-ax.set_title("Ombres portées (en noir) sur les batiments (échelle en mètres)\nEcole ID: "+ID+"\n") 
+ax.set_title("Ombres portées (en noir) sur les batiments (echelle en mètres)\nEcole ID: "+ID+"\nBuffer de "+str(buffer_en_m)+"m autour de l'école.") 
 cx.add_basemap(ax, crs=ecole_cible.crs, source=cx.providers.GeoportailFrance.orthos )
 fig.show()
 ```
 
 
     
-![png](etude_ombres_files/etude_ombres_19_0.png)
+![png](etude_ombres_files/etude_ombres_18_0.png)
     
 
 
@@ -247,6 +152,117 @@ batiments_ecole = batiments_ecole.to_crs(epsg=2154)
 batiments_pour_calibration = batiments_ecole.sort_values(by="surface_calculee",ascending=False).dropna(subset="hauteur")[["cleabs_left__bat","surface_calculee","hauteur","geometry"]]
 batiments_pour_calibration
 ```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cleabs_left__bat</th>
+      <th>surface_calculee</th>
+      <th>hauteur</th>
+      <th>geometry</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>311</th>
+      <td>BATIMENT0000000243405818</td>
+      <td>873.041977</td>
+      <td>7.9</td>
+      <td>MULTIPOLYGON Z (((654073.9 6870662.9 41.9, 654...</td>
+    </tr>
+    <tr>
+      <th>314</th>
+      <td>BATIMENT0000000243405819</td>
+      <td>648.349874</td>
+      <td>10.8</td>
+      <td>MULTIPOLYGON Z (((654073.9 6870662.9 44.8, 654...</td>
+    </tr>
+    <tr>
+      <th>310</th>
+      <td>BATIMENT0000000243405820</td>
+      <td>513.156502</td>
+      <td>11.6</td>
+      <td>MULTIPOLYGON Z (((654145.9 6870646.6 45.6, 654...</td>
+    </tr>
+    <tr>
+      <th>317</th>
+      <td>BATIMENT0000000243405828</td>
+      <td>145.074444</td>
+      <td>6.3</td>
+      <td>MULTIPOLYGON Z (((654115.2 6870679.2 40.4, 654...</td>
+    </tr>
+    <tr>
+      <th>312</th>
+      <td>BATIMENT0000000243405821</td>
+      <td>133.133387</td>
+      <td>6.4</td>
+      <td>MULTIPOLYGON Z (((654175.6 6870657.5 40.4, 654...</td>
+    </tr>
+    <tr>
+      <th>320</th>
+      <td>BATIMENT0000000243405871</td>
+      <td>60.140987</td>
+      <td>6.8</td>
+      <td>MULTIPOLYGON Z (((654049.3 6870706.9 -1000, 65...</td>
+    </tr>
+    <tr>
+      <th>313</th>
+      <td>BATIMENT0000000243405822</td>
+      <td>36.643521</td>
+      <td>4.1</td>
+      <td>MULTIPOLYGON Z (((654180.8 6870656.7 38.1, 654...</td>
+    </tr>
+    <tr>
+      <th>319</th>
+      <td>BATIMENT0000000243405823</td>
+      <td>34.888313</td>
+      <td>4.5</td>
+      <td>MULTIPOLYGON Z (((654047.4 6870687.2 38.5, 654...</td>
+    </tr>
+    <tr>
+      <th>315</th>
+      <td>BATIMENT0000000243405817</td>
+      <td>27.927746</td>
+      <td>3.9</td>
+      <td>MULTIPOLYGON Z (((654107.6 6870672.5 37.9, 654...</td>
+    </tr>
+    <tr>
+      <th>318</th>
+      <td>BATIMENT0000000243405826</td>
+      <td>12.541251</td>
+      <td>6.3</td>
+      <td>MULTIPOLYGON Z (((654115.4 6870680.3 40.4, 654...</td>
+    </tr>
+    <tr>
+      <th>316</th>
+      <td>BATIMENT0000000243405827</td>
+      <td>5.230522</td>
+      <td>6.2</td>
+      <td>MULTIPOLYGON Z (((654115.2 6870679.2 40.3, 654...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
 
 
 ```python
@@ -322,7 +338,7 @@ img_arbres = rasterio.open("../data/cache/mns/"+ID+".nobats_masked.tif")
 
 
     
-![png](etude_ombres_files/etude_ombres_25_1.png)
+![png](etude_ombres_files/etude_ombres_24_1.png)
     
 
 
@@ -444,19 +460,22 @@ ombres_bis = getOmbre(batiments_ecole, gdf)
 ```python
 # Et on représente les ombres
 fig, ax = plt.subplots(figsize=(15,5))
-ecole_cible.plot(ax=ax, alpha=0.2, color ="green", edgecolor='yellow')
+zone_with_buffer.plot(ax=ax, alpha=0.2, color ="pink", edgecolor='yellow')
 cx.add_basemap(ax, crs=ecole_cible.crs, source=cx.providers.GeoportailFrance.orthos )
 show(img_arbres, ax=ax, alpha=0.7)
-batiments_ecole.plot(ax=ax, alpha=0.6, linewidth=1,facecolor="none", edgecolor='red', label="batiments")
-batiments_ecole.plot(ax=ax, alpha=0.8,column="hauteur",legend=True,figsize=(15,5),cmap="RdBu_r")
-ombres.plot(ax=ax, alpha=0.9, color ="black")
+
+bats.plot(ax=ax, alpha=1, color="darkgreen", label="batiments non ecole")
+batiments_ecole.plot(ax=ax, alpha=0.6, linewidth=1,facecolor="orange", edgecolor='orange', label="batiments ecole")
+
 ombres_bis.plot(ax=ax, alpha=0.9, color ="grey")
-ax.set_title("Ombres des batiments (en noir) et des arbres (en gris) sur les batiments (échelle en mètres)\nEcole ID: "+ID+"\n") 
+ombres.plot(ax=ax, alpha=0.9, color ="black")
+
+ax.set_title("Ombres des batiments (en noir) et des arbres (en gris) sur les batiments (échelle en mètres)\nEcole ID: "+ID+"\nBuffer de "+str(buffer_en_m)+"m autour de l'école.") 
 fig.show()
 ```
 
 
     
-![png](etude_ombres_files/etude_ombres_30_0.png)
+![png](etude_ombres_files/etude_ombres_29_0.png)
     
 
