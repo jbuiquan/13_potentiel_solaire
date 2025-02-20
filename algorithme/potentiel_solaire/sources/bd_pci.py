@@ -26,7 +26,7 @@ def get_urls_for_bd_pci_shp(
 
     href_elements = [element.get("href") for element in soup.find_all("a") if element.get("href")]
 
-    shp_regex = rf"https?://.*PARCELLAIRE-EXPRESS.*SHP_LAMB93_D[A-Za-z0-9]{{3}}_{date}.*\.7z"
+    shp_regex = rf"https?://.*PARCELLAIRE.*SHP_.*_D[A-Za-z0-9]{{3}}_{date}.*\.7z"
 
     return [href_element for href_element in href_elements if re.search(shp_regex, href_element)]
 
