@@ -215,7 +215,7 @@ with MemoryFile(imgEcole) as memfile:
     
 
 
-# Fichier statique
+# Potentiel solaire: Fichier statique
 
 
 ```python
@@ -229,323 +229,32 @@ batiments_ecole2 = batiments_ecole.copy()
 geo = batiments_ecole.to_crs(epsg=6933).buffer(2000) 
 batiments_ecole2["geometry"] = geo
 batiments_ecole2 = batiments_ecole2.to_crs(epsg=4326)
-batiments_ecole2
 ```
 
+## Verifier à l'échelle de la France
+
+
+```python
+
+tile = "/ENR_1-0_IRR-SOL_TIFF_WGS84G_FXX_2023-10-01/1_DONNEES_LIVRAISON/GlobalHorizontalIrradiation.tif"
+path = DATA_FOLDER / tile
+with rasterio.open("../data/"+str(path)) as img:
+    print(img.crs)
+    show(img)
+    #out_image, out_transform = rasterio.mask.mask(img, zone.geometry, crop=True)
+    #out_image, out_transform = rasterio.mask.mask(img, batiments_ecole.geometry, crop=True)
+    #out_meta = img.meta
+    #out_image = img.read()
+    
+```
+
+    EPSG:4326
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>cleabs_left__bat</th>
-      <th>nature__bat</th>
-      <th>usage_1</th>
-      <th>usage_2</th>
-      <th>construction_legere</th>
-      <th>etat_de_l_objet__bat</th>
-      <th>date_creation_left__bat</th>
-      <th>date_modification_left__bat</th>
-      <th>date_d_apparition_left__bat</th>
-      <th>date_de_confirmation_left__bat</th>
-      <th>...</th>
-      <th>chef_lieu_de_departement__zone</th>
-      <th>chef_lieu_de_region__zone</th>
-      <th>capitale_d_etat__zone</th>
-      <th>date_du_recensement__zone</th>
-      <th>organisme_recenseur__zone</th>
-      <th>codes_siren_des_epci__zone</th>
-      <th>lien_vers_chef_lieu__zone</th>
-      <th>liens_vers_autorite_administrative__zone</th>
-      <th>code_siren__zone</th>
-      <th>geometry</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>310</th>
-      <td>BATIMENT0000000243405820</td>
-      <td>Indifférenciée</td>
-      <td>Commercial et services</td>
-      <td>None</td>
-      <td>False</td>
-      <td>En service</td>
-      <td>2010-09-06 11:57:20.197</td>
-      <td>2019-01-09 13:12:02.057</td>
-      <td>None</td>
-      <td>NaT</td>
-      <td>...</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-      <td>2021-01-01</td>
-      <td>INSEE</td>
-      <td>200054781/200057867</td>
-      <td>PAIHABIT0000000002597636</td>
-      <td>SURFACTI0000000002556769</td>
-      <td>219300662</td>
-      <td>POLYGON ((2.3546 48.94213, 2.35463 48.9422, 2....</td>
-    </tr>
-    <tr>
-      <th>311</th>
-      <td>BATIMENT0000000243405818</td>
-      <td>Indifférenciée</td>
-      <td>Commercial et services</td>
-      <td>None</td>
-      <td>False</td>
-      <td>En service</td>
-      <td>2010-09-06 11:57:20.197</td>
-      <td>2019-01-09 13:12:02.057</td>
-      <td>None</td>
-      <td>NaT</td>
-      <td>...</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-      <td>2021-01-01</td>
-      <td>INSEE</td>
-      <td>200054781/200057867</td>
-      <td>PAIHABIT0000000002597636</td>
-      <td>SURFACTI0000000002556769</td>
-      <td>219300662</td>
-      <td>POLYGON ((2.35242 48.93476, 2.35242 48.93484, ...</td>
-    </tr>
-    <tr>
-      <th>312</th>
-      <td>BATIMENT0000000243405821</td>
-      <td>Indifférenciée</td>
-      <td>Commercial et services</td>
-      <td>None</td>
-      <td>False</td>
-      <td>En service</td>
-      <td>2010-09-06 11:57:20.197</td>
-      <td>2019-01-09 13:12:02.057</td>
-      <td>None</td>
-      <td>NaT</td>
-      <td>...</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-      <td>2021-01-01</td>
-      <td>INSEE</td>
-      <td>200054781/200057867</td>
-      <td>PAIHABIT0000000002597636</td>
-      <td>SURFACTI0000000002556769</td>
-      <td>219300662</td>
-      <td>POLYGON ((2.38476 48.95484, 2.38553 48.95435, ...</td>
-    </tr>
-    <tr>
-      <th>313</th>
-      <td>BATIMENT0000000243405822</td>
-      <td>Indifférenciée</td>
-      <td>Commercial et services</td>
-      <td>None</td>
-      <td>False</td>
-      <td>En service</td>
-      <td>2010-09-06 11:57:20.197</td>
-      <td>2019-01-09 13:12:02.057</td>
-      <td>None</td>
-      <td>NaT</td>
-      <td>...</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-      <td>2021-01-01</td>
-      <td>INSEE</td>
-      <td>200054781/200057867</td>
-      <td>PAIHABIT0000000002597636</td>
-      <td>SURFACTI0000000002556769</td>
-      <td>219300662</td>
-      <td>POLYGON ((2.37807 48.91091, 2.37806 48.91091, ...</td>
-    </tr>
-    <tr>
-      <th>314</th>
-      <td>BATIMENT0000000243405819</td>
-      <td>Indifférenciée</td>
-      <td>Commercial et services</td>
-      <td>None</td>
-      <td>False</td>
-      <td>En service</td>
-      <td>2010-09-06 11:57:20.197</td>
-      <td>2019-01-09 13:12:02.057</td>
-      <td>None</td>
-      <td>NaT</td>
-      <td>...</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-      <td>2021-01-01</td>
-      <td>INSEE</td>
-      <td>200054781/200057867</td>
-      <td>PAIHABIT0000000002597636</td>
-      <td>SURFACTI0000000002556769</td>
-      <td>219300662</td>
-      <td>POLYGON ((2.3728 48.91063, 2.37265 48.91063, 2...</td>
-    </tr>
-    <tr>
-      <th>315</th>
-      <td>BATIMENT0000000243405817</td>
-      <td>Indifférenciée</td>
-      <td>Commercial et services</td>
-      <td>None</td>
-      <td>False</td>
-      <td>En service</td>
-      <td>2010-09-06 11:57:20.197</td>
-      <td>2019-01-09 13:12:02.057</td>
-      <td>None</td>
-      <td>NaT</td>
-      <td>...</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-      <td>2021-01-01</td>
-      <td>INSEE</td>
-      <td>200054781/200057867</td>
-      <td>PAIHABIT0000000002597636</td>
-      <td>SURFACTI0000000002556769</td>
-      <td>219300662</td>
-      <td>POLYGON ((2.35375 48.94122, 2.35375 48.94123, ...</td>
-    </tr>
-    <tr>
-      <th>316</th>
-      <td>BATIMENT0000000243405827</td>
-      <td>Indifférenciée</td>
-      <td>Commercial et services</td>
-      <td>None</td>
-      <td>False</td>
-      <td>En service</td>
-      <td>2010-09-06 11:57:20.197</td>
-      <td>2019-01-09 13:12:02.057</td>
-      <td>None</td>
-      <td>NaT</td>
-      <td>...</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-      <td>2021-01-01</td>
-      <td>INSEE</td>
-      <td>200054781/200057867</td>
-      <td>PAIHABIT0000000002597636</td>
-      <td>SURFACTI0000000002556769</td>
-      <td>219300662</td>
-      <td>POLYGON ((2.37598 48.958, 2.37602 48.95799, 2....</td>
-    </tr>
-    <tr>
-      <th>317</th>
-      <td>BATIMENT0000000243405828</td>
-      <td>Indifférenciée</td>
-      <td>Commercial et services</td>
-      <td>None</td>
-      <td>False</td>
-      <td>En service</td>
-      <td>2010-09-06 11:57:20.197</td>
-      <td>2019-01-09 13:12:02.057</td>
-      <td>None</td>
-      <td>NaT</td>
-      <td>...</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-      <td>2021-01-01</td>
-      <td>INSEE</td>
-      <td>200054781/200057867</td>
-      <td>PAIHABIT0000000002597636</td>
-      <td>SURFACTI0000000002556769</td>
-      <td>219300662</td>
-      <td>POLYGON ((2.35779 48.91927, 2.35775 48.91932, ...</td>
-    </tr>
-    <tr>
-      <th>318</th>
-      <td>BATIMENT0000000243405826</td>
-      <td>Indifférenciée</td>
-      <td>Commercial et services</td>
-      <td>None</td>
-      <td>False</td>
-      <td>En service</td>
-      <td>2010-09-06 11:57:20.197</td>
-      <td>2019-01-09 13:12:02.057</td>
-      <td>None</td>
-      <td>NaT</td>
-      <td>...</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-      <td>2021-01-01</td>
-      <td>INSEE</td>
-      <td>200054781/200057867</td>
-      <td>PAIHABIT0000000002597636</td>
-      <td>SURFACTI0000000002556769</td>
-      <td>219300662</td>
-      <td>POLYGON ((2.37142 48.91093, 2.37138 48.91093, ...</td>
-    </tr>
-    <tr>
-      <th>319</th>
-      <td>BATIMENT0000000243405823</td>
-      <td>Indifférenciée</td>
-      <td>Commercial et services</td>
-      <td>None</td>
-      <td>False</td>
-      <td>En service</td>
-      <td>2010-09-06 11:57:20.197</td>
-      <td>2019-01-09 13:12:02.057</td>
-      <td>None</td>
-      <td>NaT</td>
-      <td>...</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-      <td>2021-01-01</td>
-      <td>INSEE</td>
-      <td>200054781/200057867</td>
-      <td>PAIHABIT0000000002597636</td>
-      <td>SURFACTI0000000002556769</td>
-      <td>219300662</td>
-      <td>POLYGON ((2.3531 48.94199, 2.35311 48.94201, 2...</td>
-    </tr>
-    <tr>
-      <th>320</th>
-      <td>BATIMENT0000000243405871</td>
-      <td>Indifférenciée</td>
-      <td>Commercial et services</td>
-      <td>None</td>
-      <td>False</td>
-      <td>En service</td>
-      <td>2010-09-06 11:57:20.197</td>
-      <td>2022-07-30 23:16:38.938</td>
-      <td>None</td>
-      <td>NaT</td>
-      <td>...</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-      <td>2021-01-01</td>
-      <td>INSEE</td>
-      <td>200054781/200057867</td>
-      <td>PAIHABIT0000000002597636</td>
-      <td>SURFACTI0000000002556769</td>
-      <td>219300662</td>
-      <td>POLYGON ((2.39086 48.94631, 2.39088 48.94628, ...</td>
-    </tr>
-  </tbody>
-</table>
-<p>11 rows × 101 columns</p>
-</div>
-
+    
+![png](wms_potentiel_solaire_files/wms_potentiel_solaire_23_1.png)
+    
 
 
 
@@ -575,32 +284,224 @@ Potentiel moyen
 
 
 ```python
-show(out_image)
+out_image[np.isnan(out_image)] = 0
+avg = np.mean(out_image[out_image > 100])
+print("Ensoleillement moyen:",avg,"kWh/m2/an")
+```
+
+    Ensoleillement moyen: 1141.3536 kWh/m2/an
+
+
+# Assemblage pour une école
+
+
+```python
+def surface_utile(surfacetotale):
+    if surfacetotale < 500:
+        ratio = 0.4*surfacetotale/5000+0.2
+        if surfacetotale > 100:
+            return ratio*surfacetotale
+    else:
+        return surfacetotale*0.6
+    return 0
+        
 ```
 
 
-    
-![png](wms_potentiel_solaire_files/wms_potentiel_solaire_24_0.png)
-    
+```python
+src = DATA_FOLDER / "saint_denis_reference_data.gpkg"
+potentiel = gpd.read_file(src, layer="potentielsolaire_toitures")
+potentiel_ecole = potentiel[potentiel.id.isin(batiments_ecole.cleabs_left__bat)]
+```
+
+
+```python
+# hypothese
+rendement = 0.1
+```
+
+
+```python
+potentiel_ecole = potentiel_ecole[["id",'st_areashape',"eq_pano","eq_surf",'surf_util','moyenne2','production',"geometry",'st_lengthshape']]
+potentiel_ecole["surf_utile_calculee"] = potentiel_ecole['st_areashape'].apply(lambda x: surface_utile(x) )
+potentiel_ecole["production_calculee"] = avg*potentiel_ecole["surf_utile_calculee"]*rendement
+potentiel_ecole["fit"] = potentiel_ecole.production_calculee / potentiel_ecole.production
+potentiel_ecole["IRR"] = avg 
+potentiel_ecole[["id",'surf_util',"surf_utile_calculee","moyenne2",'IRR','production','production_calculee',"fit"]]
+```
 
 
 
 
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-    <Axes: >
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>surf_util</th>
+      <th>surf_utile_calculee</th>
+      <th>moyenne2</th>
+      <th>IRR</th>
+      <th>production</th>
+      <th>production_calculee</th>
+      <th>fit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>155</th>
+      <td>BATIMENT0000000243405820</td>
+      <td>276.75</td>
+      <td>307.863000</td>
+      <td>1235.103759</td>
+      <td>1141.353638</td>
+      <td>31146.179638</td>
+      <td>35138.055496</td>
+      <td>1.128166</td>
+    </tr>
+    <tr>
+      <th>157</th>
+      <td>BATIMENT0000000243405817</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>1141.353638</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>158</th>
+      <td>BATIMENT0000000243405818</td>
+      <td>605.25</td>
+      <td>523.773000</td>
+      <td>1211.635309</td>
+      <td>1141.353638</td>
+      <td>66822.147713</td>
+      <td>59781.021888</td>
+      <td>0.894629</td>
+    </tr>
+    <tr>
+      <th>159</th>
+      <td>BATIMENT0000000243405827</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>1141.353638</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>160</th>
+      <td>BATIMENT0000000243405819</td>
+      <td>321.75</td>
+      <td>388.971000</td>
+      <td>1200.143661</td>
+      <td>1141.353638</td>
+      <td>35185.643833</td>
+      <td>44395.346581</td>
+      <td>1.261746</td>
+    </tr>
+    <tr>
+      <th>161</th>
+      <td>BATIMENT0000000243405821</td>
+      <td>2.25</td>
+      <td>28.041675</td>
+      <td>NaN</td>
+      <td>1141.353638</td>
+      <td>0.000000</td>
+      <td>3200.546749</td>
+      <td>inf</td>
+    </tr>
+    <tr>
+      <th>162</th>
+      <td>BATIMENT0000000243405822</td>
+      <td>2.25</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>1141.353638</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>163</th>
+      <td>BATIMENT0000000243405823</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>1141.353638</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>164</th>
+      <td>BATIMENT0000000243405826</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>1141.353638</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>256</th>
+      <td>BATIMENT0000000243405828</td>
+      <td>42.75</td>
+      <td>30.695392</td>
+      <td>1066.866717</td>
+      <td>1141.353638</td>
+      <td>5582.486783</td>
+      <td>3503.429765</td>
+      <td>0.627575</td>
+    </tr>
+    <tr>
+      <th>311</th>
+      <td>BATIMENT0000000243405871</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>1141.353638</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 
 
 
 
 ```python
-out_image[np.isnan(out_image)] = 0
-np.mean(out_image[np.nonzero(out_image)])
-
+total_ecole         = potentiel_ecole.production.sum()
+total_ecole_calcule = potentiel_ecole.production_calculee.sum()
+print("# Verification des potentiels pour l'école:",ID,"\n")
+print("* BDD Potentiel solaire\t",int(total_ecole),"kWh/an")
+print("* Estimation ordre 0\t",int(total_ecole_calcule),"kWh/an")
+print("* Tentative accuracy\t",int(total_ecole/total_ecole_calcule*100),"%")
 ```
 
-
-
-
-    np.float32(789.9368)
-
+    # Verification des potentiels pour l'école: SURFACTI0000000002555648 
+    
+    * BDD Potentiel solaire	 138736 kWh/an
+    * Estimation ordre 0	 146018 kWh/an
+    * Tentative accuracy	 95 %
 
