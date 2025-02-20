@@ -1,6 +1,6 @@
 *.geojson
 *.7z
-*SHP_LAMB93_*
+*SHP_*
 *BDTOPO*
 *TIFF_LAMB*
 cache/
