@@ -23,7 +23,7 @@ def get_urls_for_bd_topo_gpkg(
     :return: list of urls for BD TOPO
     """
     response = requests.get(bd_topo_page)
-    soup = BeautifulSoup(response.text)
+    soup = BeautifulSoup(response.text, "html.parser")
 
     href_elements = [element.get("href") for element in soup.find_all("a") if element.get("href")]
 
@@ -35,7 +35,7 @@ def get_urls_for_bd_topo_gpkg(
 def get_url_for_bd_topo_gpkg_for_departement(
     code_departement: str
 ):
-    """Get url to download BD TOPO data at gpkg format the departement
+    """Get url to download BD TOPO data at gpkg format for the departement
 
     :param code_departement: code of departement
     :return: url
@@ -62,7 +62,7 @@ def find_gpkg_file_bd_topo(
     files = find_matching_files(
         folder_path=data_directory,
         file_extension=".gpkg",
-        filename_pattern=rf"{code_departement}"
+        filename_pattern=rf"BDT.*D{code_departement}"
     )
 
     assert len(files) < 2, f"More than one gpkg has been found for departement {code_departement}"
