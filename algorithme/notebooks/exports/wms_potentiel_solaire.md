@@ -3,7 +3,11 @@
 %autoreload 2
 ```
 
-# Exploration WMS de la couche potentiel solaire
+    The autoreload extension is already loaded. To reload it, use:
+      %reload_ext autoreload
+
+
+# Exploration Potentiel solaire - global, et à l'échelle d'une école
 
 
 ```python
@@ -53,7 +57,7 @@ owslib.__version__
 
 
 
-# Récupération data d'une école
+#### Récupération data d'une école
 
 
 ```python
@@ -84,7 +88,9 @@ batiments_ecole.plot()
     
 
 
-# Definitions WMS
+# 1. Potentiel solaire: utilisation d'un flux WMS
+
+#### Definitions WMS
 
 
 ```python
@@ -94,8 +100,6 @@ url = "https://data.geopf.fr/wms-r/wms?SERVICE=WMS&"
 wms = WebMapService(url, version='1.3.0')
 layer= 'IRRADIATION.SOLAIRE'
 ```
-
-# On commence par la France
 
 
 ```python
@@ -111,6 +115,8 @@ print(X,Y)
 
     890 893
 
+
+#### Acquisition of the image
 
 
 ```python
@@ -131,33 +137,7 @@ with MemoryFile(img) as memfile:
     
 
 
-
-```python
-allImgs = []
-with rasterio.open(BytesIO(img.read())) as r:
-    for k in range(3):
-        thing = r.read(k+1)
-        allImgs.append(thing)
-        show(thing, cmap='pink',title="Band "+str(k+1))
-```
-
-
-    
-![png](wms_potentiel_solaire_files/wms_potentiel_solaire_14_0.png)
-    
-
-
-
-    
-![png](wms_potentiel_solaire_files/wms_potentiel_solaire_14_1.png)
-    
-
-
-
-    
-![png](wms_potentiel_solaire_files/wms_potentiel_solaire_14_2.png)
-    
-
+There are 4 bands but no single value
 
 
 ```python
@@ -179,43 +159,13 @@ metas
 
 
 
-On a bien la France mais pas l'échelle.
+## __PROBLEME__
 
-# Pour l'école
+On a bien la France mais pas l'échelle! Le flux WMS contains a RGBA array mais ne contient pas une valeur en absolu.
 
+Il faut trouver une autre source.
 
-```python
-print(boite)
-
-x1new = int(boite[0])
-x2new = int(boite[2])
-
-y1new =  int(boite[1])
-y2new =  int(boite[3])
-
-X = (x2new - x1new)*5
-Y = (y2new - y1new)*5
-
-layer= 'IRRADIATION.SOLAIRE'
-#layer= "POTENTIEL.VENT.140M"
-imgEcole = wms.getmap(layers = [layer], srs = 'EPSG:2154', bbox = [x1new,y1new,x2new,y2new] , size = (X, Y), format= 'image/geotiff')
-
-with MemoryFile(imgEcole) as memfile:
-     with memfile.open() as dataset:
-            A = dataset
-            show(dataset)
-```
-
-    [ 654034.1 6870637.3  654188.6 6870708.4]
-
-
-
-    
-![png](wms_potentiel_solaire_files/wms_potentiel_solaire_18_1.png)
-    
-
-
-# Potentiel solaire: Fichier statique
+# 2. Potentiel solaire: Fichier statique
 
 
 ```python
@@ -223,15 +173,15 @@ import os
 import rasterio.mask
 ```
 
+#### Verification du fichier à l'échelle de la France
+
 
 ```python
-batiments_ecole2 = batiments_ecole.copy()
-geo = batiments_ecole.to_crs(epsg=6933).buffer(2000) 
-batiments_ecole2["geometry"] = geo
-batiments_ecole2 = batiments_ecole2.to_crs(epsg=4326)
-```
+from matplotlib import pyplot as plt
+import matplotlib
+cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["green","yellow","red"])
 
-## Verifier à l'échelle de la France
+```
 
 
 ```python
@@ -240,12 +190,7 @@ tile = "/ENR_1-0_IRR-SOL_TIFF_WGS84G_FXX_2023-10-01/1_DONNEES_LIVRAISON/GlobalHo
 path = DATA_FOLDER / tile
 with rasterio.open("../data/"+str(path)) as img:
     print(img.crs)
-    show(img)
-    #out_image, out_transform = rasterio.mask.mask(img, zone.geometry, crop=True)
-    #out_image, out_transform = rasterio.mask.mask(img, batiments_ecole.geometry, crop=True)
-    #out_meta = img.meta
-    #out_image = img.read()
-    
+    show(img,title="Representation de l'IRR en france metropolitaine, en kWh/m2/an",cmap=cmap)
 ```
 
     EPSG:4326
@@ -253,46 +198,44 @@ with rasterio.open("../data/"+str(path)) as img:
 
 
     
-![png](wms_potentiel_solaire_files/wms_potentiel_solaire_23_1.png)
+![png](wms_potentiel_solaire_files/wms_potentiel_solaire_21_1.png)
     
 
 
+#### Focus autour de l'école
+
 
 ```python
-geotiff_cached = "../data/cache/pot/"+ID+".masked.tif"
-os.makedirs("../data/cache/pot", exist_ok=True)
-
-if not os.path.isfile(geotiff_cached):
-    zone = batiments_ecole2## buffer de 2km
-    zone.to_crs(epsg=4326)
-    tile = "/ENR_1-0_IRR-SOL_TIFF_WGS84G_FXX_2023-10-01/1_DONNEES_LIVRAISON/GlobalHorizontalIrradiation.tif"
-    path = DATA_FOLDER / tile
-    with rasterio.open("../data/"+str(path)) as img:
-        print(img.crs)
-        #show(img)
-        out_image, out_transform = rasterio.mask.mask(img, zone.geometry, crop=True)
-        #out_image, out_transform = rasterio.mask.mask(img, batiments_ecole.geometry, crop=True)
-        #out_meta = img.meta
-        #out_image = img.read()
-        
+batiments_ecole2 = batiments_ecole.copy()
+geo = batiments_ecole.to_crs(epsg=6933).buffer(2000)  ## buffer de 2km
+batiments_ecole2["geometry"] = geo
+batiments_ecole2 = batiments_ecole2.to_crs(epsg=4326)
 ```
 
-    EPSG:4326
-
-
-Potentiel moyen
+#### Potentiel moyen autour de l'école
 
 
 ```python
+zone = batiments_ecole2
+zone.to_crs(epsg=4326)
+tile = "/ENR_1-0_IRR-SOL_TIFF_WGS84G_FXX_2023-10-01/1_DONNEES_LIVRAISON/GlobalHorizontalIrradiation.tif"
+path = DATA_FOLDER / tile
+with rasterio.open("../data/"+str(path)) as img:
+    print(img.crs)
+    out_image, out_transform = rasterio.mask.mask(img, zone.geometry, crop=True)
+
 out_image[np.isnan(out_image)] = 0
 avg = np.mean(out_image[out_image > 100])
 print("Ensoleillement moyen:",avg,"kWh/m2/an")
 ```
 
+    EPSG:4326
     Ensoleillement moyen: 1141.3536 kWh/m2/an
 
 
 # Assemblage pour une école
+
+#### Fonction grossiere pour estimer la surface utile d'une ecole
 
 
 ```python
@@ -307,12 +250,7 @@ def surface_utile(surfacetotale):
         
 ```
 
-
-```python
-src = DATA_FOLDER / "saint_denis_reference_data.gpkg"
-potentiel = gpd.read_file(src, layer="potentielsolaire_toitures")
-potentiel_ecole = potentiel[potentiel.id.isin(batiments_ecole.cleabs_left__bat)]
-```
+#### Hypothese de rendement
 
 
 ```python
@@ -320,14 +258,25 @@ potentiel_ecole = potentiel[potentiel.id.isin(batiments_ecole.cleabs_left__bat)]
 rendement = 0.1
 ```
 
+#### Selection de la layer de la BDD Potentiel Solaire Toiture
+
+
+```python
+src = DATA_FOLDER / "saint_denis_reference_data.gpkg"
+potentiel = gpd.read_file(src, layer="potentielsolaire_toitures")
+potentiel_ecole = potentiel[potentiel.id.isin(batiments_ecole.cleabs_left__bat)]
+```
+
+#### Methodologie de calcul de potentiel par batiment
+
 
 ```python
 potentiel_ecole = potentiel_ecole[["id",'st_areashape',"eq_pano","eq_surf",'surf_util','moyenne2','production',"geometry",'st_lengthshape']]
 potentiel_ecole["surf_utile_calculee"] = potentiel_ecole['st_areashape'].apply(lambda x: surface_utile(x) )
-potentiel_ecole["production_calculee"] = avg*potentiel_ecole["surf_utile_calculee"]*rendement
-potentiel_ecole["fit"] = potentiel_ecole.production_calculee / potentiel_ecole.production
+potentiel_ecole["prod_calculee"] = avg*potentiel_ecole["surf_utile_calculee"]*rendement
+potentiel_ecole["fit"] = potentiel_ecole.prod_calculee / potentiel_ecole.production
 potentiel_ecole["IRR"] = avg 
-potentiel_ecole[["id",'surf_util',"surf_utile_calculee","moyenne2",'IRR','production','production_calculee',"fit"]]
+potentiel_ecole[["id",'surf_util',"surf_utile_calculee","moyenne2",'IRR','production','prod_calculee',"fit"]]
 ```
 
 
@@ -357,7 +306,7 @@ potentiel_ecole[["id",'surf_util',"surf_utile_calculee","moyenne2",'IRR','produc
       <th>moyenne2</th>
       <th>IRR</th>
       <th>production</th>
-      <th>production_calculee</th>
+      <th>prod_calculee</th>
       <th>fit</th>
     </tr>
   </thead>
@@ -489,10 +438,12 @@ potentiel_ecole[["id",'surf_util',"surf_utile_calculee","moyenne2",'IRR','produc
 
 
 
+#### Aggregation des valeurs à l'échelle de l'école
+
 
 ```python
 total_ecole         = potentiel_ecole.production.sum()
-total_ecole_calcule = potentiel_ecole.production_calculee.sum()
+total_ecole_calcule = potentiel_ecole.prod_calculee.sum()
 print("# Verification des potentiels pour l'école:",ID,"\n")
 print("* BDD Potentiel solaire\t",int(total_ecole),"kWh/an")
 print("* Estimation ordre 0\t",int(total_ecole_calcule),"kWh/an")
