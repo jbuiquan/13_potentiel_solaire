@@ -23,7 +23,7 @@ def get_urls_for_bd_topo_gpkg(
     :return: list of urls for BD TOPO
     """
     response = requests.get(bd_topo_page)
-    soup = BeautifulSoup(response.text)
+    soup = BeautifulSoup(response.text, "html.parser")
 
     href_elements = [element.get("href") for element in soup.find_all("a") if element.get("href")]
 

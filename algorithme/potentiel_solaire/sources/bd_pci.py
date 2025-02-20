@@ -22,7 +22,7 @@ def get_urls_for_bd_pci_shp(
     :return: list of urls for BD PCI
     """
     response = requests.get(bd_pci_page)
-    soup = BeautifulSoup(response.text)
+    soup = BeautifulSoup(response.text, "html.parser")
 
     href_elements = [element.get("href") for element in soup.find_all("a") if element.get("href")]
 
