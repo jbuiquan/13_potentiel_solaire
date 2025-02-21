@@ -21,6 +21,7 @@ from potentiel_solaire.attach_buildings_to_schools import attach_buildings_to_sc
 from potentiel_solaire.constants import CRS, ALGORITHME_FOLDER, DATA_FOLDER
 from potentiel_solaire.sources.bd_topo import extract_bd_topo, get_topo_zones_of_interest, \
     get_topo_buildings_of_interest
+from potentiel_solaire.sources.bd_pci import extract_bd_pci
 from potentiel_solaire.sources.schools_establishments import extract_schools_establishments, \
     get_schools_establishments_of_interest
 from potentiel_solaire.features.solar_potential import calculate_solar_potential
@@ -30,6 +31,11 @@ from potentiel_solaire.logger import get_logger
 logger = get_logger()
 logger.setLevel(logs_level)
 ```
+
+    2025-02-21 21:17:29,523 - DEBUG - rasterio.session - /home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/rasterio/session.py - <module> - Could not import boto3, continuing with reduced functionality.
+    2025-02-21 21:17:29,530 - DEBUG - rasterio.env - /home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/rasterio/env.py - <module> - GDAL data found in package: path='/home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/rasterio/gdal_data'.
+    2025-02-21 21:17:29,533 - DEBUG - rasterio.env - /home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/rasterio/env.py - <module> - PROJ data found in package: path='/home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/rasterio/proj_data'.
+
 
 # Extraction des données sources
 
@@ -61,8 +67,12 @@ print(f"BD TOPO extraite ici: {bd_topo_path}")
 
 
 ```python
-#TODO: recuperer les données PCI pour le département
+bd_pci_path = extract_bd_pci(code_departement=code_departement)
+print(f"BD PCI extraite ici: {bd_pci_path}")
 ```
+
+    BD PCI extraite ici: /home/kelu/projets/13_potentiel_solaire/algorithme/data/PARCELLAIRE-EXPRESS_1-1__SHP_LAMB93_D093_2024-10-01/PARCELLAIRE-EXPRESS/1_DONNEES_LIVRAISON_2024-11-00210/PEPCI_1-1_SHP_LAMB93_D093/BATIMENT.SHP
+
 
 # Filtre des données sur le périmètre du calcul
 
@@ -185,7 +195,7 @@ solar_potential_of_schools_buildings = calculate_solar_potential(
 
 
 ```python
-bool_Audit = False
+bool_Audit = True
 ```
 
 
@@ -198,166 +208,7 @@ if code_departement == "093" and bool_Audit:
     gspsdt_total=  gspsdt_total.to_crs(4326)
 ```
 
-    2450931
-
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>objectid</th>
-      <th>id</th>
-      <th>nature</th>
-      <th>surf_util</th>
-      <th>indic2</th>
-      <th>gisement</th>
-      <th>eq_pano</th>
-      <th>eq_surf</th>
-      <th>systeme</th>
-      <th>protection</th>
-      <th>mos2017</th>
-      <th>insee</th>
-      <th>moyenne2</th>
-      <th>forme</th>
-      <th>production</th>
-      <th>mos17</th>
-      <th>st_areashape</th>
-      <th>st_lengthshape</th>
-      <th>geometry</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>BATIMENT0000000356480536</td>
-      <td>Bâtiment industriel</td>
-      <td>382.50</td>
-      <td>3</td>
-      <td>important</td>
-      <td>plus de 50 panneaux</td>
-      <td>plus de 115 m2</td>
-      <td>thermique ou photovoltaïque</td>
-      <td>0</td>
-      <td>45.0</td>
-      <td>95078.0</td>
-      <td>1210.328054</td>
-      <td>plat</td>
-      <td>42184.047797</td>
-      <td>5.0</td>
-      <td>609.870</td>
-      <td>108.056166</td>
-      <td>POLYGON ((2.03865 49.08767, 2.03867 49.08767, ...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>BATIMENT0000000356480545</td>
-      <td>Bâtiment industriel</td>
-      <td>83.25</td>
-      <td>2</td>
-      <td>intermédiaire</td>
-      <td>10 à 50 panneaux</td>
-      <td>entre 20 et 115 m2</td>
-      <td>thermique ou photovoltaïque</td>
-      <td>0</td>
-      <td>45.0</td>
-      <td>95078.0</td>
-      <td>1197.261665</td>
-      <td>Npans</td>
-      <td>12199.856914</td>
-      <td>5.0</td>
-      <td>159.180</td>
-      <td>51.796212</td>
-      <td>POLYGON ((2.04011 49.08265, 2.04006 49.08257, ...</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>3</td>
-      <td>BATIMENT0000000356475551</td>
-      <td>Bâtiment industriel</td>
-      <td>213.75</td>
-      <td>3</td>
-      <td>important</td>
-      <td>plus de 50 panneaux</td>
-      <td>plus de 115 m2</td>
-      <td>thermique ou photovoltaïque</td>
-      <td>1</td>
-      <td>45.0</td>
-      <td>95211.0</td>
-      <td>1204.673158</td>
-      <td>plat</td>
-      <td>23463.298631</td>
-      <td>5.0</td>
-      <td>713.220</td>
-      <td>115.314199</td>
-      <td>POLYGON ((2.1148 49.06608, 2.11477 49.06605, 2...</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>4</td>
-      <td>BATIMENT0000000317228796</td>
-      <td>Bâtiment industriel</td>
-      <td>240.75</td>
-      <td>3</td>
-      <td>important</td>
-      <td>plus de 50 panneaux</td>
-      <td>plus de 115 m2</td>
-      <td>thermique ou photovoltaïque</td>
-      <td>1</td>
-      <td>45.0</td>
-      <td>95211.0</td>
-      <td>1243.157793</td>
-      <td>toit2pentes</td>
-      <td>36633.125213</td>
-      <td>5.0</td>
-      <td>729.620</td>
-      <td>119.633673</td>
-      <td>POLYGON ((2.11964 49.06853, 2.11947 49.06864, ...</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>5</td>
-      <td>BATIMENT0000000003786796</td>
-      <td>Bâtiment industriel</td>
-      <td>132.75</td>
-      <td>3</td>
-      <td>important</td>
-      <td>plus de 50 panneaux</td>
-      <td>plus de 115 m2</td>
-      <td>thermique ou photovoltaïque</td>
-      <td>1</td>
-      <td>45.0</td>
-      <td>95370.0</td>
-      <td>1210.220040</td>
-      <td>plat</td>
-      <td>14639.039443</td>
-      <td>5.0</td>
-      <td>305.425</td>
-      <td>74.696097</td>
-      <td>POLYGON ((1.97282 49.14438, 1.97277 49.14436, ...</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
+    2450931 batiments
 
 
 
@@ -385,6 +236,144 @@ if code_departement == "093" and bool_Audit:
     * BDD Potentiel solaire	 73328015 kWh/an
     * Estimation ordre 0	 85376700 kWh/an
     * Tentative accuracy	 85 %
+
+
+#### Observations noms des batiments
+
+
+```python
+lack = len(batiments_a_auditer)-len(gspsdt)
+print("* There are",len(batiments_a_auditer),"batiments in",code_departement)
+print("* There are",len(gspsdt),"batiments in the solar potential database for these buildings")
+print("* Coverage of that DB (%):",100*len(gspsdt)/len(batiments_a_auditer))
+```
+
+    * There are 3686 batiments in 093
+    * There are 2574 batiments in the solar potential database for these buildings
+    * Coverage of that DB (%): 69.83179598480739
+
+
+
+```python
+dupes = solar_potential_of_schools_buildings[solar_potential_of_schools_buildings.duplicated(subset=["cleabs_bat"],keep=False)]
+dupes = dupes.sort_values(by=["cleabs_bat"]).reset_index(drop=True)
+print("* Duplicate rate for buildings in output (%):",100*len(dupes)/len(solar_potential_of_schools_buildings))
+dupes[["cleabs_bat","cleabs_zone"]]
+```
+
+    * Duplicate rate for buildings in output (%): 2.3854194585901904
+
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cleabs_bat</th>
+      <th>cleabs_zone</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>BATIMENT0000000002670922</td>
+      <td>SURFACTI0000000002555817</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>BATIMENT0000000002670922</td>
+      <td>SURFACTI0000000002555819</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>BATIMENT0000000002715271</td>
+      <td>SURFACTI0000000002556088</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>BATIMENT0000000002715271</td>
+      <td>SURFACTI0000000002556091</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>BATIMENT0000000242884145</td>
+      <td>SURFACTI0000002244506721</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>84</th>
+      <td>BATIMENT0000000356502312</td>
+      <td>SURFACTI0000000002555977</td>
+    </tr>
+    <tr>
+      <th>85</th>
+      <td>BATIMENT0000002011622488</td>
+      <td>SURFACTI0000000296813125</td>
+    </tr>
+    <tr>
+      <th>86</th>
+      <td>BATIMENT0000002011622488</td>
+      <td>SURFACTI0000000002555703</td>
+    </tr>
+    <tr>
+      <th>87</th>
+      <td>BATIMENT0000002275259102</td>
+      <td>SURFACTI0000000002555771</td>
+    </tr>
+    <tr>
+      <th>88</th>
+      <td>BATIMENT0000002275259102</td>
+      <td>SURFACTI0000002244506721</td>
+    </tr>
+  </tbody>
+</table>
+<p>89 rows × 2 columns</p>
+</div>
+
+
+
+
+```python
+len(solar_potential_of_schools_buildings),len(solar_potential_of_schools_buildings.cleabs_bat.unique())
+```
+
+
+
+
+    (3731, 3686)
+
+
+
+
+```python
+len(gspsdt_total[gspsdt_total.id.isin(batiments_a_auditer)])
+```
+
+
+
+
+    2574
+
 
 
 # Checks sur la qualité des données & calculs
