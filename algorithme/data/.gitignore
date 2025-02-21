@@ -4,6 +4,7 @@
 *BDTOPO*
 *TIFF_LAMB*
 cache/
-
+ENR*
 potentiel-gisement-solaire-brut-au-bati.gpkg
 potentiel-solaire.gpkg
+cache.gpkg
