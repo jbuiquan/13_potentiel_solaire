@@ -3,10 +3,6 @@
 %autoreload 2
 ```
 
-    The autoreload extension is already loaded. To reload it, use:
-      %reload_ext autoreload
-
-
 
 ```python
 from pathlib import Path
@@ -37,15 +33,15 @@ batiments = batiments.to_crs(2154)
 
 ```python
 batiments_de_test = pd.concat([batiments[batiments.hauteur.isna()].head(50),batiments[~batiments.hauteur.isna()].head(50)])
-batiments_de_test["hauteur_calculee"] = batiments_de_test.progress_apply(lambda batiment: getMesureMNSToit(batiment)[0], axis = 1)
-batiments_de_test["hauteur_std-dev"] = batiments_de_test.progress_apply(lambda batiment: getMesureMNSToit(batiment)[1], axis = 1)
+for measure in ["hauteur_calculee", "hauteur_std-dev"]:
+    batiments_de_test[measure] = \
+        batiments_de_test.progress_apply(lambda batiment:\
+        getMesureMNSToit(batiment, valeur=measure), axis = 1)
 batiments_de_test[["cleabs_left__bat","hauteur","hauteur_calculee", "hauteur_std-dev"]]
 ```
 
-      0%|          | 0/100 [00:00<?, ?it/s]
-
-    100%|██████████| 100/100 [00:05<00:00, 17.21it/s]
-    100%|██████████| 100/100 [00:04<00:00, 21.43it/s]
+    100%|██████████| 100/100 [00:04<00:00, 20.07it/s]
+    100%|██████████| 100/100 [00:04<00:00, 21.57it/s]
 
 
 
@@ -216,7 +212,10 @@ check.plot.scatter(x="hauteur",y="hauteur_calculee",title="Comparaison hauteur c
 
 #### Test avec les pentes de toit
 
+
+```python
 import matplotlib.pyplot as plt
+```
 
 
 ```python
@@ -239,9 +238,3 @@ for key, group in grouped:
     group.plot.scatter(ax=ax, x='h', y='stdev', label=key, color=colors[key])
 plt.show()
 ```
-
-
-    
-![png](wns_hauteur_files/wns_hauteur_14_0.png)
-    
-
