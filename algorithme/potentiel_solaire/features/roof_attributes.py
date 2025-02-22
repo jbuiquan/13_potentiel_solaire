@@ -8,27 +8,45 @@ from potentiel_solaire.constants import DATA_FOLDER
 import numpy as np
 import pandas as pd
 
-def rasterMNH(row):
+
+def getRaster(boite, layer, srs, X, Y):
     url = "https://data.geopf.fr/wms-r/wms?SERVICE=WMS"
     wms = WebMapService(url, version='1.3.0')
+
+    img_mns = wms.getmap(layers=[layer],
+                         srs=srs, bbox=boite, size=(X, Y),
+                         format='image/geotiff')
+    return img_mns
+
+
+def rasterMNH(row):
+
     boite = row.total_bounds
     X = int((boite[2]-boite[0])*2)
     Y = int((boite[3]-boite[1])*2)
 
-    img_mns = wms.getmap(layers=["ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES.MNS"], srs='EPSG:2154', bbox=boite, size=(X, Y), format= 'image/geotiff')
+    img_mns = getRaster(boite, "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES.MNS",
+                        srs='EPSG:2154', X=X, Y=Y)
     with MemoryFile(img_mns) as memfile:
         with memfile.open() as dataset:
             mns, _ = rasterio.mask.mask(dataset, row.geometry, crop=True)
 
-    img_mnt = wms.getmap(layers=["ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES"], srs='EPSG:2154', bbox=boite, size=(X, Y), format= 'image/geotiff')
+    img_mnt = getRaster(boite, "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES",
+                        srs='EPSG:2154', X=X, Y=Y)
     with MemoryFile(img_mnt) as memfile:
         with memfile.open() as dataset:
             mnt, _ = rasterio.mask.mask(dataset, row.geometry, crop=True)
     mnh = mns - mnt
     return mnh
 
-def getMesureMNSToit(row, cache_file="cache.gpkg", layercache="cache_hauteur"):
 
+def getMesureMNSToit(row, cache_file="cache.gpkg", layercache="cache_hauteur",
+                     valeur="hauteur_calculee"):
+
+    values = ["hauteur_calculee", "hauteur_std-dev", "hauteur_min",
+              "hauteur_max", "hauteur_median"]
+    if valeur not in values:
+        return -1
     row = gpd.GeoDataFrame(row).T
     row = gpd.GeoDataFrame(row, geometry="geometry")
     if "cleabs_left__bat" in row.columns:
@@ -42,10 +60,12 @@ def getMesureMNSToit(row, cache_file="cache.gpkg", layercache="cache_hauteur"):
         existing = []
     row = row[["cleabs", "hauteur", "geometry"]]
 
+    cols = ["cleabs", "hauteur_calculee", "hauteur", "geometry",
+            "hauteur_std-dev", "hauteur_min", "hauteur_max", "hauteur_median"]
+
     if row["cleabs"].iloc[0] in existing:
-        h = gdf[gdf.cleabs == row["cleabs"].iloc[0]].hauteur_calculee.iloc[0]
-        s = gdf[gdf.cleabs == row["cleabs"].iloc[0]]["hauteur_std-dev"].iloc[0]
-        return [h ,s]
+        v = gdf[gdf.cleabs == row["cleabs"].iloc[0]][valeur].iloc[0]
+        return v
     else:
         mnh = rasterMNH(row)
         row["hauteur_calculee"] = np.average(mnh[np.nonzero(mnh)])
@@ -55,11 +75,10 @@ def getMesureMNSToit(row, cache_file="cache.gpkg", layercache="cache_hauteur"):
         row["hauteur_median"] = np.median(mnh[np.nonzero(mnh)])
 
         if len(existing):
-            gtotal = pd.concat([gdf, row[["cleabs", "hauteur_calculee", "hauteur", "geometry","hauteur_std-dev","hauteur_min","hauteur_max","hauteur_median"]]])
+            gtotal = pd.concat([gdf, row[cols]])
             gtotal.to_file(cache_h, layer=layercache, driver="GPKG")
         else:
-            gtotal = row[["cleabs", "hauteur_calculee", "hauteur", "geometry","hauteur_std-dev","hauteur_min","hauteur_max","hauteur_median"]]
+            gtotal = row[cols]
             gtotal.to_file(cache_h, layer=layercache, driver="GPKG")
 
-    return [row["hauteur_calculee"], row["hauteur_std-dev"]]
-
+    return row[valeur]
