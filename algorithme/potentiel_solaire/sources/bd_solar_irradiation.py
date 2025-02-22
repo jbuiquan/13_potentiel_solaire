@@ -1,7 +1,5 @@
 import os
 
-import numpy as np
-import rasterio.mask
 from potentiel_solaire.constants import DATA_FOLDER
 from potentiel_solaire.sources.utils import find_matching_files, download_file, extract_7z
 from potentiel_solaire.logger import get_logger
@@ -19,8 +17,8 @@ def find_irradiation_file(
     """
     files = find_matching_files(
         folder_path=data_directory,
-        file_extension=".tif",
-        filename_pattern=rf"GlobalHorizontalIrradiation"
+        filename_pattern=r"GlobalHorizontalIrradiation.tif",
+        folder_pattern=r"ENR_.*IRR-SOL"
     )
 
     assert len(files) < 2, f"More than one tif has been found for irradiation data"
@@ -59,25 +57,3 @@ def extract_bd_irradiation(
     os.remove(output_7z_filepath)
 
     return find_irradiation_file(data_directory=output_directory)
-
-
-def getIrradiationEcole(batiment):
-    # Définition des sources
-    tileIrradiation = "/ENR_1-0_IRR-SOL_TIFF_WGS84G_FXX_2023-10-01/1_DONNEES_LIVRAISON/GlobalHorizontalIrradiation.tif"
-    path = str(DATA_FOLDER) + "/"+tileIrradiation
-    # On créé une zone buffer autour des batiments
-    geo = batiment.to_crs(epsg=6933).buffer(2000)  # buffer de 2km
-    batiment["geometry"] = geo
-    batiment = batiment.to_crs(epsg=4326)
-    # Ouverture de la tile avec le bon masque
-    irrs = []
-    with rasterio.open(path) as img:
-        for _, row in batiment.iterrows():
-            mapIrradiation, _ = rasterio.mask.mask(img, \
-                                                   [row.geometry], crop=True)
-            mapIrradiation[np.isnan(mapIrradiation)] = 0
-            irr = np.mean(mapIrradiation[mapIrradiation > 100])
-            irrs.append(irr)
-    # On retourne l'irradiation moyenne
-    batiment["rayonnement_solaire"] = irrs
-    return batiment
