@@ -3,8 +3,9 @@ import re
 
 import requests
 from bs4 import BeautifulSoup
+import geopandas as gpd
 
-from potentiel_solaire.constants import DATA_FOLDER
+from potentiel_solaire.constants import DATA_FOLDER, CRS
 from potentiel_solaire.sources.utils import download_file, extract_7z, find_matching_files
 from potentiel_solaire.logger import get_logger
 
@@ -106,3 +107,27 @@ def extract_bd_pci(
         code_departement=code_departement,
         data_directory=output_directory
     )
+
+
+def get_pci_buildings_of_interest(
+    bd_pci_path: str,
+    geom_of_interest: gpd.GeoDataFrame,
+    crs: int = CRS
+) -> gpd.GeoDataFrame:
+    """Filtre et renvoit les bâtiments de la BD PCI
+
+    :param bd_topo_path: chemin du fichier .SHP de la BD PCI
+    :param geom_of_interest: geodataframe avec la géometrie d'intêret
+    :param crs: projection de la gdf renvoyée
+    :return: geodataframe avec les bâtiments filtrés
+    """
+
+    buildings = gpd.read_file(
+        bd_pci_path,
+        mask=geom_of_interest,
+    )   
+
+    return gpd.GeoDataFrame(
+        geometry=buildings['geometry'],
+        crs=buildings.crs
+    ).to_crs(crs)
