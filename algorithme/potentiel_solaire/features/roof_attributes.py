@@ -1,26 +1,17 @@
-def surface_utile_grossiere(surfacetotale):
-    # @TODO Remplacer par une formule plus fine
-    if surfacetotale < 500:
-        ratio = 0.4*surfacetotale/5000+0.2
-        if surfacetotale > 100:
-            return ratio*surfacetotale
-    else:
-        return surfacetotale*0.6
-    return 0
+def calculate_surface_utile(surface_totale_au_sol: float):
+    """Calcule la surface utile pour le PV.
 
+    Pour le moment il s agit d'un simple ratio.
+    @TODO Remplacer par une formule plus fine
 
-def getSurface(batiment):
-    crs_init = str(batiment.crs).split(":")[-1]
-    #print(crs_init)
-    # On calcule les surfaces
-    batiment = batiment.to_crs(epsg=6933)
-    batiment["surface_totale_calculee"] = batiment.area
-    batiment = batiment.to_crs(epsg=int(crs_init))
-    return batiment
+    :param surface_totale_au_sol: surface totale au sol du batiment
+    :return: la surface utile pour installation de panneaux PV
+    """
+    if surface_totale_au_sol <= 100:
+        return 0
 
+    if 100 < surface_totale_au_sol < 500:
+        ratio = 0.4 * surface_totale_au_sol / 5000 + 0.2
+        return ratio * surface_totale_au_sol
 
-def getSurfaces(batiments, col_surface="surface_totale_calculee"):
-    batiments = getSurface(batiments)
-    batiments["surface_utile"] = \
-        batiments[col_surface].apply(lambda s: surface_utile_grossiere(s))
-    return batiments
+    return 0.6 * surface_totale_au_sol
