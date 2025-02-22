@@ -21,7 +21,7 @@ def find_irradiation_file(
         folder_pattern=r"ENR_.*IRR-SOL"
     )
 
-    assert len(files) < 2, f"More than one tif has been found for irradiation data"
+    assert len(files) < 2, "More than one tif has been found for irradiation data"
 
     return files[0] if len(files) > 0 else None
 
