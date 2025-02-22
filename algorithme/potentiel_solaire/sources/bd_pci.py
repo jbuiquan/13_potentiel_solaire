@@ -15,11 +15,11 @@ def get_urls_for_bd_pci_shp(
     bd_pci_page="https://geoservices.ign.fr/parcellaire-express-pci",
     date="2025-01-01"
 ):
-    """Get available urls for BD PCI data at shp format for all departements
+    """Récupère les urls disponibles pour les données de la BD PCI en format .shp pour tous les départements
 
-    :param bd_pci_page: url with all urls for BD PCI
-    :param date: date of BD PCI data
-    :return: list of urls for BD PCI
+    :param bd_pci_page: url de la page de télechargement de la BD PCI
+    :param date: date de référence pour les données
+    :return: liste des urls
     """
     response = requests.get(bd_pci_page)
     soup = BeautifulSoup(response.text, "html.parser")
@@ -34,16 +34,16 @@ def get_urls_for_bd_pci_shp(
 def get_url_for_bd_pci_shp_for_departement(
     code_departement: str
 ):
-    """Get url to download BD PCI data at shp format for the departement
+    """Récupère l'url de télechargement des fichiers de la BD PCI en format .shp pour le département donné
 
-    :param code_departement: code of departement
+    :param code_departement: code du département
     :return: url
     """
     shp_urls = get_urls_for_bd_pci_shp()
     logger.info("%s urls available for BD PCI data per departement with shp format", len(shp_urls))
 
     url = [url for url in shp_urls if re.search(rf"{code_departement}", url)][0]
-    logger.info("url for departement %s is %s", code_departement, url)
+    logger.info("L'url du departement %s est %s", code_departement, url)
 
     return url
 
@@ -52,19 +52,19 @@ def find_shp_file_bd_pci(
     code_departement: str,
     data_directory: str = DATA_FOLDER,
 ):
-    """ Get filepath for the .shp file for a given departement
+    """Récupère le chemin du fichier .shp pour un département donné
 
-    :param code_departement: code of departement
-    :param data_directory: folder where files are stored
-    :return: filepath
+    :param code_departement: code du département
+    :param data_directory: dossier où sont sauvegardés les fichiers
+    :return: chemin du fichier .shp avec les données
     """
     files = find_matching_files(
         folder_path=data_directory,
-        file_extension="BATIMENT.SHP", #currently only extracting this file
+        file_extension="BATIMENT.SHP",
         filename_pattern=rf"PEPCI.*D{code_departement}"
     )
 
-    assert len(files) < 2, f"More than one shp has been found for departement {code_departement}"
+    assert len(files) < 2, f"Plus d'un fichier .shp trouvé pour le département {code_departement}"
 
     return files[0] if len(files) > 0 else None
 
@@ -73,11 +73,11 @@ def extract_bd_pci(
     code_departement: str,
     output_directory: str = DATA_FOLDER,
 ):
-    """Extrait les fichiers de la BD PCI pour un departement
+    """Extrait les fichiers de la BD PCI pour un département
 
-    :param code_departement: code du departement
-    :param output_directory: dossier ou sauvegarder les fichiers
-    :return: chemin du fichier .shp avec les donnees
+    :param code_departement: code du département
+    :param output_directory: dossier où sauvegarder les fichiers
+    :return: chemin du fichier .shp avec les données
     """
     # check if already extracted
     shp_filepath = find_shp_file_bd_pci(
@@ -85,7 +85,7 @@ def extract_bd_pci(
         data_directory=output_directory
     )
     if shp_filepath is not None:
-        logger.info("shp file %s for departement %s already extracted",
+        logger.info("Fichier .shp %s pour le departement %s déjà téléchargé",
                     shp_filepath, code_departement)
         return shp_filepath
 
