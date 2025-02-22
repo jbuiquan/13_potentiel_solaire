@@ -14,6 +14,7 @@ def calculate_solar_exposition_building(
     :param bd_irradiation_path: chemin du fichier .tif des donnees d irradiation
     :return: rayonnement solaire moyen
     """
+    # TODO : ne marche pas pour les DROM (exemple : la guadeloupe 971)
     # Ouverture de la tile avec le bon masque
     with rasterio.open(bd_irradiation_path) as img:
         map_solar_exposition, _ = rasterio.mask.mask(img,[zone_surrounding_building], crop=True)
