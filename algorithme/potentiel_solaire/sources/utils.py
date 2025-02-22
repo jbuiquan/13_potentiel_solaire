@@ -24,10 +24,10 @@ def find_matching_files(
     matching_files = []
 
     for parent, _, filenames in os.walk(folder_path):
-            if re.search(filename_pattern, parent):
-                for filename in filenames:
-                    if filename.endswith(file_extension):
-                        matching_files.append(os.path.join(parent, filename))
+        if re.search(filename_pattern, parent):
+            for filename in filenames:
+                 if filename.endswith(file_extension):
+                    matching_files.append(os.path.join(parent, filename))
 
     return matching_files
 
