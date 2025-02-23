@@ -25,6 +25,7 @@ Non obligatoires mais fortement appréciées !
 - J'ai ajouté des commentaires dans le code qui expliquent **pourquoi** certaines opérations sont faites
 - Les noms des fonctions & variables aident à la lecture et compréhension du code
 - J'évite des fonctions qui prennent en argument des dataframes et renvoient celles-ci modifiées
+- J'écrit des tests unitaires pour les fonctions les plus complexes
 - Je consulte cette [page](../docs/algorithme_best_code_practices.md) si je veux avoir plus d'explications et d'exemples sur ces bonnes pratiques
 
 #### Si ca concerne le code l'application web
