@@ -181,7 +181,7 @@ const Map = () => {
                 50, "#f1f48f",  // Mindaro (51 - 75)
                 75, "#f2f230",  // Icterine (76 - 100)
               ],
-              "fill-opacity": 0.5 
+              "fill-opacity": 0.5
             }
           });
         }
