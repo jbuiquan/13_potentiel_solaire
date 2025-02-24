@@ -33,8 +33,6 @@ const Map = () => {
       loadRegions(map);
     });
 
-
-
     return () => {
       map.remove();
     };
