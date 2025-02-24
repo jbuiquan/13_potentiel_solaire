@@ -24,14 +24,16 @@
 
 ### Pattern à suivre pour le nom de la branche :
 - si ca concerne une exploration / poc : 
-  - pour les données de potentiel solaire : `explore/data-<titre_exploration>`
-  - pour l'application web : `explore/web-<titre_exploration>`
+  - pour les données de potentiel solaire : `explore/data-<numero_issue>-<titre_exploration>`
+  - pour l'application web : `explore/web-<numero_issue>-<titre_exploration>`
 - si ca concerne l'ajout d'une nouvelle fonctionnalité : 
-  - pour les données de potentiel solaire : `feature/data-<titre_fonctionnalite>`
-  - pour l'application web : `feature/web-<titre_fonctionnalite>`
+  - pour les données de potentiel solaire : `feature/data-<numero_issue>-<titre_fonctionnalite>`
+  - pour l'application web : `feature/web-<numero_issue>-<titre_fonctionnalite>`
 - si c'est pour corriger un bug :
-  - pour les données de potentiel solaire : `fix/data-<titre_du_bug>`
-  - pour l'application web : `fix/web-<titre_du_bug>`
+  - pour les données de potentiel solaire : `fix/data-<numero_issue>-<titre_du_bug>`
+  - pour l'application web : `fix/web-<numero_issue>-<titre_du_bug>`
+
+Exemple : si c'est pour ajouter le calcul de l'orientation des toits de l'issue numéro 78, la branche s'appelle : `feature/data-78-calcul_orientation_toits`
 
 4. Je m'assigne sur l'issue pour que tout le monde soit au courant que je travail dessus
 
