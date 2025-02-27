@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier --write \"(components|app)/**/*.+(js|jsx|ts|tsx|json|css|md)\" --config ./prettier.config.js"
   },
   "dependencies": {
     "@duckdb/node-api": "^1.2.0-alpha.14",
@@ -16,10 +17,13 @@
   },
   "devDependencies": {
     "typescript": "^5",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^3.4.1",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
