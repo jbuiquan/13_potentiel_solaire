@@ -20,7 +20,11 @@ const Map = () => {
       container: mapRef.current,
       style: "https://api.maptiler.com/maps/06388012-1c97-4709-834d-ed1505736064/style.json?key=cdZwnx5l25QVwmR58EvI",
       center: [1.888334, 46.603354],
+<<<<<<< HEAD
       zoom: 4.8,
+=======
+      zoom: 4,
+>>>>>>> 1c4b0e3 (amélioration de la carte)
     });
 
     mapInstance.current = map;
@@ -49,6 +53,7 @@ const Map = () => {
     });
   };
 
+<<<<<<< HEAD
   // Chargement des régions
   const loadRegions = (map) => {
     fetch("/data/a-reg2021.json")
@@ -58,6 +63,18 @@ const Map = () => {
           [[-180, -90], [-180, 90], [180, 90], [180, -90], [-180, -90]],
         ]);
         const franceMask = turf.mask(regionsData, worldBounds);
+=======
+  // Chargement des régions avec le masque
+  const loadRegions = (map) => {
+    fetch("/data/a-reg2021.json")
+      .then((response) => response.json())
+      .then((data) => {
+        const worldBounds = turf.polygon([
+          [[-180, -90], [-180, 90], [180, 90], [180, -90], [-180, -90]],
+        ]);
+        const franceMask = turf.mask(data, worldBounds);
+
+>>>>>>> 1c4b0e3 (amélioration de la carte)
         if (!map.getSource("france-mask")) {
           map.addSource("france-mask", { type: "geojson", data: franceMask });
           map.addLayer({
@@ -69,7 +86,11 @@ const Map = () => {
         }
 
         if (!map.getSource("regions")) {
+<<<<<<< HEAD
           map.addSource("regions", { type: "geojson", data: regionsData });
+=======
+          map.addSource("regions", { type: "geojson", data });
+>>>>>>> 1c4b0e3 (amélioration de la carte)
         }
 
         if (!map.getLayer("regions-border")) {
@@ -88,6 +109,7 @@ const Map = () => {
             source: "regions",
             paint: { "fill-opacity": 0 },
           });
+<<<<<<< HEAD
         }
 
         if (!map.getLayer("regions-solar-potential")) {
@@ -123,6 +145,21 @@ const Map = () => {
         addMouseEvents(map, "regions-fill");
       });
 
+=======
+
+          map.on("click", "regions-fill", (e) => {
+            const bounds = new maplibregl.LngLatBounds();
+            e.features[0].geometry.coordinates[0].forEach((coord) =>
+              bounds.extend(coord)
+            );
+            map.fitBounds(bounds, {});
+            loadDepartments(map);
+          });
+
+          addMouseEvents(map, "regions-fill");
+        }
+      });
+>>>>>>> 1c4b0e3 (amélioration de la carte)
   };
 
   // Chargement des départements
@@ -219,7 +256,13 @@ const Map = () => {
 
   // Chargement des écoles
   const loadSchools = (map, nomMunicipality) => {
+<<<<<<< HEAD
     const url = `https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/records?select=nom_etablissement,latitude,longitude,nom_commune&where=nom_commune="${encodeURIComponent(nomMunicipality)}"&limit=100`;
+=======
+    const url = `https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/records?select=nom_etablissement,latitude,longitude,nom_commune&where=nom_commune="${encodeURIComponent(
+      nomMunicipality
+    )}"&limit=100`;
+>>>>>>> 1c4b0e3 (amélioration de la carte)
 
     fetch(url)
       .then((response) => response.json())
