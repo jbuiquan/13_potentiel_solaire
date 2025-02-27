@@ -1,14 +1,13 @@
-import { DuckDBPreparedStatement } from "@duckdb/node-api";
-import { Communes } from "../models/communes";
-import { Etablissement } from "../models/etablissements";
-import db from "./duckdb";
+import { DuckDBPreparedStatement } from '@duckdb/node-api';
 
-export async function fetchEtablissements(
-  codeCommune: string | null
-): Promise<Etablissement[]> {
+import { Communes } from '../models/communes';
+import { Etablissement } from '../models/etablissements';
+import db from './duckdb';
+
+export async function fetchEtablissements(codeCommune: string | null): Promise<Etablissement[]> {
   try {
     const connection = await db.connect();
-    await connection.run("LOAD SPATIAL;");
+    await connection.run('LOAD SPATIAL;');
 
     let prepared: DuckDBPreparedStatement;
     if (codeCommune) {
@@ -17,7 +16,7 @@ export async function fetchEtablissements(
         SELECT etab.* EXCLUDE (geom), ST_X(etab.geom) as longitude, ST_Y(etab.geom) as latitude
         FROM main.etablissements etab
         WHERE etab.code_commune = $1;
-        `
+        `,
       );
       prepared.bindVarchar(1, codeCommune);
     } else {
@@ -25,15 +24,15 @@ export async function fetchEtablissements(
         `
         SELECT etab.* EXCLUDE (geom), ST_X(etab.geom) as longitude, ST_Y(etab.geom) as latitude
         FROM main.etablissements etab;
-        `
+        `,
       );
     }
 
     const reader = await prepared.runAndReadAll();
     return reader.getRowObjectsJson() as unknown as Etablissement[];
   } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to fetch example rows.");
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch example rows.');
   }
 }
 
@@ -46,7 +45,7 @@ export async function fetchEtablissementsFromBoundingBox({
 }): Promise<Etablissement[]> {
   try {
     const connection = await db.connect();
-    await connection.run("LOAD SPATIAL;");
+    await connection.run('LOAD SPATIAL;');
 
     const prepared = await connection.prepare(
       `
@@ -54,7 +53,7 @@ export async function fetchEtablissementsFromBoundingBox({
         FROM main.communes com
         INNER JOIN main.etablissements etab ON etab.code_commune = com.code_commune
         WHERE ST_Intersects(ST_MakeEnvelope($1, $2, $3, $4), com.geom);
-      `
+      `,
     );
     prepared.bindDouble(1, southWest.lng);
     prepared.bindDouble(2, southWest.lat);
@@ -63,8 +62,8 @@ export async function fetchEtablissementsFromBoundingBox({
     const reader = await prepared.runAndReadAll();
     return reader.getRowObjectsJson() as unknown as Etablissement[];
   } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to fetch example rows.");
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch example rows.');
   }
 }
 
@@ -77,7 +76,7 @@ export async function fetchCommunesFromBoundingBox({
 }): Promise<Communes> {
   try {
     const connection = await db.connect();
-    await connection.run("LOAD SPATIAL;");
+    await connection.run('LOAD SPATIAL;');
 
     const prepared = await connection.prepare(
       `
@@ -119,7 +118,7 @@ export async function fetchCommunesFromBoundingBox({
       ) as geojson FROM main.departements dept
       INNER JOIN main.communes c ON c.code_departement = dept.code_departement
       WHERE ST_Intersects(ST_MakeEnvelope($1, $2, $3, $4), dept.geom);
-      `
+      `,
     );
     prepared.bindDouble(1, southWest.lng);
     prepared.bindDouble(2, southWest.lat);
@@ -128,17 +127,15 @@ export async function fetchCommunesFromBoundingBox({
     const reader = await prepared.runAndReadAll();
     return JSON.parse(reader.getRowsJson()[0][0] as string);
   } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to fetch example rows.");
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch example rows.');
   }
 }
 
-export async function fetchCommunes(
-  codeDepartement: string | null
-): Promise<Communes> {
+export async function fetchCommunes(codeDepartement: string | null): Promise<Communes> {
   try {
     const connection = await db.connect();
-    await connection.run("LOAD SPATIAL;");
+    await connection.run('LOAD SPATIAL;');
 
     const prepared = await connection.prepare(
       `
@@ -178,7 +175,7 @@ export async function fetchCommunes(
           )
         ), [])
       ) as geojson FROM main.communes c
-      ` + (codeDepartement ? "WHERE c.code_departement = $1" : "")
+      ` + (codeDepartement ? 'WHERE c.code_departement = $1' : ''),
     );
     if (codeDepartement) {
       prepared.bindVarchar(1, codeDepartement);
@@ -187,8 +184,7 @@ export async function fetchCommunes(
     const reader = await prepared.runAndReadAll();
     return JSON.parse(reader.getRowsJson()[0][0] as string);
   } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to fetch example rows.");
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch example rows.');
   }
 }
-

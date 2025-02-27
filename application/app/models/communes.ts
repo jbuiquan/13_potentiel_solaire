@@ -11,9 +11,6 @@ export interface CommuneProperties {
   protection: boolean;
   count_etablissements: number;
 }
-export type Commune = Communes["features"][number];
+export type Commune = Communes['features'][number];
 
-export type Communes = GeoJSON.FeatureCollection<
-  GeoJSON.Geometry,
-  CommuneProperties
->;
+export type Communes = GeoJSON.FeatureCollection<GeoJSON.Geometry, CommuneProperties>;
