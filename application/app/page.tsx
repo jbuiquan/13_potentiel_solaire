@@ -1,4 +1,4 @@
-import Map from "@/components/MapFull";
+import Map from "@/components/MapDeckLIbGL";
 
 export default function Home() {
   return (
