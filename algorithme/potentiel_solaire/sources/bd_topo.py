@@ -61,8 +61,8 @@ def find_gpkg_file_bd_topo(
     """
     files = find_matching_files(
         folder_path=data_directory,
-        file_extension=".gpkg",
-        filename_pattern=rf"BDT.*D{code_departement}"
+        filename_pattern=r".gpkg",
+        folder_pattern=rf"BDT.*D{code_departement}"
     )
 
     assert len(files) < 2, f"More than one gpkg has been found for departement {code_departement}"

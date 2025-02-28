@@ -11,23 +11,23 @@ logger = get_logger()
 
 def find_matching_files(
     folder_path: str,
-    file_extension: str,
-    filename_pattern: str
+    filename_pattern: str,
+    folder_pattern: str
 ) -> list[str]:
     """Searches for files in the given folder that match the specified extension and regex pattern.
 
     :param folder_path: Path to the directory where files are searched.
-    :param file_extension: The file extension to look for (e.g., ".gpkg").
-    :param filename_pattern: Regular expression pattern to match filenames.
+    :param filename_pattern: The pattern of the file name
+    :param folder_pattern: the pattern of the folder where is the file
     :return: List of matching file paths.
     """
     matching_files = []
 
     for parent, _, filenames in os.walk(folder_path):
-            if re.search(filename_pattern, parent):
-                for filename in filenames:
-                    if filename.endswith(file_extension):
-                        matching_files.append(os.path.join(parent, filename))
+        if re.search(folder_pattern, parent):
+            for filename in filenames:
+                if re.search(filename_pattern, filename):
+                    matching_files.append(os.path.join(parent, filename))
 
     return matching_files
 
