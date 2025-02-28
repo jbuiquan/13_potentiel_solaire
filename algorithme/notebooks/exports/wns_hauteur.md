@@ -7,8 +7,10 @@
 ```python
 from pathlib import Path
 import geopandas as gpd
+import os
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 tqdm.pandas()
 
@@ -18,7 +20,64 @@ tqdm.pandas()
 ```python
 # Potentiel solaire package
 from potentiel_solaire.constants import DATA_FOLDER
-from potentiel_solaire.features.roof_attributes import getMesureMNSToit
+from potentiel_solaire.features.roof_attributes import recuperation_mnh_batiment
+```
+
+
+```python
+# Executer ci dessous ci besoin pour récupérer les données
+# !extract-sample-data
+# Et pour sauver une version markdown des notebooks, utiliser
+# jupyter nbconvert wns_hauteur.ipynb --to markdown --output-dir=exports/
+```
+
+
+```python
+
+
+def getMesureMNSToit(row, cache_file="cache.gpkg", layercache="cache_hauteur",
+                     valeur="hauteur_calculee"):
+
+    values = ["hauteur_calculee", "hauteur_std-dev", "hauteur_min",
+              "hauteur_max", "hauteur_median"]
+    if valeur not in values:
+        return -1
+    row = gpd.GeoDataFrame(row).T
+    row = gpd.GeoDataFrame(row, geometry="geometry")
+    if "cleabs_left__bat" in row.columns:
+        row = row.rename(columns={"cleabs_left__bat": "cleabs"})
+    cache_h = DATA_FOLDER / cache_file
+
+    if os.path.isfile(str(cache_h)):
+        gdf = gpd.read_file(cache_h, layer=layercache)
+        existing = gdf["cleabs"].unique()
+    else:
+        existing = []
+    row = row[["cleabs", "hauteur", "geometry"]]
+
+    cols = ["cleabs", "hauteur_calculee", "hauteur", "geometry",
+            "hauteur_std-dev", "hauteur_min", "hauteur_max", "hauteur_median"]
+
+    if row["cleabs"].iloc[0] in existing:
+        v = gdf[gdf.cleabs == row["cleabs"].iloc[0]][valeur].iloc[0]
+        return v
+    else:
+        mnh = recuperation_mnh_batiment(row)
+        row["hauteur_calculee"] = np.average(mnh[np.nonzero(mnh)])
+        row["hauteur_std-dev"] = np.std(mnh[np.nonzero(mnh)])
+        row["hauteur_min"] = np.min(mnh[np.nonzero(mnh)])
+        row["hauteur_max"] = np.max(mnh[np.nonzero(mnh)])
+        row["hauteur_median"] = np.median(mnh[np.nonzero(mnh)])
+
+        if len(existing):
+            gtotal = pd.concat([gdf, row[cols]])
+            gtotal.to_file(cache_h, layer=layercache, driver="GPKG")
+        else:
+            gtotal = row[cols]
+            gtotal.to_file(cache_h, layer=layercache, driver="GPKG")
+
+    return row[valeur]
+
 ```
 
 #### Test sur les batiments de St Denis, qui n'ont pas de hauteur
@@ -40,8 +99,10 @@ for measure in ["hauteur_calculee", "hauteur_std-dev"]:
 batiments_de_test[["cleabs_left__bat","hauteur","hauteur_calculee", "hauteur_std-dev"]]
 ```
 
-    100%|██████████| 100/100 [00:04<00:00, 20.07it/s]
-    100%|██████████| 100/100 [00:04<00:00, 21.57it/s]
+      0%|          | 0/100 [00:00<?, ?it/s]
+
+    100%|██████████| 100/100 [00:03<00:00, 26.00it/s]
+    100%|██████████| 100/100 [00:04<00:00, 24.21it/s]
 
 
 
@@ -160,15 +221,40 @@ batiments_de_test[["cleabs_left__bat","hauteur","hauteur_calculee", "hauteur_std
 
 
 ```python
-def getAccuracy(row):
-    return np.abs(row["hauteur"]-row["hauteur_calculee"])/np.abs(row["hauteur"])
+check = batiments_de_test[~batiments_de_test.hauteur.isna()]
 ```
 
 
 ```python
-check = batiments_de_test[~batiments_de_test.hauteur.isna()]
+identity_line = np.linspace(check.hauteur.min(),
+                            check.hauteur.max())
+
+check.plot.scatter(x="hauteur",y="hauteur_calculee",title="Comparaison hauteur calculée / hauteur 'reelle'")
+plt.plot(identity_line, identity_line, color="red", linestyle="dashed", linewidth=1.0)
+```
+
+
+
+
+    [<matplotlib.lines.Line2D at 0x7c9d31e7be50>]
+
+
+
+
+    
+![png](wns_hauteur_files/wns_hauteur_10_1.png)
+    
+
+
+#### Représentation des erreurs
+
+
+```python
+def getAccuracy(row):
+    return np.abs(row["hauteur"]-row["hauteur_calculee"])/np.abs(row["hauteur"])
 check["difference"] = check.apply(lambda batiment: getAccuracy(batiment), axis = 1)
-check[["cleabs_left__bat","hauteur","hauteur_calculee","difference"]].plot.scatter(x="hauteur",y="difference",title="Erreur de calcul de la hauteur (basée sur dat MNH)\nen fonction de la hauteur")
+detail = "Erreur sur les toits de plus de 5m: "+str(int(100*check["difference"][check.hauteur > 4 ].mean()))+"%"
+check.plot.scatter(x="hauteur",y="difference",title="Erreur en fonction de la hauteur\n"+detail)
 ```
 
     /home/kelu/projets/13_potentiel_solaire/algorithme/.venv/lib/python3.10/site-packages/geopandas/geodataframe.py:1819: SettingWithCopyWarning: 
@@ -182,40 +268,17 @@ check[["cleabs_left__bat","hauteur","hauteur_calculee","difference"]].plot.scatt
 
 
 
-    <Axes: title={'center': 'Erreur de calcul de la hauteur (basée sur dat MNH)\nen fonction de la hauteur'}, xlabel='hauteur', ylabel='difference'>
+    <Axes: title={'center': 'Erreur en fonction de la hauteur\nErreur sur les toits de plus de 5m: 16%'}, xlabel='hauteur', ylabel='difference'>
 
 
 
 
     
-![png](wns_hauteur_files/wns_hauteur_8_2.png)
-    
-
-
-
-```python
-check.plot.scatter(x="hauteur",y="hauteur_calculee",title="Comparaison hauteur calculée / hauteur 'reelle'")
-```
-
-
-
-
-    <Axes: title={'center': "Comparaison hauteur calculée / hauteur 'reelle'"}, xlabel='hauteur', ylabel='hauteur_calculee'>
-
-
-
-
-    
-![png](wns_hauteur_files/wns_hauteur_9_1.png)
+![png](wns_hauteur_files/wns_hauteur_12_2.png)
     
 
 
 #### Test avec les pentes de toit
-
-
-```python
-import matplotlib.pyplot as plt
-```
 
 
 ```python
@@ -238,3 +301,9 @@ for key, group in grouped:
     group.plot.scatter(ax=ax, x='h', y='stdev', label=key, color=colors[key])
 plt.show()
 ```
+
+
+    
+![png](wns_hauteur_files/wns_hauteur_16_0.png)
+    
+
