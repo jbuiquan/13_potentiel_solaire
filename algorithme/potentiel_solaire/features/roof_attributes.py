@@ -1,15 +1,49 @@
 # TODO
-import os
-import geopandas as gpd
 from owslib.wms import WebMapService
 from rasterio import MemoryFile
 import rasterio.mask
-from potentiel_solaire.constants import DATA_FOLDER
-import numpy as np
-import pandas as pd
+import geopandas as gpd
 
 
-def getRaster(boite, layer, srs, X, Y):
+def recuperation_flux_wms(boite: list[int], layer: str,
+                          srs: str, X: int, Y: int):
+    """
+    Retrieve geospatial data from a WMS service as a GeoTIFF image.
+
+    This function connects to the French national geographic institute's (IGN)
+    WMS server and retrieves raster data for the specified layer and bounding
+    box.
+
+    Parameters
+    ----------
+    boite : tuple or list
+        Bounding box coordinates in the format (xmin, ymin, xmax, ymax)
+        defining the area of interest.
+    layer : str
+        The WMS layer name to request (e.g.,
+        "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES").
+    srs : str
+        Spatial reference system identifier (e.g., 'EPSG:2154') for the
+        coordinate system of the input bounding box and output data.
+    X : int
+        Width of the requested image in pixels.
+    Y : int
+        Height of the requested image in pixels.
+
+    Returns
+    -------
+    bytes
+        The raw GeoTIFF image data as a bytes object, which can be processed
+        further using libraries like rasterio or saved to a file.
+
+    Notes
+    -----
+    - Uses the OWSLib WebMapService client to connect to the IGN WMS server
+    - Requests data in GeoTIFF format for preserving geospatial information
+    - The server URL is hardcoded to the French Géoportail WMS endpoint
+    - Uses WMS version 1.3.0 for the request
+    """
+
     url = "https://data.geopf.fr/wms-r/wms?SERVICE=WMS"
     wms = WebMapService(url, version='1.3.0')
 
@@ -19,66 +53,90 @@ def getRaster(boite, layer, srs, X, Y):
     return img_mns
 
 
-def rasterMNH(row):
+def recuperation_mnx_batiment(row: gpd.GeoDataFrame,
+                              srs: str,
+                              layer: str):
+    """
+    Retrieve elevation raster data (MNS or MNT) for a specific building
+    footprint.
 
+    This function calculates the bounding box of the input geometry,
+    retrieves the corresponding elevation data via WMS, and then masks
+    the raster to the exact building geometry.
+
+    Parameters
+    ----------
+    row : geopandas.GeoSeries or similar
+        A row containing building geometry information with 'geometry'
+        attribute and 'total_bounds' method to retrieve the bounding box.
+    srs : str
+        Spatial reference system identifier (e.g., 'EPSG:2154') for the
+        coordinate system to use in the WMS request.
+    layer : str
+        WMS layer name to request (e.g.,
+        "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES.MNS"
+        for MNS or "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES" for MNT).
+
+    Returns
+    -------
+    numpy.ndarray
+        Masked elevation raster data corresponding to the building geometry.
+
+    Notes
+    -----
+    - Uses the recuperation_flux_wms function to retrieve the elevation data
+    - Uses rasterio.mask to clip the raster to the building geometry
+    - The MemoryFile class is used to handle the raster data in memory
+    """
     boite = row.total_bounds
     X = int((boite[2]-boite[0])*2)
     Y = int((boite[3]-boite[1])*2)
 
-    img_mns = getRaster(boite, "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES.MNS",
-                        srs='EPSG:2154', X=X, Y=Y)
+    img_mns = recuperation_flux_wms(boite, layer,
+                                    srs=srs, X=X, Y=Y)
     with MemoryFile(img_mns) as memfile:
         with memfile.open() as dataset:
             mns, _ = rasterio.mask.mask(dataset, row.geometry, crop=True)
 
-    img_mnt = getRaster(boite, "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES",
-                        srs='EPSG:2154', X=X, Y=Y)
-    with MemoryFile(img_mnt) as memfile:
-        with memfile.open() as dataset:
-            mnt, _ = rasterio.mask.mask(dataset, row.geometry, crop=True)
-    mnh = mns - mnt
-    return mnh
+    return mns
 
 
-def getMesureMNSToit(row, cache_file="cache.gpkg", layercache="cache_hauteur",
-                     valeur="hauteur_calculee"):
+def recuperation_mns_batiment(row: gpd.GeoDataFrame):
+    srs_mnx = 'EPSG:2154'
+    nom_couche_mns = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES.MNS"
+    return recuperation_mnx_batiment(row, srs_mnx, nom_couche_mns)
 
-    values = ["hauteur_calculee", "hauteur_std-dev", "hauteur_min",
-              "hauteur_max", "hauteur_median"]
-    if valeur not in values:
-        return -1
-    row = gpd.GeoDataFrame(row).T
-    row = gpd.GeoDataFrame(row, geometry="geometry")
-    if "cleabs_left__bat" in row.columns:
-        row = row.rename(columns={"cleabs_left__bat": "cleabs"})
-    cache_h = DATA_FOLDER / cache_file
 
-    if os.path.isfile(str(cache_h)):
-        gdf = gpd.read_file(cache_h, layer=layercache)
-        existing = gdf["cleabs"].unique()
-    else:
-        existing = []
-    row = row[["cleabs", "hauteur", "geometry"]]
+def recuperation_mnt_batiment(row: gpd.GeoDataFrame):
+    srs_mnx = 'EPSG:2154'
+    nom_couche_mnt = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES"
+    return recuperation_mnx_batiment(row, srs_mnx, nom_couche_mnt)
 
-    cols = ["cleabs", "hauteur_calculee", "hauteur", "geometry",
-            "hauteur_std-dev", "hauteur_min", "hauteur_max", "hauteur_median"]
 
-    if row["cleabs"].iloc[0] in existing:
-        v = gdf[gdf.cleabs == row["cleabs"].iloc[0]][valeur].iloc[0]
-        return v
-    else:
-        mnh = rasterMNH(row)
-        row["hauteur_calculee"] = np.average(mnh[np.nonzero(mnh)])
-        row["hauteur_std-dev"] = np.std(mnh[np.nonzero(mnh)])
-        row["hauteur_min"] = np.min(mnh[np.nonzero(mnh)])
-        row["hauteur_max"] = np.max(mnh[np.nonzero(mnh)])
-        row["hauteur_median"] = np.median(mnh[np.nonzero(mnh)])
+def recuperation_mnh_batiment(row: gpd.GeoDataFrame):
+    """
+    Calculate the normalized height model (MNH) for a building by subtracting
+    the Digital Terrain Model (MNT) from the Digital Surface Model (MNS).
 
-        if len(existing):
-            gtotal = pd.concat([gdf, row[cols]])
-            gtotal.to_file(cache_h, layer=layercache, driver="GPKG")
-        else:
-            gtotal = row[cols]
-            gtotal.to_file(cache_h, layer=layercache, driver="GPKG")
+    This function retrieves both the MNT and MNS data for a specific building
+    represented by the input row, and calculates the difference between them to
+    obtain the normalized height model, which represents the height of objects
+    above ground level.
 
-    return row[valeur]
+    Parameters
+    ----------
+    row : geopandas.GeoSeries
+        A row with geometric information about a building, required by the
+        underlying recuperation_mnx_batiment function.
+
+    Returns
+    -------
+    numpy.ndarray or similar
+        The MNH for the building, calculated as
+        the difference between MNS and MNT values.
+    """
+
+    mns = recuperation_mns_batiment(row)
+    mnt = recuperation_mnt_batiment(row)
+
+    return mns - mnt
