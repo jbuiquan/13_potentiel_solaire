@@ -2,12 +2,14 @@ import geopandas as gpd
 
 from potentiel_solaire.features.solar_exposition import calculate_solar_exposition_building
 from potentiel_solaire.features.roof_attributes import calculate_surface_utile
+from potentiel_solaire.features.protected_tag import link_protected_buildings
 from potentiel_solaire.constants import RENDEMENT_PANNEAU_PV
 
 
 def calculate_solar_potential(
     schools_buildings: gpd.GeoDataFrame,
     bd_irradiation_path: str,
+    bd_protected_buildings_path: str,
     buffer_for_buildings_surroundings: int = 2000,
     rendement_panneau_pv: float = RENDEMENT_PANNEAU_PV
 ) -> gpd.GeoDataFrame:
@@ -52,7 +54,7 @@ def calculate_solar_potential(
 
     # Ajout du tag batiments proteges ou en zone protegee
     schools_buildings["protection"] = schools_buildings.apply(
-        lambda building: None, axis=1
-    )  # TODO : a implementer
+        lambda building: link_protected_buildings(building["geometry"], bd_protected_buildings_path), axis=1
+    )
 
     return schools_buildings
