@@ -48,10 +48,17 @@ def get_areas_with_protected_buildings(
     :param crs_for_buffers: crs utilise pour le calcul des buffers (en metres)
     :return: gdf des zones avec des batiments proteges
     """
+    # Aggrandissement de la zone d interet pour eviter les effets de bords
+    geom_of_interest_buffered = geom_of_interest.to_crs(
+        crs_for_buffers
+    ).buffer(buffer_size_for_protected_buildings)
+
+    # Lecture de la bdd des batiments proteges sur la zone dinteret bufferizee
     protected_buildings = gpd.read_file(
-        bd_protected_buildings_path, mask=geom_of_interest
+        bd_protected_buildings_path, mask=geom_of_interest_buffered
     ).to_crs(crs_for_buffers)
 
+    # On cree un buffer autour de chaque batiment protege
     areas_with_protected_buildings = protected_buildings.buffer(
         buffer_size_for_protected_buildings,
         cap_style="round"
