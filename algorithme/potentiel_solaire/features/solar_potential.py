@@ -9,7 +9,7 @@ from potentiel_solaire.constants import RENDEMENT_PANNEAU_PV
 def calculate_solar_potential(
     schools_buildings: gpd.GeoDataFrame,
     bd_irradiation_path: str,
-    bd_protected_buildings_path: str,
+    protected_buildings: gpd.GeoDataFrame,
     buffer_for_buildings_surroundings: int = 2000,
     rendement_panneau_pv: float = RENDEMENT_PANNEAU_PV
 ) -> gpd.GeoDataFrame:
@@ -17,6 +17,7 @@ def calculate_solar_potential(
 
     :param schools_buildings: les batiments rataches a une ecole
     :param bd_irradiation_path: chemin du fichier .tif des donnees d irradiation
+    :param protected_buildings: gdf des batiments protege
     :param buffer_for_buildings_surroundings: distance autour du batiment a prendre en compte
     :param rendement_panneau_pv: ration du rendement d un panneau solaire
     :return: le geodataframe des batiments scolaires avec les features de potentiel solaire
@@ -24,7 +25,7 @@ def calculate_solar_potential(
 
     # Calcul de la surface totale au sol & zone de 2km autour des batiment
     crs_init = schools_buildings.crs
-    schools_buildings = schools_buildings.to_crs(epsg=6933)  # pourquoi ? est-ce applicable aux DROMs ?
+    schools_buildings = schools_buildings.to_crs(epsg=6933)
     schools_buildings["surface_totale_au_sol"] = schools_buildings.area
     schools_buildings["zone_autour_du_batiment"] = schools_buildings.buffer(
         distance=buffer_for_buildings_surroundings
@@ -54,7 +55,7 @@ def calculate_solar_potential(
 
     # Ajout du tag batiments proteges ou en zone protegee
     schools_buildings["protection"] = schools_buildings.apply(
-        lambda building: link_protected_buildings(building["geometry"], bd_protected_buildings_path), axis=1
+        lambda building: link_protected_buildings(building["geometry"], protected_buildings), axis=1
     )
 
     return schools_buildings
