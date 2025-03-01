@@ -3,21 +3,21 @@ import geopandas as gpd
 from potentiel_solaire.features.solar_exposition import calculate_solar_exposition_building
 from potentiel_solaire.features.roof_attributes import calculate_surface_utile
 from potentiel_solaire.features.protected_tag import link_protected_buildings
-from potentiel_solaire.constants import RENDEMENT_PANNEAU_PV
+from potentiel_solaire.constants import RENDEMENT_PANNEAU_PV, BUFFER_SIZE_FOR_SOLAR_EXPOSITION
 
 
 def calculate_solar_potential(
     schools_buildings: gpd.GeoDataFrame,
     bd_irradiation_path: str,
-    protected_buildings: gpd.GeoDataFrame,
-    buffer_for_buildings_surroundings: int = 2000,
+    areas_with_protected_buildings: gpd.GeoDataFrame,
+    buffer_for_buildings_surroundings: int = BUFFER_SIZE_FOR_SOLAR_EXPOSITION,
     rendement_panneau_pv: float = RENDEMENT_PANNEAU_PV
 ) -> gpd.GeoDataFrame:
     """Fonction principale pour calculer le potentiel solaire.
 
     :param schools_buildings: les batiments rataches a une ecole
     :param bd_irradiation_path: chemin du fichier .tif des donnees d irradiation
-    :param protected_buildings: gdf des batiments protege
+    :param areas_with_protected_buildings: gdf des zones avec des batiments proteges
     :param buffer_for_buildings_surroundings: distance autour du batiment a prendre en compte
     :param rendement_panneau_pv: ration du rendement d un panneau solaire
     :return: le geodataframe des batiments scolaires avec les features de potentiel solaire
@@ -55,7 +55,10 @@ def calculate_solar_potential(
 
     # Ajout du tag batiments proteges ou en zone protegee
     schools_buildings["protection"] = schools_buildings.apply(
-        lambda building: link_protected_buildings(building["geometry"], protected_buildings), axis=1
+        lambda building: link_protected_buildings(
+            building=building["geometry"],
+            areas_with_protected_buildings=areas_with_protected_buildings
+        ), axis=1
     )
 
     return schools_buildings
