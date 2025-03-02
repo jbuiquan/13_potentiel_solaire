@@ -71,4 +71,4 @@ def get_schools_establishments_of_interest(
         (schools_establishments["type_etablissement"].isin(types_etablissements)) &
         (schools_establishments["statut_public_prive"] == statut_public_prive) &
         (schools_establishments["etat"] == etat)
-        ][columns].to_crs(crs)
+        ].to_crs(crs) #[columns]

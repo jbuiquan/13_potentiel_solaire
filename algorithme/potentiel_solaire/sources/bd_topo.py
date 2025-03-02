@@ -145,7 +145,7 @@ def get_topo_zones_of_interest(
         (activity_zones["nature"].isin(natures))
     ]
 
-    return educational_zones[columns].to_crs(crs)
+    return educational_zones.to_crs(crs) #[columns]
 
 
 def get_topo_buildings_of_interest(
@@ -174,4 +174,4 @@ def get_topo_buildings_of_interest(
         layer="batiment"
     )
 
-    return buildings[columns].to_crs(crs)
+    return buildings.to_crs(crs) #[columns]
