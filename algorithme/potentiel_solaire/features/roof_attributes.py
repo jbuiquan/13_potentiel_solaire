@@ -1,8 +1,12 @@
 # TODO
 from owslib.wms import WebMapService
-from rasterio import MemoryFile
 import rasterio.mask
 import geopandas as gpd
+import os
+import hashlib
+from shapely import wkt
+
+from potentiel_solaire.constants import DATA_FOLDER
 
 
 def recuperation_flux_wms(boite: list[int], layer: str,
@@ -45,7 +49,7 @@ def recuperation_flux_wms(boite: list[int], layer: str,
     """
 
     url = "https://data.geopf.fr/annexes/ressources/wms-r/essentiels.xml"
-    # Originally "https://data.geopf.fr/wms-r/wms?SERVICE=WMS" 
+    # Originally "https://data.geopf.fr/wms-r/wms?SERVICE=WMS"
     # but failed with a 'content-type' error.
     wms = WebMapService(url, version='1.3.0')
 
@@ -57,7 +61,8 @@ def recuperation_flux_wms(boite: list[int], layer: str,
 
 def recuperation_mnx_batiment(row: gpd.GeoDataFrame,
                               srs: str,
-                              layer: str):
+                              layer: str,
+                              cache=False):
     """
     Retrieve elevation raster data (MNS or MNT) for a specific building
     footprint.
@@ -89,33 +94,46 @@ def recuperation_mnx_batiment(row: gpd.GeoDataFrame,
     - Uses the recuperation_flux_wms function to retrieve the elevation data
     - Uses rasterio.mask to clip the raster to the building geometry
     - The MemoryFile class is used to handle the raster data in memory
+    - Cached:   takes 23.9 ms ± 1.9 ms per loop
+    - Uncached: takes 1.66 s  ± 138 ms per loop
     """
     boite = row.total_bounds
-    X = int((boite[2]-boite[0])*2)
-    Y = int((boite[3]-boite[1])*2)
+    x = int((boite[2]-boite[0])*2)
+    y = int((boite[3]-boite[1])*2)
 
-    img_mns = recuperation_flux_wms(boite, layer,
-                                    srs=srs, X=X, Y=Y)
-    with MemoryFile(img_mns) as memfile:
-        with memfile.open() as dataset:
-            mns, _ = rasterio.mask.mask(dataset, row.geometry, crop=True)
+    layer_hash = hashlib.md5(layer.encode()).hexdigest()[:8]
+    wkts = wkt.dumps(row.geometry.iloc[0])
+    wkts = hashlib.md5(wkts.encode()).hexdigest()[:8]
+    filename = f'{wkts}.tiff'
+    # Stores diffent layers in different folders
+    path_to_wns_cache = DATA_FOLDER / "cache" / "wns" / layer_hash
+    # Creates folders if not existing
+    path_to_wns_cache.mkdir(parents=True, exist_ok=True)
+    wns_data_path = path_to_wns_cache / filename
 
-    return mns
+    if not os.path.isfile(str(wns_data_path)) or (not cache):
+        flux = recuperation_flux_wms(boite, layer=layer, srs=srs,
+                                     X=x, Y=y)
+        with open(wns_data_path, 'wb') as out:
+            out.write(flux.read())
+    with rasterio.open(wns_data_path) as img:
+        data, _ = rasterio.mask.mask(img, row.geometry, crop=True)
+    return data
 
 
-def recuperation_mns_batiment(row: gpd.GeoDataFrame):
+def recuperation_mns_batiment(row: gpd.GeoDataFrame, cache=False):
     srs_mnx = 'EPSG:2154'
     nom_couche_mns = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES.MNS"
-    return recuperation_mnx_batiment(row, srs_mnx, nom_couche_mns)
+    return recuperation_mnx_batiment(row, srs_mnx, nom_couche_mns, cache=cache)
 
 
-def recuperation_mnt_batiment(row: gpd.GeoDataFrame):
+def recuperation_mnt_batiment(row: gpd.GeoDataFrame, cache=False):
     srs_mnx = 'EPSG:2154'
     nom_couche_mnt = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES"
-    return recuperation_mnx_batiment(row, srs_mnx, nom_couche_mnt)
+    return recuperation_mnx_batiment(row, srs_mnx, nom_couche_mnt, cache=cache)
 
 
-def recuperation_mnh_batiment(row: gpd.GeoDataFrame):
+def recuperation_mnh_batiment(row: gpd.GeoDataFrame, cache=False):
     """
     Calculate the normalized height model (MNH) for a building by subtracting
     the Digital Terrain Model (MNT) from the Digital Surface Model (MNS).
@@ -138,8 +156,8 @@ def recuperation_mnh_batiment(row: gpd.GeoDataFrame):
         the difference between MNS and MNT values.
     """
 
-    mns = recuperation_mns_batiment(row)
-    mnt = recuperation_mnt_batiment(row)
+    mns = recuperation_mns_batiment(row, cache=cache)
+    mnt = recuperation_mnt_batiment(row, cache=cache)
     return mns - mnt
 
 
@@ -160,4 +178,3 @@ def calculate_surface_utile(surface_totale_au_sol: float):
         return ratio * surface_totale_au_sol
 
     return 0.6 * surface_totale_au_sol
-
