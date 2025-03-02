@@ -11,11 +11,11 @@ from potentiel_solaire.constants import DATA_FOLDER
 
 
 def recuperation_flux_wms(
-    bbox: list[int],
-    layer: str,
-    srs: str,
-    width: int,
-    height: int
+        bbox: list[int],
+        layer: str,
+        srs: str,
+        width: int,
+        height: int
 ):
     """
     Retrieve geospatial data from a WMS service as a GeoTIFF image.
@@ -71,10 +71,10 @@ def recuperation_flux_wms(
 
 
 def recuperation_mnx(
-    zone_of_interest: gpd.GeoDataFrame,
-    srs: str,
-    layer: str,
-    cache: bool = False
+        zone_of_interest: gpd.GeoDataFrame,
+        srs: str,
+        layer: str,
+        cache: bool = False
 ):
     """
     Retrieve elevation raster data (MNS or MNT) for a specific building
@@ -113,8 +113,14 @@ def recuperation_mnx(
     - Uncached: takes 1.66 s  ± 138 ms per loop
     """
     bbox = zone_of_interest.total_bounds
-    wigth = int((bbox[2]-bbox[0])*2)
-    height = int((bbox[3]-bbox[1])*2)
+    wigth = int((bbox[2] - bbox[0]) * 2)
+    height = int((bbox[3] - bbox[1]) * 2)
+
+    if zone_of_interest.crs != srs:
+        raise ValueError(
+            "The zone of interest is of crs {} and for layer {} only crs {} is supported".format(
+                zone_of_interest.crs, layer, srs
+            ))
 
     if not cache:
         flux = recuperation_flux_wms(
@@ -164,8 +170,8 @@ def recuperation_mnt(zone_of_interest: gpd.GeoDataFrame, cache: bool = False):
 
 
 def recuperation_mnh(
-    zone_of_interest: gpd.GeoDataFrame,
-    cache: bool = False
+        zone_of_interest: gpd.GeoDataFrame,
+        cache: bool = False
 ):
     """
     Calculate the normalized height model (MNH) for a building by subtracting
