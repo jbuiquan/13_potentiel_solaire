@@ -10,8 +10,13 @@ from rasterio import MemoryFile
 from potentiel_solaire.constants import DATA_FOLDER
 
 
-def recuperation_flux_wms(boite: list[int], layer: str,
-                          srs: str, X: int, Y: int):
+def recuperation_flux_wms(
+    bbox: list[int],
+    layer: str,
+    srs: str,
+    width: int,
+    height: int
+):
     """
     Retrieve geospatial data from a WMS service as a GeoTIFF image.
 
@@ -21,7 +26,7 @@ def recuperation_flux_wms(boite: list[int], layer: str,
 
     Parameters
     ----------
-    boite : tuple or list
+    bbox : tuple or list
         Bounding box coordinates in the format (xmin, ymin, xmax, ymax)
         defining the area of interest.
     layer : str
@@ -30,9 +35,9 @@ def recuperation_flux_wms(boite: list[int], layer: str,
     srs : str
         Spatial reference system identifier (e.g., 'EPSG:2154') for the
         coordinate system of the input bounding box and output data.
-    X : int
+    width : int
         Width of the requested image in pixels.
-    Y : int
+    height : int
         Height of the requested image in pixels.
 
     Returns
@@ -55,16 +60,22 @@ def recuperation_flux_wms(boite: list[int], layer: str,
     url = "https://data.geopf.fr/annexes/ressources/wms-r/essentiels.xml"
     wms = WebMapService(url, version='1.3.0')
 
-    img_mns = wms.getmap(layers=[layer],
-                         srs=srs, bbox=boite, size=(X, Y),
-                         format='image/geotiff')
+    img_mns = wms.getmap(
+        layers=[layer],
+        srs=srs,
+        bbox=bbox,
+        size=(width, height),
+        format='image/geotiff'
+    )
     return img_mns
 
 
-def recuperation_mnx_batiment(row: gpd.GeoDataFrame,
-                              srs: str,
-                              layer: str,
-                              cache=False):
+def recuperation_mnx(
+    zone_of_interest: gpd.GeoDataFrame,
+    srs: str,
+    layer: str,
+    cache: bool = False
+):
     """
     Retrieve elevation raster data (MNS or MNT) for a specific building
     footprint.
@@ -75,7 +86,7 @@ def recuperation_mnx_batiment(row: gpd.GeoDataFrame,
 
     Parameters
     ----------
-    row : geopandas.GeoSeries or similar
+    zone_of_interest : geopandas.GeoSeries or similar
         A row containing building geometry information with 'geometry'
         attribute and 'total_bounds' method to retrieve the bounding box.
     srs : str
@@ -85,6 +96,8 @@ def recuperation_mnx_batiment(row: gpd.GeoDataFrame,
         WMS layer name to request (e.g.,
         "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES.MNS"
         for MNS or "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES" for MNT).
+    cache : bool
+        to cache or not results locally
 
     Returns
     -------
@@ -99,20 +112,21 @@ def recuperation_mnx_batiment(row: gpd.GeoDataFrame,
     - Cached:   takes 23.9 ms ± 1.9 ms per loop
     - Uncached: takes 1.66 s  ± 138 ms per loop
     """
-    boite = row.total_bounds
-    x = int((boite[2]-boite[0])*2)
-    y = int((boite[3]-boite[1])*2)
+    bbox = zone_of_interest.total_bounds
+    wigth = int((bbox[2]-bbox[0])*2)
+    height = int((bbox[3]-bbox[1])*2)
 
     if not cache:
-        flux = recuperation_flux_wms(boite, layer=layer, srs=srs,
-                                     X=x, Y=y)
+        flux = recuperation_flux_wms(
+            bbox=bbox, layer=layer, srs=srs, width=wigth, height=height
+        )
         with MemoryFile(flux) as memfile:
             with memfile.open() as img:
-                data, _ = rasterio.mask.mask(img, row.geometry, crop=True)
+                data, _ = rasterio.mask.mask(img, zone_of_interest.geometry, crop=True)
     else:
         # Creation des IDs des cache
         layer_hash = hashlib.md5(layer.encode()).hexdigest()[:8]
-        wkts = wkt.dumps(row.geometry.iloc[0])
+        wkts = wkt.dumps(zone_of_interest.geometry.iloc[0])
         wkts = hashlib.md5(wkts.encode()).hexdigest()[:8]
         filename = f'{wkts}.tiff'
         # Stores diffent layers in different folders
@@ -122,29 +136,37 @@ def recuperation_mnx_batiment(row: gpd.GeoDataFrame,
         wns_data_path = path_to_wns_cache / filename
         # Saves files
         if not os.path.isfile(str(wns_data_path)):
-            flux = recuperation_flux_wms(boite, layer=layer, srs=srs,
-                                         X=x, Y=y)
+            flux = recuperation_flux_wms(
+                bbox=bbox, layer=layer, srs=srs, width=wigth, height=height
+            )
             with open(wns_data_path, 'wb') as out:
                 out.write(flux.read())
         with rasterio.open(wns_data_path) as img:
-            data, _ = rasterio.mask.mask(img, row.geometry, crop=True)
+            data, _ = rasterio.mask.mask(img, zone_of_interest.geometry, crop=True)
 
     return data
 
 
-def recuperation_mns_batiment(row: gpd.GeoDataFrame, cache=False):
+def recuperation_mns(zone_of_interest: gpd.GeoDataFrame, cache: bool = False):
     srs_mnx = 'EPSG:2154'
     nom_couche_mns = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES.MNS"
-    return recuperation_mnx_batiment(row, srs_mnx, nom_couche_mns, cache=cache)
+    return recuperation_mnx(
+        zone_of_interest=zone_of_interest, srs=srs_mnx, layer=nom_couche_mns, cache=cache
+    )
 
 
-def recuperation_mnt_batiment(row: gpd.GeoDataFrame, cache=False):
+def recuperation_mnt(zone_of_interest: gpd.GeoDataFrame, cache: bool = False):
     srs_mnx = 'EPSG:2154'
     nom_couche_mnt = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES"
-    return recuperation_mnx_batiment(row, srs_mnx, nom_couche_mnt, cache=cache)
+    return recuperation_mnx(
+        zone_of_interest=zone_of_interest, srs=srs_mnx, layer=nom_couche_mnt, cache=cache
+    )
 
 
-def recuperation_mnh_batiment(row: gpd.GeoDataFrame, cache=False):
+def recuperation_mnh(
+    zone_of_interest: gpd.GeoDataFrame,
+    cache: bool = False
+):
     """
     Calculate the normalized height model (MNH) for a building by subtracting
     the Digital Terrain Model (MNT) from the Digital Surface Model (MNS).
@@ -156,9 +178,11 @@ def recuperation_mnh_batiment(row: gpd.GeoDataFrame, cache=False):
 
     Parameters
     ----------
-    row : geopandas.GeoSeries
+    zone_of_interest : geopandas.GeoSeries
         A row with geometric information about a building, required by the
         underlying recuperation_mnx_batiment function.
+    cache : bool
+        to cache or not results locally
 
     Returns
     -------
@@ -167,8 +191,8 @@ def recuperation_mnh_batiment(row: gpd.GeoDataFrame, cache=False):
         the difference between MNS and MNT values.
     """
 
-    mns = recuperation_mns_batiment(row, cache=cache)
-    mnt = recuperation_mnt_batiment(row, cache=cache)
+    mns = recuperation_mns(zone_of_interest=zone_of_interest, cache=cache)
+    mnt = recuperation_mnt(zone_of_interest=zone_of_interest, cache=cache)
     return mns - mnt
 
 
