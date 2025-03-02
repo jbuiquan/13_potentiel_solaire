@@ -5,6 +5,7 @@ import geopandas as gpd
 import os
 import hashlib
 from shapely import wkt
+from rasterio import MemoryFile
 
 from potentiel_solaire.constants import DATA_FOLDER
 
@@ -102,23 +103,32 @@ def recuperation_mnx_batiment(row: gpd.GeoDataFrame,
     x = int((boite[2]-boite[0])*2)
     y = int((boite[3]-boite[1])*2)
 
-    layer_hash = hashlib.md5(layer.encode()).hexdigest()[:8]
-    wkts = wkt.dumps(row.geometry.iloc[0])
-    wkts = hashlib.md5(wkts.encode()).hexdigest()[:8]
-    filename = f'{wkts}.tiff'
-    # Stores diffent layers in different folders
-    path_to_wns_cache = DATA_FOLDER / "cache" / "wns" / layer_hash
-    # Creates folders if not existing
-    path_to_wns_cache.mkdir(parents=True, exist_ok=True)
-    wns_data_path = path_to_wns_cache / filename
-
-    if not os.path.isfile(str(wns_data_path)) or (not cache):
+    if not cache:
         flux = recuperation_flux_wms(boite, layer=layer, srs=srs,
                                      X=x, Y=y)
-        with open(wns_data_path, 'wb') as out:
-            out.write(flux.read())
-    with rasterio.open(wns_data_path) as img:
-        data, _ = rasterio.mask.mask(img, row.geometry, crop=True)
+        with MemoryFile(flux) as memfile:
+            with memfile.open() as img:
+                data, _ = rasterio.mask.mask(img, row.geometry, crop=True)
+    else:
+        # Creation des IDs des cache
+        layer_hash = hashlib.md5(layer.encode()).hexdigest()[:8]
+        wkts = wkt.dumps(row.geometry.iloc[0])
+        wkts = hashlib.md5(wkts.encode()).hexdigest()[:8]
+        filename = f'{wkts}.tiff'
+        # Stores diffent layers in different folders
+        path_to_wns_cache = DATA_FOLDER / "cache" / "wns" / layer_hash
+        # Creates folders if not existing
+        path_to_wns_cache.mkdir(parents=True, exist_ok=True)
+        wns_data_path = path_to_wns_cache / filename
+        # Saves files
+        if not os.path.isfile(str(wns_data_path)):
+            flux = recuperation_flux_wms(boite, layer=layer, srs=srs,
+                                         X=x, Y=y)
+            with open(wns_data_path, 'wb') as out:
+                out.write(flux.read())
+        with rasterio.open(wns_data_path) as img:
+            data, _ = rasterio.mask.mask(img, row.geometry, crop=True)
+
     return data
 
 
