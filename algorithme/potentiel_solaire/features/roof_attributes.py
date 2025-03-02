@@ -48,9 +48,10 @@ def recuperation_flux_wms(boite: list[int], layer: str,
     - Uses WMS version 1.3.0 for the request
     """
 
-    url = "https://data.geopf.fr/annexes/ressources/wms-r/essentiels.xml"
+    # url = "https://data.geopf.fr/wms-r"
     # Originally "https://data.geopf.fr/wms-r/wms?SERVICE=WMS"
-    # but failed with a 'content-type' error.
+    # but failed with a 'content-type' error. Then tested below which worked
+    url = "https://data.geopf.fr/annexes/ressources/wms-r/essentiels.xml"
     wms = WebMapService(url, version='1.3.0')
 
     img_mns = wms.getmap(layers=[layer],
