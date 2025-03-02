@@ -6,30 +6,24 @@
 
 ```python
 from pathlib import Path
-import geopandas as gpd
+from shapely import wkt
 import os
+import rasterio.mask
+import geopandas as gpd
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import hashlib
 tqdm.pandas()
 
 ```
 
 
 ```python
-# Past legacy from tests. Kept here for testing purposes only.
-from owslib.wms import WebMapService
-from rasterio import MemoryFile
-import rasterio.mask
-import geopandas as gpd
-```
-
-
-```python
 # Potentiel solaire package
 from potentiel_solaire.constants import DATA_FOLDER
-from potentiel_solaire.features.roof_attributes import recuperation_mnh_batiment, recuperation_mns_batiment
+from potentiel_solaire.features.roof_attributes import recuperation_mnh_batiment, recuperation_mns_batiment, recuperation_mnx_batiment
 ```
 
 
@@ -42,10 +36,39 @@ from potentiel_solaire.features.roof_attributes import recuperation_mnh_batiment
 
 
 ```python
+saint_denis_path = DATA_FOLDER / "saint_denis_reference_data.gpkg"
+batiments = gpd.read_file(saint_denis_path, layer="bdtopo_batiment").to_crs(2154)
+batiments = batiments.to_crs(2154)
+```
+
+# Testing caching
 
 
-def getMesureMNHToit(row, cache_file="cache.gpkg", layercache="cache_hauteur",
-                     valeur="hauteur_calculee"):
+
+```python
+%%timeit -n3 -r2
+# Takes 2s
+recuperation_mnx_batiment(batiments[1:2], srs = 'EPSG:2154', layer = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES", cache=False)
+```
+
+    1.66 s ± 138 ms per loop (mean ± std. dev. of 2 runs, 3 loops each)
+
+
+
+```python
+%%timeit -n3
+# Takes 0.0s
+recuperation_mnx_batiment(batiments[1:2], srs = 'EPSG:2154', layer = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES", cache=True)
+```
+
+    23.9 ms ± 1.9 ms per loop (mean ± std. dev. of 7 runs, 3 loops each)
+
+
+# Testing parameters
+
+
+```python
+def getMesureMNHToit(row, valeur="hauteur_calculee"):
 
     values = ["hauteur_calculee", "hauteur_std-dev", "hauteur_min",
               "hauteur_max", "hauteur_median","mns_std-dev"]
@@ -53,52 +76,21 @@ def getMesureMNHToit(row, cache_file="cache.gpkg", layercache="cache_hauteur",
         return -1
     row = gpd.GeoDataFrame(row).T
     row = gpd.GeoDataFrame(row, geometry="geometry")
-    if "cleabs_left__bat" in row.columns:
-        row = row.rename(columns={"cleabs_left__bat": "cleabs"})
-    cache_h = DATA_FOLDER / cache_file
 
-    if os.path.isfile(str(cache_h)):
-        gdf = gpd.read_file(cache_h, layer=layercache)
-        existing = gdf["cleabs"].unique()
-    else:
-        existing = []
-    row = row[["cleabs", "hauteur", "geometry"]]
+    mnh = recuperation_mnh_batiment(row, cache=True)
+    mns = recuperation_mns_batiment(row, cache=True)
+    row["hauteur_calculee"] = np.average(mnh[np.nonzero(mnh)])
+    row["hauteur_std-dev"] = np.std(mnh[np.nonzero(mnh)])
+    row["mns_std-dev"] = np.std(mns[np.nonzero(mns)])
+    row["hauteur_min"] = np.min(mnh[np.nonzero(mnh)])
+    row["hauteur_max"] = np.max(mnh[np.nonzero(mnh)])
+    row["hauteur_median"] = np.median(mnh[np.nonzero(mnh)])
 
-    cols = ["cleabs", "hauteur_calculee", "hauteur", "geometry",
-            "hauteur_std-dev", "hauteur_min", "hauteur_max", "hauteur_median","mns_std-dev"]
-
-    if row["cleabs"].iloc[0] in existing:
-        v = gdf[gdf.cleabs == row["cleabs"].iloc[0]][valeur].iloc[0]
-        return v
-    else:
-        mnh = recuperation_mnh_batiment(row)
-        mns = recuperation_mns_batiment(row)
-        row["hauteur_calculee"] = np.average(mnh[np.nonzero(mnh)])
-        row["hauteur_std-dev"] = np.std(mnh[np.nonzero(mnh)])
-        row["mns_std-dev"] = np.std(mns[np.nonzero(mns)])
-        row["hauteur_min"] = np.min(mnh[np.nonzero(mnh)])
-        row["hauteur_max"] = np.max(mnh[np.nonzero(mnh)])
-        row["hauteur_median"] = np.median(mnh[np.nonzero(mnh)])
-
-        if len(existing):
-            gtotal = pd.concat([gdf, row[cols]])
-            gtotal.to_file(cache_h, layer=layercache, driver="GPKG")
-        else:
-            gtotal = row[cols]
-            gtotal.to_file(cache_h, layer=layercache, driver="GPKG")
-
-    return row[valeur]
+    return row[valeur].iloc[0]
 
 ```
 
 #### Test sur les batiments de St Denis, qui n'ont pas de hauteur
-
-
-```python
-saint_denis_path = DATA_FOLDER / "saint_denis_reference_data.gpkg"
-batiments = gpd.read_file(saint_denis_path, layer="bdtopo_batiment").to_crs(2154)
-batiments = batiments.to_crs(2154)
-```
 
 
 ```python
@@ -107,138 +99,13 @@ for measure in ["hauteur_calculee", "hauteur_std-dev","mns_std-dev"]:
     batiments_de_test[measure] = \
         batiments_de_test.progress_apply(lambda batiment:\
         getMesureMNHToit(batiment, valeur=measure), axis = 1)
-# Pourquoi du caching? Les calls prennent 5s par batiment sans cache ce qui impacte le temps de calcul
+# Pourquoi du caching? Les calls prennent qques par batiment sans cache ce qui impacte le temps de calcul
 batiments_de_test[["cleabs_left__bat","hauteur","hauteur_calculee", "hauteur_std-dev","mns_std-dev"]]
 ```
 
-    100%|██████████| 100/100 [00:04<00:00, 21.62it/s]
-    100%|██████████| 100/100 [00:04<00:00, 22.23it/s]
-    100%|██████████| 100/100 [00:04<00:00, 23.80it/s]
-
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>cleabs_left__bat</th>
-      <th>hauteur</th>
-      <th>hauteur_calculee</th>
-      <th>hauteur_std-dev</th>
-      <th>mns_std-dev</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>3</th>
-      <td>BATIMENT0000000243403399</td>
-      <td>NaN</td>
-      <td>11.029757</td>
-      <td>0.067987</td>
-      <td>0.067987</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>BATIMENT0000000243403625</td>
-      <td>NaN</td>
-      <td>6.658521</td>
-      <td>2.384741</td>
-      <td>2.401657</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>BATIMENT0000000243399213</td>
-      <td>NaN</td>
-      <td>9.085352</td>
-      <td>3.031133</td>
-      <td>3.039754</td>
-    </tr>
-    <tr>
-      <th>21</th>
-      <td>BATIMENT0000000243399192</td>
-      <td>NaN</td>
-      <td>15.689178</td>
-      <td>0.720638</td>
-      <td>0.747832</td>
-    </tr>
-    <tr>
-      <th>22</th>
-      <td>BATIMENT0000000243399193</td>
-      <td>NaN</td>
-      <td>8.944949</td>
-      <td>3.632601</td>
-      <td>3.621020</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>57</th>
-      <td>BATIMENT0000002005316846</td>
-      <td>8.8</td>
-      <td>8.908059</td>
-      <td>2.549423</td>
-      <td>2.561931</td>
-    </tr>
-    <tr>
-      <th>58</th>
-      <td>BATIMENT0000000318256795</td>
-      <td>2.7</td>
-      <td>4.304110</td>
-      <td>3.272367</td>
-      <td>3.270343</td>
-    </tr>
-    <tr>
-      <th>59</th>
-      <td>BATIMENT0000000243401942</td>
-      <td>9.3</td>
-      <td>10.166159</td>
-      <td>3.535393</td>
-      <td>3.419895</td>
-    </tr>
-    <tr>
-      <th>60</th>
-      <td>BATIMENT0000000243401947</td>
-      <td>13.0</td>
-      <td>12.285078</td>
-      <td>2.676683</td>
-      <td>2.704555</td>
-    </tr>
-    <tr>
-      <th>61</th>
-      <td>BATIMENT0000000243401948</td>
-      <td>12.5</td>
-      <td>10.716463</td>
-      <td>3.483513</td>
-      <td>3.478312</td>
-    </tr>
-  </tbody>
-</table>
-<p>100 rows × 5 columns</p>
-</div>
-
-
+    100%|██████████| 100/100 [00:07<00:00, 13.54it/s]
+    100%|██████████| 100/100 [00:07<00:00, 12.87it/s]
+     76%|███████▌  | 76/100 [00:06<00:01, 12.47it/s]
 
 #### Les erreurs sont "elevées" sur les petits batiments, la précision est meilleure sur les plus grands bâtiments
 
@@ -259,13 +126,13 @@ plt.plot(identity_line, identity_line, color="red", linestyle="dashed", linewidt
 
 
 
-    [<matplotlib.lines.Line2D at 0x7ef23cf5f5b0>]
+    [<matplotlib.lines.Line2D at 0x7fbe66d9fd00>]
 
 
 
 
     
-![png](wns_hauteur_files/wns_hauteur_11_1.png)
+![png](wns_hauteur_files/wns_hauteur_14_1.png)
     
 
 
@@ -306,7 +173,7 @@ check.plot.scatter(x="hauteur",y="difference",title="Erreur en fonction de la ha
 
 
     
-![png](wns_hauteur_files/wns_hauteur_15_1.png)
+![png](wns_hauteur_files/wns_hauteur_18_1.png)
     
 
 
@@ -337,6 +204,6 @@ plt.show()
 
 
     
-![png](wns_hauteur_files/wns_hauteur_19_0.png)
+![png](wns_hauteur_files/wns_hauteur_22_0.png)
     
 
