@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# duckdb database
+*.duckdb
+
+# geojson files
+*.geojson
