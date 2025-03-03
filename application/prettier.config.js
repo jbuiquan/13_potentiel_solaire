@@ -4,7 +4,7 @@
  */
 const config = {
     'semi': true,
-    'tabWidth': 2,
+    'tabWidth': 4,
     'printWidth': 100,
     'singleQuote': true,
     'trailingComma': 'all',
@@ -15,5 +15,5 @@ const config = {
     'importOrderSortSpecifiers': true,
     'plugins': ['@trivago/prettier-plugin-sort-imports', 'prettier-plugin-tailwindcss']
   };
-  
+
   module.exports = config;
