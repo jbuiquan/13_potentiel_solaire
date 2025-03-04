@@ -2,7 +2,7 @@ import os
 
 import geopandas as gpd
 
-from potentiel_solaire.constants import DATA_FOLDER, SCHOOLS_ESTABLISHMENTS_FILENAME, CRS
+from potentiel_solaire.constants import DATA_FOLDER, SCHOOLS_ESTABLISHMENTS_FILENAME, DEFAULT_CRS
 from potentiel_solaire.sources.utils import download_file
 from potentiel_solaire.logger import get_logger
 
@@ -36,7 +36,7 @@ def get_schools_establishments_of_interest(
     types_etablissements: list[str],
     statut_public_prive: str,
     etat: str,
-    crs: int = CRS
+    crs: int = DEFAULT_CRS
 ) -> gpd.GeoDataFrame:
     """Filtre et renvoit l annuaire des etablissements scolaires francais
 
