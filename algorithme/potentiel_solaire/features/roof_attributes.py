@@ -259,10 +259,8 @@ def segmentation_toits(data):
 
     # Identification of flat roof and filter on azimut and slope
     flat_mask = result_slope < 15   
-    result_flat = np.where(flat_mask, 0, 1)
-    slope_filtered = slope * result_flat
-    result_flat = np.where(flat_mask, 0, 1)
-    azimut_filtered = azimut * result_flat
+    slope_filtered = np.where(flat_mask, 0, slope)
+    azimut_filtered = np.where(flat_mask, 0, azimut)
 
     # Border detection with change in azimut
     border_x = np.abs(np.diff(azimut_filtered, axis=0, prepend=azimut_filtered[0:1, :])) > 25
@@ -304,6 +302,6 @@ def segmentation_toits(data):
 
     # Filter on Minimum surfact
     min_surface = 50
-    final_segment_toiture = df_segment_toiture[df_segment_toiture["surface"]>min_surface]
-    final_segment_toiture.sort_values("surface")
+    final_segment_toiture = df_segment_toiture[df_segment_toiture["surface"]>min_surface].sort_values("surface")
+
     return final_segment_toiture
