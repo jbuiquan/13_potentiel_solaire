@@ -232,7 +232,7 @@ def segmentation_toits(data):
         Masked elevation raster data corresponding to the building geometry.
 
     Return
-    Dataframe with one mine equivalent to a utile segment with a slope and an azimut.
+      Dataframe with one mine equivalent to a utile segment with a slope and an azimut.
 
     @To do - Add package to install
 
