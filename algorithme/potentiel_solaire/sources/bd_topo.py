@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 import geopandas as gpd
 
-from potentiel_solaire.constants import DATA_FOLDER, CRS
+from potentiel_solaire.constants import DATA_FOLDER, DEFAULT_CRS
 from potentiel_solaire.sources.utils import download_file, extract_7z, find_matching_files
 from potentiel_solaire.logger import get_logger
 
@@ -61,8 +61,8 @@ def find_gpkg_file_bd_topo(
     """
     files = find_matching_files(
         folder_path=data_directory,
-        file_extension=".gpkg",
-        filename_pattern=rf"BDT.*D{code_departement}"
+        filename_pattern=r".gpkg",
+        folder_pattern=rf"BDT.*D{code_departement}"
     )
 
     assert len(files) < 2, f"More than one gpkg has been found for departement {code_departement}"
@@ -115,7 +115,7 @@ def get_topo_zones_of_interest(
     geom_of_interest: gpd.GeoDataFrame,
     categories: list[str],
     natures: list[str],
-    crs: int = CRS
+    crs: int = DEFAULT_CRS
 ) -> gpd.GeoDataFrame:
     """Filtre et renvoit les zones d activites de la BD TOPO
 
@@ -151,7 +151,7 @@ def get_topo_zones_of_interest(
 def get_topo_buildings_of_interest(
     bd_topo_path: str,
     geom_of_interest: gpd.GeoDataFrame,
-    crs: int = CRS
+    crs: int = DEFAULT_CRS
 ) -> gpd.GeoDataFrame:
     """Filtre et renvoit les batiments de la BD TOPO
 

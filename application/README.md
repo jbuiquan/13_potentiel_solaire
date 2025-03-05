@@ -90,7 +90,43 @@ npm install
 
 ## Développement
 
-Pour lancer le serveur de dev :
+### Installer la base de test
+
+Pour initialiser une base duckdb :
+
+En utilisant le CLI :
+
+1. Télécharger le CLI pour son environnement et l'installer - https://duckdb.org/docs/installation/?version=stable&environment=cli
+
+   Pour linux, par exemple :
+   `curl https://install.duckdb.org | sh`
+
+2. Se rendre dans le répertoire où se trouve le script SQL ({repertoire_projet}/application/database/prepare-JDD-test.sql)
+
+   `cd /path/to/folder`
+
+3. Lancer la commande de création de la base
+
+   `duckdb < prepare-JDD-test.sql data-test.duckdb` ou `duckdb -init prepare-JDD-test.sql -no-stdin data-test.duckdb`
+
+En utilisant un éditeur SQL, par exemple DBeaver : https://dbeaver.io/
+
+1. Installer l'outil
+2. Créer une connexion duckdb en choisissant l'option pour créer une base et lui fournir un chemin pour la base de données
+3. Ouvrir le script sql sur cette nouvelle base de données et l'executer
+
+### Configurer les variables d'environnement
+
+1. Créer un fichier `.env` à partir du fichier `.env.template` (dans le même répertoire).
+2. Renseigner les variables manquantes :
+
+`DATABASE_PATH` => le chemin absolu vers la base de donnée duckdb
+
+Ex: `DATABASE_PATH=/path/to/data-test.duckdb`
+
+### Lancer le serveur
+
+Pour lancer le serveur de dev
 
 ```bash
 npm run dev

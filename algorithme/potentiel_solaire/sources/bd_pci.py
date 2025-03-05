@@ -62,8 +62,8 @@ def find_shp_file_bd_pci(
     """
     files = find_matching_files(
         folder_path=data_directory,
-        file_extension="BATIMENT.SHP",
-        filename_pattern=rf"PEPCI.*D{code_departement}"
+        filename_pattern=r"BATIMENT.SHP",
+        folder_pattern=rf"PEPCI.*D{code_departement}"
     )
 
     assert len(files) < 2, f"Plus d'un fichier .shp trouvé pour le département {code_departement}"
