@@ -32,7 +32,7 @@ Par exemple pour Ubuntu 23.04+:
 
 [Installer Poetry avec pipx](https://python-poetry.org/docs/#installing-with-pipx):
 
-    pipx install poetry
+    pipx install poetry==1.7
 
 ### 1.2 Installation de Poetry avec l'installateur officiel
 
