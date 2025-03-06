@@ -1,6 +1,6 @@
---INSTALL spatial;
+INSTALL spatial;
 LOAD spatial;
---INSTALL httpfs;
+INSTALL httpfs;
 LOAD httpfs;
 
 -- Chemin absolu du dossier contenant les fichiers source éventuels (string qui doit finir par le caractère /)
@@ -38,7 +38,7 @@ CREATE OR REPLACE TABLE departements AS
     SELECT LPAD(dep, 3, '0') AS code_departement,
     libgeo AS libelle_departement,
     reg AS code_region,
-    (SELECT libelle_region FROM main.regions r WHERE r.code_region = dept.reg) AS libelle_region,
+    (SELECT libelle_region FROM regions r WHERE r.code_region = dept.reg) AS libelle_region,
 	0 AS surface_utile,
 	0::BIGINT AS potentiel_solaire,
 	0 AS count_etablissements,
@@ -52,9 +52,9 @@ CREATE OR REPLACE TABLE communes AS
     codgeo AS code_commune,
     libgeo AS nom_commune,
 	LPAD(dep, 3, '0') AS code_departement,
-	(SELECT libelle_departement FROM main.departements dept WHERE dept.code_departement = LPAD(com.dep, 3, '0')) AS libelle_departement,
+	(SELECT libelle_departement FROM departements dept WHERE dept.code_departement = LPAD(com.dep, 3, '0')) AS libelle_departement,
 	reg AS code_region,
-	(SELECT libelle_region FROM main.regions r WHERE r.code_region = com.reg) AS libelle_region,
+	(SELECT libelle_region FROM regions r WHERE r.code_region = com.reg) AS libelle_region,
 	0 AS surface_utile,
 	0::BIGINT AS potentiel_solaire,
 	0 AS count_etablissements,
@@ -87,11 +87,11 @@ CREATE OR REPLACE TABLE etablissements AS
 -- 2. maj count_etablissements, count_etablissements_proteges, surface_utile, potentiel_solaire depuis les tables créées
 -- certains etablissements ont le meme identifiant, peut etre que le calcul n'est pas correct
 --WITH duplicateEtablissements as(
---SELECT identifiant_de_l_etablissement FROM main.etablissements GROUP BY identifiant_de_l_etablissement HAVING count() > 1)
---SELECT e.* FROM duplicateEtablissements INNER JOIN main.etablissements e  ON e.identifiant_de_l_etablissement = duplicateEtablissements.identifiant_de_l_etablissement;
+--SELECT identifiant_de_l_etablissement FROM etablissements GROUP BY identifiant_de_l_etablissement HAVING count() > 1)
+--SELECT e.* FROM duplicateEtablissements INNER JOIN etablissements e  ON e.identifiant_de_l_etablissement = duplicateEtablissements.identifiant_de_l_etablissement;
 
 -- maj regions
-UPDATE main.regions r
+UPDATE regions r
 SET count_etablissements = regionEtablissements.count_etablissements,
 count_etablissements_proteges = regionEtablissements.count_etablissements_proteges,
 surface_utile = regionEtablissements.surface_utile,
@@ -102,13 +102,13 @@ FROM (
 	SUM(CASE WHEN e.protection THEN 1 ELSE 0 END) AS count_etablissements_proteges,
 	SUM(e.surface_utile) AS surface_utile,
 	SUM(e.potentiel_solaire) AS potentiel_solaire
-    FROM main.etablissements e
+    FROM etablissements e
     GROUP BY e.code_region
 ) AS regionEtablissements
 WHERE r.code_region = regionEtablissements.code_region;
 
 -- maj departements
-UPDATE main.departements d
+UPDATE departements d
 SET count_etablissements = departementEtablissements.count_etablissements,
 count_etablissements_proteges = departementEtablissements.count_etablissements_proteges,
 surface_utile = departementEtablissements.surface_utile,
@@ -119,13 +119,13 @@ FROM (
 	SUM(CASE WHEN e.protection THEN 1 ELSE 0 END) AS count_etablissements_proteges,
 	SUM(e.surface_utile) AS surface_utile,
 	SUM(e.potentiel_solaire) AS potentiel_solaire
-	FROM main.etablissements e
+	FROM etablissements e
 	GROUP BY e.code_departement
 ) AS departementEtablissements
 WHERE d.code_departement = departementEtablissements.code_departement;
 
 -- maj communes
-UPDATE main.communes c
+UPDATE communes c
 SET count_etablissements = communeEtablissements.count_etablissements,
 count_etablissements_proteges = communeEtablissements.count_etablissements_proteges,
 surface_utile = communeEtablissements.surface_utile,
@@ -136,7 +136,7 @@ FROM (
 	SUM(CASE WHEN e.protection THEN 1 ELSE 0 END) AS count_etablissements_proteges,
 	SUM(e.surface_utile) AS surface_utile,
 	SUM(e.potentiel_solaire) AS potentiel_solaire
-	FROM main.etablissements e
+	FROM etablissements e
 	GROUP BY e.code_commune
 ) AS communeEtablissements
 WHERE c.code_commune = communeEtablissements.code_commune;
