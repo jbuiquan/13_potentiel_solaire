@@ -243,13 +243,6 @@ def segmentation_toits(data):
     slope = np.arctan(np.sqrt(dx**2 + dy**2)) * (180 / np.pi)
     azimut = (360 - np.degrees(np.arctan2(dy, dx))) % 360
 
-    # Creating bins for the azimut
-    bins = list(np.linspace(0,360,9))
-    values = list(np.convolve(bins, [0.5, 0.5]))
-    values = values[:-1]
-    indexed = np.digitize(azimut, bins, right=False)
-    result_azimut = np.array(values)[indexed - 1] 
-
     # Creating bins for the slope
     bins = list(np.arange(0, slope.max(),20)) 
     values = list(np.convolve(bins, [0.5, 0.5]))
