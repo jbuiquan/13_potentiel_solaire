@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import geopandas as gpd
 import pandas as pd
 
-from potentiel_solaire.constants import DATA_FOLDER, CRS
+from potentiel_solaire.constants import DATA_FOLDER, DEFAULT_CRS
 from potentiel_solaire.sources.utils import download_file, extract_7z, find_matching_files
 from potentiel_solaire.logger import get_logger
 
@@ -113,11 +113,11 @@ def extract_bd_pci(
 def get_pci_buildings_of_interest(
     bd_pci_path: str,
     geom_of_interest: gpd.GeoDataFrame,
-    crs: int = CRS
+    crs: int = DEFAULT_CRS
 ) -> gpd.GeoDataFrame:
     """Filtre et renvoit les bâtiments de la BD PCI
 
-    :param bd_topo_path: chemin du fichier .SHP de la BD PCI
+    :param bd_pci_path: chemin du fichier .SHP de la BD PCI
     :param geom_of_interest: geodataframe avec la géometrie d'intêret
     :param crs: projection de la gdf renvoyée
     :return: geodataframe avec les bâtiments filtrés
@@ -134,9 +134,11 @@ def get_pci_buildings_of_interest(
     ).to_crs(crs)
 
 
-def supplement_topo_with_unique_pci_buildings(topo_buildings: gpd.GeoDataFrame, pci_buildings: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    """
-    Permet de compléter la bd topo avec les bâtiments qui de la bd PCI qui n'etait pas dans la bd topo.
+def supplement_topo_with_unique_pci_buildings(
+    topo_buildings: gpd.GeoDataFrame,
+    pci_buildings: gpd.GeoDataFrame
+) -> gpd.GeoDataFrame:
+    """Permet de compléter la bd topo avec les bâtiments qui de la bd PCI qui n'etait pas dans la bd topo.
     
     :param topo_buildings: GeoDataFrame des bâtiments de la bd topo
     :param pci_buildings: GeoDataFrame des bâtiments de la bd PCI
@@ -197,8 +199,8 @@ def supplement_topo_with_unique_pci_buildings(topo_buildings: gpd.GeoDataFrame, 
         final_buildings = topo_buildings.copy()
         final_buildings['source'] = 'TOPO'
     
-    print(f"TOPO buildings: {len(topo_buildings)}")
-    print(f"PCI buildings ajoutés: {len(new_buildings)}")
-    print(f"Nombre totaux de buildings: {len(final_buildings)}")
+    logger.info(f"TOPO buildings: {len(topo_buildings)}")
+    logger.info(f"PCI buildings ajoutés: {len(new_buildings)}")
+    logger.info(f"Nombre totaux de buildings: {len(final_buildings)}")
     
     return final_buildings
