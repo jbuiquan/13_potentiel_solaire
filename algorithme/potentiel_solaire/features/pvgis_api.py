@@ -48,12 +48,12 @@ def prepare_df_for_pvgis_call(df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     # TODO: Currently makeshift values
     df['angle']  = df['lat'].map(lambda x: random.randint(0, 90))
     df['aspect'] = df['lat'].map(lambda x: random.randint(0, 360)) # azimuth
-    df = apply_system_assumptions(df)
-    df = apply_constraints(df)
+    df = _apply_system_assumptions(df)
+    df = _apply_constraints(df)
     return df
 
 
-def apply_system_assumptions(df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def _apply_system_assumptions(df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
     Method aggregating all PV estimation assumptions prior to calculation / call to PVGIS API.
     Notably:
@@ -66,7 +66,7 @@ def apply_system_assumptions(df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return df
     
     
-def apply_constraints(df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def _apply_constraints(df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
     Method regrouping all methodological constraints, notably:
     - Exclude roofs badly exposed (from North-West (180) to North-East (360))
@@ -88,7 +88,7 @@ def call_pvgis_api(df: gpd.GeoDataFrame) -> dict:
     """
     counter = 0
     for idx, building in df.iterrows():
-        url = build_query_params_url(building[BUILDING_QUERY_PARAMS])
+        url = _build_query_params_url(building[BUILDING_QUERY_PARAMS])
         df.loc[idx, 'url'] = url
         if counter < 3 :
             if response := requests.get(url):
@@ -99,11 +99,10 @@ def call_pvgis_api(df: gpd.GeoDataFrame) -> dict:
     return df
 
 
-def build_query_params_url(params: gpd.GeoSeries) -> str:
+def _build_query_params_url(params: gpd.GeoSeries) -> str:
     """
     Helper function building the PV GIS API query url with all requested params
     """
-    url=f'{PVGIS_BASE_URL}&'
     url= PVGIS_BASE_URL + "&".join([f'{key}={value}' for key, value 
                                     in DEFAULT_QUERY_PARAMS.items()]) + '&'
     url+= "&".join([f'{idx}={params[idx]}' for idx in params.index])
