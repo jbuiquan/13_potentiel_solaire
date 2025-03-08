@@ -7,12 +7,13 @@ https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information
 import random
 from time import sleep
 import geopandas as gpd
-import json, requests
+import json
+import requests
 
 from potentiel_solaire.constants import CRS_FOR_BUFFERS, USEABLE_SURFACE
 
 
-PVGIS_BASE_URL = f"https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?&"
+PVGIS_BASE_URL = "https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?&"
 
 
 DEFAULT_QUERY_PARAMS = {
@@ -92,7 +93,7 @@ def call_pvgis_api(df: gpd.GeoDataFrame) -> dict:
         if counter < 3 :
             if response := requests.get(url):
                 row_json = json.loads(response.text)
-                df.loc[idx, 'annual_production (kWh/y)'] = row_json['outputs']['totals']['fixed']['E_y']
+                df.loc[idx, 'annual_prod (kWh/y)'] = row_json['outputs']['totals']['fixed']['E_y']
                 counter += 1
                 sleep(0.03)
     return df
