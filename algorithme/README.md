@@ -61,6 +61,8 @@ se référer à la [documentation officielle](https://python-poetry.org/docs/#in
 
     poetry shell
 
+
+
 # Modifier les dépendances
 
 ### Ajouter une dépendance
@@ -86,3 +88,31 @@ se référer à la [documentation officielle](https://python-poetry.org/docs/#in
 ## Utiliser Tox pour tester votre code
 
     tox -vv
+
+# (Optionnel) Créer la base de données
+
+Pour initialiser une base duckdb :
+
+En utilisant le CLI :
+
+1. Télécharger le CLI pour son environnement et l'installer - https://duckdb.org/docs/installation/?version=stable&environment=cli
+
+    Pour linux, par exemple :
+    `curl https://install.duckdb.org | sh`
+
+	Pour Windows, par exemple :
+	`winget install DuckDB.cli`
+
+2. Se rendre dans le répertoire où se trouve le script SQL ({repertoire_projet}/application/database/prepare-JDD-test.sql)
+
+    `cd /database/`
+
+3. Lancer la commande de création de la base
+
+    `duckdb < prepare-JDD-test.sql data-test.duckdb` ou `duckdb -init prepare-JDD-test.sql -no-stdin data-test.duckdb`
+
+En utilisant un éditeur SQL, par exemple DBeaver : https://dbeaver.io/
+
+1. Installer l'outil
+2. Créer une connexion duckdb en choisissant l'option pour créer une base et lui fournir un chemin pour la base de données
+3. Ouvrir le script sql sur cette nouvelle base de données et l'executer
