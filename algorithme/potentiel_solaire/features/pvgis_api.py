@@ -42,7 +42,7 @@ def call_pvgis_api(query: str | None) -> float | None:
     """
     Method used to build api url and calls the PVGIS API.
     
-    Returns the annual energy production (MWh/yr)
+    Returns the annual energy production (kWh/yr)
     
     NOTE: Added sleep timer to ensure that we do not exceed the 30 calls / second rate limit.
     TODO: There are many more output parameters available.
@@ -54,7 +54,7 @@ def call_pvgis_api(query: str | None) -> float | None:
         if response := requests.get(query):
             row_json = json.loads(response.text)
             sleep(0.04)
-            return row_json['outputs']['totals']['fixed']['E_y'] / 1_000
+            return row_json['outputs']['totals']['fixed']['E_y']
         logger.error(f'Failed to query API. Response: {response}')
         return None
     except Exception as e:
