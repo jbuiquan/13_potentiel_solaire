@@ -5,7 +5,14 @@ import type {
 	LineLayerSpecification,
 	MapProps,
 } from 'react-map-gl/maplibre';
-import Map, { Layer, Source } from 'react-map-gl/maplibre';
+import Map, {
+	FullscreenControl,
+	GeolocateControl,
+	Layer,
+	NavigationControl,
+	ScaleControl,
+	Source,
+} from 'react-map-gl/maplibre';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -49,6 +56,10 @@ const mapStyle = process.env.NEXT_PUBLIC_MAPTILER_STYLE_URL;
 export default function PotentielSolaireMap() {
 	return (
 		<Map initialViewState={initialViewState} style={style} mapStyle={mapStyle}>
+			<GeolocateControl position='top-left' />
+			<FullscreenControl position='top-left' />
+			<NavigationControl position='top-left' />
+			<ScaleControl />
 			<Source id='communes-source' type='geojson' data='/data/communes.geojson'>
 				<Layer {...communesLayer} />
 			</Source>
