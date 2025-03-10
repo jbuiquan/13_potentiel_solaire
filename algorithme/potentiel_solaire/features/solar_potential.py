@@ -1,6 +1,6 @@
 import geopandas as gpd
 
-from potentiel_solaire.features.pvgis_api import build_query_params_url, call_pvgis_api
+from potentiel_solaire.features.pvgis_api import get_potentiel_solaire_from_pvgis_api
 from potentiel_solaire.logger import get_logger
 from potentiel_solaire.features.protected_tag import link_protected_buildings
 from potentiel_solaire.constants import (
@@ -24,8 +24,8 @@ def calculate_solar_potential(
     productible annuel estimé par l'API PVGIS.
     """
     # Extrait latitude & longitude de la geometry
-    schools_buildings['lon'] = schools_buildings.centroid.map(lambda p: p.x)
-    schools_buildings['lat'] = schools_buildings.centroid.map(lambda p: p.y)
+    schools_buildings["longitude"] = schools_buildings.centroid.map(lambda p: p.x)
+    schools_buildings["latitude"] = schools_buildings.centroid.map(lambda p: p.y)
 
     # Calcul de la surface totale au sol
     crs_init = schools_buildings.crs
@@ -34,31 +34,34 @@ def calculate_solar_potential(
     schools_buildings = schools_buildings.to_crs(crs_init)
 
     # Calcul de la surface de toit utile
-    schools_buildings["surface_utile"] = schools_buildings["surface_totale_au_sol"].map(
-       lambda surface_totale: calculate_surface_utile(surface_totale)
+    schools_buildings["surface_utile"] = schools_buildings.apply(
+       lambda building: calculate_surface_utile(
+           surface_totale_au_sol=building["surface_totale_au_sol"]
+       ), axis=1
     )
     
     # Calcul de la capacité installé
-    schools_buildings["peakpower"] = schools_buildings["surface_utile"].map(
-        lambda surface_utile: calculate_installed_capacity(surface_utile)
-    )
-
-    # Construire la requête pour PVGIS
-    schools_buildings["url"] = schools_buildings[["lat", "lon", "peakpower"]].apply(
-        lambda query_params: build_query_params_url(query_params), axis=1
+    schools_buildings["peakpower"] = schools_buildings.apply(
+        lambda building: calculate_installed_capacity(
+            rooftop_surface=building["surface_utile"]
+        ), axis=1
     )
     
     # Requête API PVGIS
-    schools_buildings["potentiel_solaire"] = schools_buildings[["url", "peakpower"]].apply(
-        lambda x: call_pvgis_api(x["url"]) if x["peakpower"] > 0 else 0, axis=1
+    schools_buildings["potentiel_solaire"] = schools_buildings.apply(
+        lambda building: get_potentiel_solaire_from_pvgis_api(
+            longitude=building["longitude"],
+            latitude=building["latitude"],
+            peakpower=building["peakpower"]
+        ), axis=1
     )
 
     # Ajout du tag batiments proteges ou en zone protegee
-    schools_buildings["protection"] = schools_buildings["geometry"].map(
-        lambda geometry: link_protected_buildings(
-            building=geometry,
+    schools_buildings["protection"] = schools_buildings.apply(
+        lambda building: link_protected_buildings(
+            building=building["geometry"],
             areas_with_protected_buildings=areas_with_protected_buildings
-        )
+        ), axis=1
     )
 
     return schools_buildings
