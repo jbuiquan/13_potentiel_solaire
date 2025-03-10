@@ -17,25 +17,12 @@ logger = get_logger()
 PVGIS_BASE_URL = "https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?&"
 
 DEFAULT_QUERY_PARAMS = {
-    'loss': 14, # The system's losses in percentage. Recommend between 15 - 30 %
+    'loss': 14,  # The system's losses in percentage. Recommend between 15 - 30 %
     'fixed': 1,  # Fixed versus solar tracking system. Fixed in case of solar rooftop.
-    'mountingplace': 'building', # Param should impacts losses. We may be double counting.
-    'optimalangles': 1, # Letting the engine optimise the ti
+    'mountingplace': 'building',  # Param should impacts losses. We may be double counting.
+    'optimalangles': 1,  # Letting the engine optimise the ti
 }
 
-V0_OPTIMISED_PVGIS_QUERY_PARAMS = [
-    'lat', 
-    'lon',
-    'peakpower',
-]
-
-V0_BASIC_QUERY_PARAMS = [
-    'lat', 
-    'lon',
-    'angle',
-    'aspect', # azimuth
-    'peakpower'
-]
 
 def build_query_params_url(params: gpd.GeoSeries) -> str:
     """

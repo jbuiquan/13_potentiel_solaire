@@ -1,12 +1,9 @@
 import geopandas as gpd
 
-from potentiel_solaire.features.pvgis_api import V0_BASIC_QUERY_PARAMS, V0_OPTIMISED_PVGIS_QUERY_PARAMS, build_query_params_url, call_pvgis_api
+from potentiel_solaire.features.pvgis_api import build_query_params_url, call_pvgis_api
 from potentiel_solaire.logger import get_logger
-from potentiel_solaire.features.solar_exposition import calculate_solar_exposition_building
 from potentiel_solaire.features.protected_tag import link_protected_buildings
 from potentiel_solaire.constants import (
-    RENDEMENT_PANNEAU_PV,
-    BUFFER_SIZE_FOR_SOLAR_EXPOSITION,
     CRS_FOR_BUFFERS
 )
 
@@ -15,19 +12,13 @@ logger = get_logger()
 
 def calculate_solar_potential(
     schools_buildings: gpd.GeoDataFrame,
-    bd_irradiation_path: str,
     areas_with_protected_buildings: gpd.GeoDataFrame,
-    buffer_for_solar_exposition: int = BUFFER_SIZE_FOR_SOLAR_EXPOSITION,
-    rendement_panneau_pv: float = RENDEMENT_PANNEAU_PV,
     crs_for_buffers: int = CRS_FOR_BUFFERS
 ) -> gpd.GeoDataFrame:
     """Fonction principale pour calculer le potentiel solaire.
 
     :param schools_buildings: les batiments rataches a une ecole
-    :param bd_irradiation_path: chemin du fichier .tif des donnees d irradiation
     :param areas_with_protected_buildings: gdf des zones avec des batiments proteges
-    :param buffer_for_solar_exposition: distance autour du batiment a prendre en compte pour le rayonnement solaire
-    :param rendement_panneau_pv: ration du rendement d un panneau solaire
     :param crs_for_buffers: crs utilise pour le calcul des buffers (en metres)
     :return: le geodataframe des batiments scolaires avec les features de potentiel solaire et le
     productible annuel estimé par l'API PVGIS.
@@ -35,26 +26,12 @@ def calculate_solar_potential(
     # Extrait latitude & longitude de la geometry
     schools_buildings['lon'] = schools_buildings.centroid.map(lambda p: p.x)
     schools_buildings['lat'] = schools_buildings.centroid.map(lambda p: p.y)
-    
-    
-    # Ajout du tag batiments proteges ou en zone protegee
-    schools_buildings["protection"] = schools_buildings["geometry"].map(
-        lambda geometry: link_protected_buildings(
-            building=geometry,
-            areas_with_protected_buildings=areas_with_protected_buildings
-        )
-    )
 
-    # Calcul de la surface totale au sol & zone de 2km autour des batiment
+    # Calcul de la surface totale au sol
     crs_init = schools_buildings.crs
     schools_buildings = schools_buildings.to_crs(epsg=crs_for_buffers)
     schools_buildings["surface_totale_au_sol"] = schools_buildings.area
-    schools_buildings["zone_pour_rayonnement_solaire"] = (
-        schools_buildings.buffer(distance=buffer_for_solar_exposition).to_crs(crs_init)
-    )
     schools_buildings = schools_buildings.to_crs(crs_init)
-    
-    
 
     # Calcul de la surface de toit utile
     schools_buildings["surface_utile"] = schools_buildings["surface_totale_au_sol"].map(
@@ -62,19 +39,26 @@ def calculate_solar_potential(
     )
     
     # Calcul de la capacité installé
-    schools_buildings["peakpower"] = schools_buildings['surface_utile'].map(
+    schools_buildings["peakpower"] = schools_buildings["surface_utile"].map(
         lambda surface_utile: calculate_installed_capacity(surface_utile)
     )
-    
 
     # Construire la requête pour PVGIS
-    schools_buildings['url'] = schools_buildings[V0_OPTIMISED_PVGIS_QUERY_PARAMS].apply(
+    schools_buildings["url"] = schools_buildings[["lat", "lon", "peakpower"]].apply(
         lambda query_params: build_query_params_url(query_params), axis=1
     )
     
-    # # Requête API PVGIS
-    schools_buildings['productible'] = schools_buildings[['url', 'peakpower']].apply(
-        lambda x: call_pvgis_api(x['url']) if x['peakpower'] > 0 else 0, axis=1
+    # Requête API PVGIS
+    schools_buildings["potentiel_solaire"] = schools_buildings[["url", "peakpower"]].apply(
+        lambda x: call_pvgis_api(x["url"]) if x["peakpower"] > 0 else 0, axis=1
+    )
+
+    # Ajout du tag batiments proteges ou en zone protegee
+    schools_buildings["protection"] = schools_buildings["geometry"].map(
+        lambda geometry: link_protected_buildings(
+            building=geometry,
+            areas_with_protected_buildings=areas_with_protected_buildings
+        )
     )
 
     return schools_buildings
@@ -104,4 +88,4 @@ def calculate_installed_capacity(rooftop_surface: float) -> float:
     Transform useable surface into installed capacity (peakpower), with assumption that a 
     typical PV panel produces 225W/m2, as per some modules here https://www.csisolar.com/module/.
     """
-    return rooftop_surface * 225 / 1_000 # in kW
+    return rooftop_surface * 225 / 1_000  # in kW
