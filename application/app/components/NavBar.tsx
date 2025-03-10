@@ -2,16 +2,12 @@ import Link from 'next/link';
 
 const links = [
 	{
-		title: 'Story',
-		href: '/story',
+		title: 'Accueil',
+		href: '/',
 	},
 	{
-		title: 'Dashboard',
-		href: '/dashboard',
-	},
-	{
-		title: 'Agir',
-		href: '/act',
+		title: 'Source & méthodologie',
+		href: '/source_methodology',
 	},
 	{
 		title: 'A propos',
