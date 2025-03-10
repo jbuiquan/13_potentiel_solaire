@@ -16,6 +16,8 @@ import Map, {
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
+import ControlPanel from './ControlPanel';
+
 const communesLayer: LineLayerSpecification = {
 	id: 'communes-layer',
 	type: 'line',
@@ -55,17 +57,24 @@ const mapStyle = process.env.NEXT_PUBLIC_MAPTILER_STYLE_URL;
 
 export default function PotentielSolaireMap() {
 	return (
-		<Map initialViewState={initialViewState} style={style} mapStyle={mapStyle}>
-			<GeolocateControl position='top-left' />
-			<FullscreenControl position='top-left' />
-			<NavigationControl position='top-left' />
-			<ScaleControl />
-			<Source id='communes-source' type='geojson' data='/data/communes.geojson'>
-				<Layer {...communesLayer} />
-			</Source>
-			<Source id='etablissements-source' type='geojson' data='/data/etablissements.geojson'>
-				<Layer {...etablissementsLayer} />
-			</Source>
-		</Map>
+		<>
+			<Map initialViewState={initialViewState} style={style} mapStyle={mapStyle}>
+				<GeolocateControl position='top-left' />
+				<FullscreenControl position='top-left' />
+				<NavigationControl position='top-left' />
+				<ScaleControl />
+				<Source id='communes-source' type='geojson' data='/data/communes.geojson'>
+					<Layer {...communesLayer} />
+				</Source>
+				<Source
+					id='etablissements-source'
+					type='geojson'
+					data='/data/etablissements.geojson'
+				>
+					<Layer {...etablissementsLayer} />
+				</Source>
+			</Map>
+			<ControlPanel />
+		</>
 	);
 }
