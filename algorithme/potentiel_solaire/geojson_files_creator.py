@@ -65,4 +65,4 @@ def export_to_geojson(
         return True
     except Exception as e:
         logger.error(f"Erreur lors de l'exportation vers GeoJSON: {e}")
-        raise Exception(f"Erreur lors de l'exportation vers GeoJSON: {e}")
+        raise Exception(f"Erreur lors de l'exportation vers GeoJSON: {e}") from e
