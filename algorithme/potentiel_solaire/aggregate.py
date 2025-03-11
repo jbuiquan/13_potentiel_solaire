@@ -29,13 +29,11 @@ def aggregate_solar_potential_by_etablishment(
     )
     
     solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['surface_utile'].isna(), 'surface_utile'] = 0
-    solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['rayonnement_solaire'].isna(), 'rayonnement_solaire'] = 0
     solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['potentiel_solaire'].isna(), 'potentiel_solaire'] = 0
     solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['protection'].isna(), 'protection'] = False
 
     return solar_potential_of_schools_buildings.groupby(by=["identifiant_de_l_etablissement"]).agg({
         "surface_utile": "sum",
-        "rayonnement_solaire": "mean",
         "potentiel_solaire": "sum",
         "protection": "any"  # Si un seul batiment est protégé, l'établissement est protégé.
     }).reset_index()
