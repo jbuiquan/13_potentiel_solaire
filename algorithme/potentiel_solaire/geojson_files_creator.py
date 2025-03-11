@@ -40,7 +40,7 @@ def export_to_geojson(
     """
     try:
         if 'geometry' not in stats.columns:
-            raise ValueError(f"La colonne 'geometry' n'existe pas dans le DataFrame.")
+            raise ValueError("La colonne 'geometry' n'existe pas dans le DataFrame.")
         
         # Convertir la colonne 'geometry' (qui est en format GeoJSON) en objets géométriques Shapely
         def safe_geojson_to_geometry(geojson_value):
