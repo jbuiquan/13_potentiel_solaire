@@ -38,7 +38,7 @@ def run_pipeline_algorithme():
     exports_folder.mkdir(exist_ok=True)
 
     pm.execute_notebook(
-        os.path.join(notebooks_folder, "pipeline_algorithme_par_departement.ipynb"),
+        os.path.join(notebooks_folder, "pipeline_algorithme.ipynb"),
         os.path.join(exports_folder, f"d_{code_departement}_pipeline_algorithme.ipynb"),
         parameters={"code_departement": code_departement,
                     "logs_level": "WARNING"},

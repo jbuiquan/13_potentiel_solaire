@@ -13,36 +13,6 @@ def get_schools_etablissements_with_solar_potential(
         on="identifiant_de_l_etablissement"
     ).copy()
 
-def aggregate_solar_potential_by(
-    schools_establishments: gpd.GeoDataFrame,
-    solar_potential_of_schools_buildings: gpd.GeoDataFrame,
-    group_by: list[str]
-):
-    """Aggrege les resultats de potentiel solaire.
-
-    :param schools_establishments: annuaire des etablissements scolaires
-    :param solar_potential_of_schools_buildings: potentiel solaire a lechelle des batiments
-    :param group_by: colonnes sur lesquelles il faut aggreger
-    :return: geodataframe des resultats aggreges
-    """
-
-    solar_potential_of_schools_buildings = get_schools_etablissements_with_solar_potential(
-        schools_establishments,
-        solar_potential_of_schools_buildings
-    )
-    
-    solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['surface_utile'].isna(), 'surface_utile'] = 0
-    solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['rayonnement_solaire'].isna(), 'rayonnement_solaire'] = 0
-    solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['potentiel_solaire'].isna(), 'potentiel_solaire'] = 0
-    solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['protection'].isna(), 'protection'] = False
-
-    return solar_potential_of_schools_buildings.groupby(by=group_by).agg({
-        "surface_utile": "sum",
-        "rayonnement_solaire": "mean",
-        "potentiel_solaire": "sum",
-        "protection": "any"  # Si un seul batiment est protégé, l'établissement est protégé.
-    }).reset_index()
-
 def aggregate_solar_potential_by_etablishment(
     schools_establishments: gpd.GeoDataFrame,
     solar_potential_of_schools_buildings: gpd.GeoDataFrame
@@ -53,10 +23,19 @@ def aggregate_solar_potential_by_etablishment(
     :param solar_potential_of_schools_buildings: potentiel solaire a lechelle des batiments
     :return: geodataframe des resultats aggreges
     """
-
-    return aggregate_solar_potential_by(
+    solar_potential_of_schools_buildings = get_schools_etablissements_with_solar_potential(
         schools_establishments,
-        solar_potential_of_schools_buildings,
-        group_by=["identifiant_de_l_etablissement"]
+        solar_potential_of_schools_buildings
     )
     
+    solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['surface_utile'].isna(), 'surface_utile'] = 0
+    solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['rayonnement_solaire'].isna(), 'rayonnement_solaire'] = 0
+    solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['potentiel_solaire'].isna(), 'potentiel_solaire'] = 0
+    solar_potential_of_schools_buildings.loc[solar_potential_of_schools_buildings['protection'].isna(), 'protection'] = False
+
+    return solar_potential_of_schools_buildings.groupby(by=["identifiant_de_l_etablissement"]).agg({
+        "surface_utile": "sum",
+        "rayonnement_solaire": "mean",
+        "potentiel_solaire": "sum",
+        "protection": "any"  # Si un seul batiment est protégé, l'établissement est protégé.
+    }).reset_index()

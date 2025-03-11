@@ -62,7 +62,6 @@ se référer à la [documentation officielle](https://python-poetry.org/docs/#in
     poetry shell
 
 
-
 # Modifier les dépendances
 
 ### Ajouter une dépendance
