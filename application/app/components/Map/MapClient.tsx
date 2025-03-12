@@ -1,26 +1,38 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useRef } from 'react';
 
-import type { LngLatLike, MapMouseEvent, MapRef } from '@vis.gl/react-maplibre';
-import { Layer, Map as MapFromReactMapLibre, Popup, Source } from '@vis.gl/react-maplibre';
+import { CommunesJSON } from '@/app/models/communes';
+import type {
+	LngLatLike,
+	MapMouseEvent,
+	MapProps as MapPropsReactMapLibre,
+	MapRef,
+} from '@vis.gl/react-maplibre';
+import { Layer, Map as MapFromReactMapLibre, Source } from '@vis.gl/react-maplibre';
 import { type GeoJSONSource } from 'maplibre-gl';
 
 import { EtablissementsGeoJSON } from '../../models/etablissements';
-import { ClusterFeature } from './interfaces';
+import { COMMUNES_SOURCE_ID, communesLayer } from './communesLayers';
 import {
 	ETABLISSEMENTS_SOURCE_ID,
 	clusterCountLayer,
 	clusterLayer,
 	unclusteredPointLayer,
-} from './layers';
+} from './etablissementsLayers';
+import { ClusterFeature } from './interfaces';
 
 const MAP_STYLE_URL = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 
-type HoverInfo = {
-	longitude: number;
-	latitude: number;
-	name: string;
+const initialViewState: MapPropsReactMapLibre['initialViewState'] = {
+	longitude: 1.888334,
+	latitude: 46.603354,
+	zoom: 4,
+};
+
+const style: React.CSSProperties = {
+	width: 1200,
+	height: 800,
 };
 
 type ClusterEtablissementFeature = ClusterFeature<
@@ -29,39 +41,19 @@ type ClusterEtablissementFeature = ClusterFeature<
 
 type MapProps = {
 	etablissements: EtablissementsGeoJSON;
+	communes: CommunesJSON;
 };
 
-export function MapClient({ etablissements }: MapProps) {
+export function MapClient({ etablissements, communes }: MapProps) {
 	const mapRef = useRef<MapRef>(null);
-	const [hoverInfo, setHoverInfo] = useState<HoverInfo>();
-
-	const onHover = useCallback((event: MapMouseEvent) => {
-		console.log(event.features);
-		const feature =
-			event.features && (event.features[0] as unknown as ClusterEtablissementFeature);
-		if (!feature) return;
-
-		console.log(feature.properties);
-
-		setHoverInfo({
-			longitude: feature.geometry.coordinates[0],
-			latitude: feature.geometry.coordinates[1],
-			name: feature.properties.nom_etablissement,
-		});
-	}, []);
-
-	const onLeave = useCallback(() => {
-		setHoverInfo(undefined);
-	}, []);
 
 	const onClick = async (event: MapMouseEvent) => {
-		console.log(event);
 		if (!mapRef.current) return;
 
 		const feature =
 			event.features && (event.features[0] as unknown as ClusterEtablissementFeature);
-		if (!feature) return;
-		console.log(feature);
+		if (!feature || !('cluster_id' in feature.properties)) return;
+
 		const clusterId = feature.properties.cluster_id;
 
 		const geojsonSource = mapRef.current.getSource('etablissements') as GeoJSONSource;
@@ -85,24 +77,19 @@ export function MapClient({ etablissements }: MapProps) {
 		throw new Error('Layer not defined');
 	}
 
-	const hoveredFeature = (hoverInfo && hoverInfo.name) || '';
-
 	return (
 		<>
 			<MapFromReactMapLibre
-				style={{ width: 600, height: 600 }}
-				initialViewState={{
-					latitude: 40.67,
-					longitude: -103.59,
-					zoom: 3,
-				}}
+				ref={mapRef}
+				style={style}
+				initialViewState={initialViewState}
 				mapStyle={MAP_STYLE_URL}
 				interactiveLayerIds={[clusterLayer.id]}
 				onClick={onClick}
-				onMouseMove={onHover}
-				onMouseLeave={onLeave}
-				ref={mapRef}
 			>
+				<Source id={COMMUNES_SOURCE_ID} type='geojson' data={communes}>
+					<Layer {...communesLayer} />
+				</Source>
 				<Source
 					id={ETABLISSEMENTS_SOURCE_ID}
 					type='geojson'
@@ -115,16 +102,6 @@ export function MapClient({ etablissements }: MapProps) {
 					<Layer {...clusterCountLayer} />
 					<Layer {...unclusteredPointLayer} />
 				</Source>
-				{hoverInfo && (
-					<Popup
-						longitude={hoverInfo?.longitude}
-						latitude={hoverInfo?.latitude}
-						offset={[0, -10] as [number, number]}
-						closeButton={false}
-					>
-						{hoveredFeature}
-					</Popup>
-				)}
 			</MapFromReactMapLibre>
 		</>
 	);

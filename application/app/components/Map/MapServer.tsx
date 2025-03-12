@@ -1,16 +1,17 @@
 import { Suspense } from 'react';
 
-import { fetchEtablissementsGeoJSON } from '@/app/lib/data';
+import { fetchCommunesGeoJSON, fetchEtablissementsGeoJSON } from '@/app/lib/data';
 
 import Loading from '../Loading';
 import { MapClient } from './MapClient';
 
 export default async function Map() {
-	const data = await fetchEtablissementsGeoJSON();
+	const etablissementsGeoJSON = await fetchEtablissementsGeoJSON();
+	const communesGeoJSON = await fetchCommunesGeoJSON();
 
 	return (
 		<Suspense fallback={<Loading />}>
-			<MapClient etablissements={data} />
+			<MapClient etablissements={etablissementsGeoJSON} communes={communesGeoJSON} />
 		</Suspense>
 	);
 }
