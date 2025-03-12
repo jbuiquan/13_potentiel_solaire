@@ -112,9 +112,12 @@ def recuperation_mnx(
     - Cached:   takes 23.9 ms ± 1.9 ms per loop
     - Uncached: takes 1.66 s  ± 138 ms per loop
     """
+
     bbox = zone_of_interest.total_bounds
+
     wigth = int((bbox[2] - bbox[0]) * 2)
     height = int((bbox[3] - bbox[1]) * 2)
+
 
     if zone_of_interest.crs != srs:
         raise ValueError(
