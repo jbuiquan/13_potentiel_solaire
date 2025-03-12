@@ -1,7 +1,7 @@
 import { DuckDBPreparedStatement } from '@duckdb/node-api';
 
 import { Communes } from '../models/communes';
-import { Etablissement } from '../models/etablissements';
+import { Etablissement, EtablissementsGeoJSON } from '../models/etablissements';
 import db from './duckdb';
 
 export async function fetchEtablissements(codeCommune: string | null): Promise<Etablissement[]> {
@@ -61,6 +61,38 @@ export async function fetchEtablissementsFromBoundingBox({
 		prepared.bindDouble(4, northEast.lat);
 		const reader = await prepared.runAndReadAll();
 		return reader.getRowObjectsJson() as unknown as Etablissement[];
+	} catch (error) {
+		console.error('Database Error:', error);
+		throw new Error('Failed to fetch example rows.');
+	}
+}
+
+export async function fetchEtablissementsGeoJSON(): Promise<EtablissementsGeoJSON> {
+	try {
+		const connection = await db.connect();
+		await connection.run('LOAD SPATIAL;');
+
+		const prepared = await connection.prepare(
+			`
+      SELECT
+        json_object(
+	      'y', etab.nom_etablissement,
+          'geometry', ST_AsGeoJSON(etab.geom)::JSON
+          ) FROM main.etablissements etab;
+      	`,
+		);
+
+		const reader = await prepared.runAndReadAll();
+		const rows = reader.getRowsJson();
+
+		const geoJSON: EtablissementsGeoJSON = {
+			type: 'FeatureCollection',
+			features: rows.map(([row]) => {
+				return JSON.parse(row as string);
+			}),
+		};
+
+		return geoJSON;
 	} catch (error) {
 		console.error('Database Error:', error);
 		throw new Error('Failed to fetch example rows.');
