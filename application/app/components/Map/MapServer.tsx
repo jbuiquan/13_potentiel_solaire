@@ -7,7 +7,7 @@ import { MapClient } from './MapClient';
 
 export default async function Map() {
 	const etablissementsGeoJSON = await fetchEtablissementsGeoJSON();
-	const communesGeoJSON = await fetchCommunesGeoJSON();
+	const communesGeoJSON = await fetchCommunesGeoJSON(null);
 
 	return (
 		<Suspense fallback={<Loading />}>

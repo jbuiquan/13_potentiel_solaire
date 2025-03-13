@@ -1,6 +1,6 @@
 import { DuckDBPreparedStatement } from '@duckdb/node-api';
 
-import { CommunesJSON } from '../models/communes';
+import { CommunesGeoJSON } from '../models/communes';
 import { Etablissement, EtablissementsGeoJSON } from '../models/etablissements';
 import db from './duckdb';
 
@@ -75,24 +75,32 @@ export async function fetchEtablissementsGeoJSON(): Promise<EtablissementsGeoJSO
 		const prepared = await connection.prepare(
 			`
       SELECT
+      json_object(
+      'type','FeatureCollection',
+      'features',
+      COALESCE(json_group_array(
         json_object(
-		  'properties', json_object('nom_etablissement', etab.nom_etablissement),
-          'geometry', ST_AsGeoJSON(etab.geom)::JSON
-          ) FROM main.etablissements etab;
-      	`,
+          'type','Feature',
+          'properties',
+          json_object(
+		    'nom_etablissement',
+			etablissement.nom_etablissement,
+            'potentiel_solaire',
+            etablissement.potentiel_solaire,
+			 'code_commune',
+			etablissement.code_commune,
+			 'nom_commune',
+			etablissement.nom_commune
+          ),
+          'geometry', ST_AsGeoJSON(etablissement.geom)::JSON
+          )
+        ), [])
+      ) as geojson FROM main.etablissements etablissement;
+      `,
 		);
 
 		const reader = await prepared.runAndReadAll();
-		const rows = reader.getRowsJson();
-
-		const geoJSON: EtablissementsGeoJSON = {
-			type: 'FeatureCollection',
-			features: rows.map(([row]) => {
-				return JSON.parse(row as string);
-			}),
-		};
-
-		return geoJSON;
+		return JSON.parse(reader.getRowsJson()[0][0] as string);
 	} catch (error) {
 		console.error('Database Error:', error);
 		throw new Error('Failed to fetch example rows.');
@@ -105,7 +113,7 @@ export async function fetchCommunesFromBoundingBox({
 }: {
 	southWest: { lat: number; lng: number };
 	northEast: { lat: number; lng: number };
-}): Promise<CommunesJSON> {
+}): Promise<CommunesGeoJSON> {
 	try {
 		const connection = await db.connect();
 		await connection.run('LOAD SPATIAL;');
@@ -164,7 +172,9 @@ export async function fetchCommunesFromBoundingBox({
 	}
 }
 
-export async function fetchCommunes(codeDepartement: string | null): Promise<CommunesJSON> {
+export async function fetchCommunesGeoJSON(
+	codeDepartement: string | null,
+): Promise<CommunesGeoJSON> {
 	try {
 		const connection = await db.connect();
 		await connection.run('LOAD SPATIAL;');
@@ -215,38 +225,6 @@ export async function fetchCommunes(codeDepartement: string | null): Promise<Com
 
 		const reader = await prepared.runAndReadAll();
 		return JSON.parse(reader.getRowsJson()[0][0] as string);
-	} catch (error) {
-		console.error('Database Error:', error);
-		throw new Error('Failed to fetch example rows.');
-	}
-}
-
-export async function fetchCommunesGeoJSON(): Promise<CommunesJSON> {
-	try {
-		const connection = await db.connect();
-		await connection.run('LOAD SPATIAL;');
-
-		const prepared = await connection.prepare(
-			`
-			SELECT
-        json_object(
-		  'properties', json_object('potentiel_solaire', departement.potentiel_solaire),
-          'geometry', ST_AsGeoJSON(departement.geom)::JSON
-          ) FROM main.departements departement;
-      	`,
-		);
-
-		const reader = await prepared.runAndReadAll();
-		const rows = reader.getRowsJson();
-
-		const geoJSON: CommunesJSON = {
-			type: 'FeatureCollection',
-			features: rows.map(([row]) => {
-				return JSON.parse(row as string);
-			}),
-		};
-
-		return geoJSON;
 	} catch (error) {
 		console.error('Database Error:', error);
 		throw new Error('Failed to fetch example rows.');

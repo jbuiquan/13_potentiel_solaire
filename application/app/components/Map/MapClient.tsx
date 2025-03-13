@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 
-import { CommunesJSON } from '@/app/models/communes';
+import { CommunesGeoJSON } from '@/app/models/communes';
 import type {
 	LngLatLike,
 	MapMouseEvent,
@@ -41,7 +41,7 @@ type ClusterEtablissementFeature = ClusterFeature<
 
 type MapProps = {
 	etablissements: EtablissementsGeoJSON;
-	communes: CommunesJSON;
+	communes: CommunesGeoJSON;
 };
 
 export function MapClient({ etablissements, communes }: MapProps) {
