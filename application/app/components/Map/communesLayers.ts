@@ -7,8 +7,15 @@ export const communesLayer: LayerProps = {
 	type: 'fill',
 	source: COMMUNES_SOURCE_ID,
 	paint: {
-		'fill-color': 'pink',
-		'fill-outline-color': 'yellow',
-		'fill-opacity': 0.2,
+		'fill-color': [
+			'interpolate',
+			['linear'],
+			['get', 'potentiel_solaire'],
+			0,
+			'black',
+			200,
+			'yellow',
+		],
+		'fill-opacity': 0.5,
 	},
 };
