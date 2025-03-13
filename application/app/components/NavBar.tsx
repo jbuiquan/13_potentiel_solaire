@@ -9,7 +9,7 @@ const links = [
 	},
 	{
 		title: 'Source & méthodologie',
-		href: '/source_methodology',
+		href: '/source-methodology',
 	},
 	{
 		title: 'A propos',
