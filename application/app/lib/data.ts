@@ -143,14 +143,12 @@ export async function fetchCommunesFromBoundingBox({
             c.libelle_region,
             'surface_utile',
             c.surface_utile,
-            'rayonnement_solaire',
-            c.rayonnement_solaire,
             'potentiel_solaire',
             c.potentiel_solaire,
-            'protection',
-            c.protection,
             'count_etablissements',
-            c.count_etablissements
+            c.count_etablissements,
+			'count_etablissements_proteges',
+			c.count_etablissements_proteges
           ),
           'geometry', ST_AsGeoJSON(c.geom)::JSON
           )
@@ -204,14 +202,12 @@ export async function fetchCommunesGeoJSON(
             c.libelle_region,
             'surface_utile',
             c.surface_utile,
-            'rayonnement_solaire',
-            c.rayonnement_solaire,
             'potentiel_solaire',
             c.potentiel_solaire,
-            'protection',
-            c.protection,
             'count_etablissements',
-            c.count_etablissements
+            c.count_etablissements,
+			'count_etablissements_proteges',
+			c.count_etablissements_proteges
           ),
           'geometry', ST_AsGeoJSON(c.geom)::JSON
           )
