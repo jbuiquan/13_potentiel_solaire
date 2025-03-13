@@ -37,3 +37,10 @@ def aggregate_solar_potential_by_etablishment(
         "potentiel_solaire": "sum",
         "protection": "any"  # Si un seul batiment est protégé, l'établissement est protégé.
     }).reset_index()
+
+
+def aggregate_solar_potential_by_city():
+    return None
+
+def aggregate_solar_potential_by_department():
+    return None
