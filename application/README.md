@@ -113,6 +113,29 @@ En utilisant un éditeur SQL, par exemple DBeaver : https://dbeaver.io/
 2. Créer une connexion duckdb en choisissant l'option pour créer une base et lui fournir un chemin pour la base de données
 3. Ouvrir le script sql sur cette nouvelle base de données et l'executer
 
+### Exporter les fichiers geojson
+
+L'application se sert de la base de données mais aussi de fichiers geojson complets qui seront servis de façon statique.
+
+1. Se rendre dans le répertoire où se trouve le script SQL ({repertoire_projet}/application/database/export-geojson.sql)
+
+2. Décommenter les lignes du fichiers où se situent les commandes `COPY` et remplacer la chemin absolu `/path/to/folder/`.
+
+    Si le {repertoire_projet} se situe à l'emplacement : `/home/my-user/projets/13_potentiel_solaire`, on obtient ainsi :
+
+    ```sql
+    COPY (
+    SELECT *
+    FROM
+    	regions
+    )
+    TO '/home/my-user/projets/13_potentiel_solaire/application/public/data/regions.geojson' WITH (FORMAT GDAL, DRIVER 'GeoJSON', LAYER_NAME 'Régions');
+    ```
+
+3. Lancer la fichier sql sur la base de données précédemment créée
+
+    `duckdb data-test.duckdb < export-geojson.sql`
+
 ### Configurer les variables d'environnement
 
 1. Créer un fichier `.env` à partir du fichier `.env.template` (dans le même répertoire).
@@ -121,6 +144,10 @@ En utilisant un éditeur SQL, par exemple DBeaver : https://dbeaver.io/
 `DATABASE_PATH` => le chemin absolu vers la base de donnée duckdb
 
 Ex: `DATABASE_PATH=/path/to/data-test.duckdb`
+
+`NEXT_PUBLIC_BASE_URL` => l'url de déploiement
+
+Ex pour le serveur de dev local : `http://localhost:3000`
 
 ### Lancer le serveur
 
