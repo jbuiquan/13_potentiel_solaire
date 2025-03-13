@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-const mainTitle = 'Potentiel Solaire';
+import { APP_NAME } from '../config/constants';
 
 const links = [
 	{
@@ -22,7 +22,7 @@ export default function NavBar() {
 		<nav className='bg-yellow-600'>
 			<div className='mx-auto flex max-w-screen-xl items-center justify-between p-4'>
 				<Link href='/'>
-					<div className='text-2xl font-semibold'>{mainTitle}</div>
+					<div className='text-2xl font-semibold'>{APP_NAME}</div>
 				</Link>
 				<ul className='mt-4 flex flex-col p-4 font-medium md:mt-0 md:flex-row md:space-x-8 md:p-0'>
 					{links.map((link) => (
