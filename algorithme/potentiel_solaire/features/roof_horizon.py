@@ -34,13 +34,18 @@ def getAngles(EW, debug=False):
     return N, S
 
 
-def get_horizon_roof(batiment_cible, crs, cache=False):
+def get_horizon_roof(batiment_cible, crs, buffer=60, cache=False):
 
     if type(batiment_cible) == pd.core.series.Series:
         batiment_cible = pd.DataFrame(batiment_cible).T
         batiment_cible = gpd.GeoDataFrame(batiment_cible,
                                           geometry="geometry",
                                           crs=crs)
+    # On prend un buffer de _buffer_ m autour de la geometry
+    # On passe en 2154 pour avoir une unité en metres
+    batiment_cible = batiment_cible.to_crs(2154)
+    batiment_cible.geometry = batiment_cible.geometry.buffer(buffer)
+    batiment_cible = batiment_cible.to_crs(crs)
     # On créé les images centrées sur le bâtiment
     h = recuperation_mns(batiment_cible, cache=cache)[0]
     hbis = rotate(h, angle=-45, reshape=True)
