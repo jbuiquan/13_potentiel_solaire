@@ -1,9 +1,8 @@
-import Map from './components/Map/MapServer';
+import Map from './components/Map/MapWithLoader';
 
 export default function Home() {
 	return (
 		<main>
-			<div>Hello world!</div>
 			<Map />
 		</main>
 	);

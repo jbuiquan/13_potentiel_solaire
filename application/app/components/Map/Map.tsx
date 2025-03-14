@@ -44,7 +44,7 @@ type MapProps = {
 	communes: CommunesGeoJSON;
 };
 
-export function MapClient({ etablissements, communes }: MapProps) {
+export function Map({ etablissements, communes }: MapProps) {
 	const mapRef = useRef<MapRef>(null);
 
 	const onClick = async (event: MapMouseEvent) => {
@@ -56,7 +56,7 @@ export function MapClient({ etablissements, communes }: MapProps) {
 
 		const clusterId = feature.properties.cluster_id;
 
-		const geojsonSource = mapRef.current.getSource('etablissements') as GeoJSONSource;
+		const geojsonSource = mapRef.current.getSource(ETABLISSEMENTS_SOURCE_ID) as GeoJSONSource;
 
 		const zoom = await geojsonSource.getClusterExpansionZoom(clusterId);
 
