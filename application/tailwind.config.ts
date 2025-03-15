@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  darkMode: "class",
+  darkMode: "selector",
   content: ["./app/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
@@ -15,10 +15,11 @@ export default {
         serif: ["var(--font-serif)", "serif"],
       },
       spacing: {
-        // sm: "rem",
-        // md: "rem",
-        // lg: "rem",
-        // xl: "rem",
+        xs: "0.5rem",
+        sm: "1rem",
+        md: "1.5rem",
+        lg: "2rem",
+        xl: "3rem",
       },
       borderRadius: {},
     },
