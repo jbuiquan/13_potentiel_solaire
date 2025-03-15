@@ -9,12 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 
-from potentiel_solaire.sources.insee import (
-    extract_insee_regions_geometries,
-    extract_insee_communes_geometries,
-    extract_insee_departements_geometries,
-)
-from potentiel_solaire.sources.schools_establishments import extract_schools_establishments
+from potentiel_solaire.sources.extract import extract_sources
 
 # revision identifiers, used by Alembic.
 revision: str = '73f36b7b95ee'
@@ -22,19 +17,21 @@ down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+# extract sources
+sources = extract_sources()
 
 # schema
 regions_table = "regions"
-regions_path = extract_insee_regions_geometries()
+regions_path = sources["regions"].filepath
 
 departements_table = "departements"
-departements_path = extract_insee_departements_geometries()
+departements_path = sources["departements"].filepath
 
 communes_table = "communes"
-communes_path = extract_insee_communes_geometries()
+communes_path = sources["communes"].filepath
 
 etablissements_table = "etablissements"
-etablissements_path = extract_schools_establishments()
+etablissements_path = sources["etablissements"].filepath
 
 
 def upgrade() -> None:

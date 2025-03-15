@@ -1,17 +1,18 @@
 import geopandas as gpd
 
+
 # En réalité, seul le calcul par établissement compte
 # Le reste peut se compute en base de données (à ce stade, en tout cas)
 def get_schools_etablissements_with_solar_potential(
     schools_establishments: gpd.GeoDataFrame,
     solar_potential_of_schools_buildings: gpd.GeoDataFrame
 ):
-    
     return schools_establishments.merge(
         solar_potential_of_schools_buildings,
         how="left",
         on="identifiant_de_l_etablissement"
     ).copy()
+
 
 def aggregate_solar_potential_by_etablishment(
     schools_establishments: gpd.GeoDataFrame,
@@ -37,10 +38,3 @@ def aggregate_solar_potential_by_etablishment(
         "potentiel_solaire": "sum",
         "protection": "any"  # Si un seul batiment est protégé, l'établissement est protégé.
     }).reset_index()
-
-
-def aggregate_solar_potential_by_city():
-    return None
-
-def aggregate_solar_potential_by_department():
-    return None

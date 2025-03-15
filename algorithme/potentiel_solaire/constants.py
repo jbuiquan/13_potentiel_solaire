@@ -8,10 +8,7 @@ DATABASE_FOLDER = ALGORITHME_FOLDER / 'database'
 RESULTS_FOLDER = DATA_FOLDER / 'results'
 RESULTS_FOLDER.mkdir(exist_ok=True)
 
-SCHOOLS_ESTABLISHMENTS_FILENAME = "fr-en-annuaire-education.geojson"
-COMMUNES_GEOMETRIES_FILENAME = "communes.json"
-DEPARTEMENTS_GEOMETRIES_FILENAME = "departements.json"
-REGIONS_GEOMETRIES_FILENAME = "regions.json"
+SOURCES_FILEPATH = DATA_FOLDER / "sources.yaml"
 
 DUCK_DB_PATH = DATABASE_FOLDER / 'potentiel_solaire.duckdb'
 
