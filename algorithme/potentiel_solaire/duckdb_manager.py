@@ -1,14 +1,17 @@
 import duckdb
 import pandas as pd
 
+from potentiel_solaire.constants import DUCK_DB_PATH
+
+
 def get_connection():
-    conn = duckdb.connect('./../database/potentiel_solaire.duckdb')
+    conn = duckdb.connect(DUCK_DB_PATH)
 
     # Load Spatial extension
     conn.execute("""
         INSTALL spatial;
         LOAD spatial;
-            """)
+    """)
 
     conn.commit()
 
@@ -49,11 +52,9 @@ def save_solar_potential_by_school(
         stats_schools = conn.query(query).df()
 
         return stats_schools
-    
-    return None
 
 
-def save_solar_potential_by_city(
+def save_solar_potential_by_commune(
     code_departement: str
 ):
     with get_connection() as conn:
@@ -92,8 +93,7 @@ def save_solar_potential_by_city(
                 """
 
         return conn.query(query).df()
-    
-    return None
+
 
 def save_solar_potential_by_department(
     code_departement: str
@@ -131,5 +131,3 @@ def save_solar_potential_by_department(
                 departements WHERE code_departement = '{code_departement}'
             """
         return conn.query(query).df()
-    
-    return None

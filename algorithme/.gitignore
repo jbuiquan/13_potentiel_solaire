@@ -177,3 +177,4 @@ ENR*
 *.duck
 *.duckdb
 *.duckdb.wal
+*.json

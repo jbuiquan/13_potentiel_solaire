@@ -1,20 +1,11 @@
-import os
+import os.path
+
 import geopandas as gpd
 from potentiel_solaire.constants import DATA_FOLDER, DEFAULT_CRS, BUFFER_SIZE_FOR_PROTECTED_BUILDINGS, CRS_FOR_BUFFERS
 from potentiel_solaire.logger import get_logger
 
 logger = get_logger()
 
-def check_file(file_path: str) -> bool:
-    """Vérifies l'existence et l'état d'un fichier
-
-    :param file_path: chemin du fichier
-    :return: un booléen indiquant l'état du fichier
-    """
-    if os.path.exists(file_path):
-        return os.path.getsize(file_path) > 0
-    else:
-        return False
 
 def extract_protected_buildings(
     crs: int = DEFAULT_CRS
@@ -26,7 +17,7 @@ def extract_protected_buildings(
     """
     protected_buildings_path = f"{DATA_FOLDER}/liste_immeubles_proteges.geojson"
 
-    if check_file(protected_buildings_path):
+    if os.path.exists(protected_buildings_path):
         logger.info("protected building file %s already extracted",
                     protected_buildings_path)
         return protected_buildings_path

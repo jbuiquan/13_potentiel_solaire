@@ -1,33 +1,4 @@
-## Création de la base de données DuckDB
-
-Pour initialiser une base duckdb :
-
-En utilisant le CLI :
-
-1. Télécharger le CLI pour son environnement et l'installer - https://duckdb.org/docs/installation/?version=stable&environment=cli
-
-    Pour linux, par exemple :
-    `curl https://install.duckdb.org | sh`
-
-	Pour Windows, par exemple :
-	`winget install DuckDB.cli`
-
-2. Se rendre dans le répertoire où se trouve le script SQL ({repertoire_projet}/algorithm/)
-
-    `cd /database/`
-
-3. Lancer la commande de création de la base
-
-    `duckdb -init .\create-database.sql -no-stdin potentiel_solaire.duckdb`
-
-En utilisant un éditeur SQL, par exemple DBeaver : https://dbeaver.io/
-
-1. Installer l'outil
-2. Créer une connexion duckdb en choisissant l'option pour créer une base et lui fournir un chemin pour la base de données
-3. Ouvrir le script sql sur cette nouvelle base de données et l'exécuter
-
-
-## Recuperation des données brutes
+## Recuperation des données
 
 Etre dans le dossier algorithme
 
@@ -38,8 +9,14 @@ Installer les dépendances & activer l'environnement
     poetry install
     poetry shell
 
+Initialiser la base de données duckdb
+
+    alembic upgrade head
+
 Lancer le script de recuperation sur un departement
 
     run-pipeline-algorithme -d 093
 
-Une fois ce script réussi, les données et resultats devraient être visibles dans ce dossier data.
+Une fois ce script réussi, les données et resultats devraient être visibles :
+* resultats sur le departement : [093_pipeline_results.gpkg](../results/D093_pipeline_results.gpkg)
+* dans la [database duckdb](../database/potentiel_solaire.duckdb)

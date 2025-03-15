@@ -72,33 +72,9 @@ se référer à la [documentation officielle](https://python-poetry.org/docs/#in
 
     poetry update
 
-# Créer la base de données
+# Initialiser la base de données duckdb
 
-Pour initialiser une base duckdb :
-
-En utilisant le CLI :
-
-1. Télécharger le CLI pour son environnement et l'installer - https://duckdb.org/docs/installation/?version=stable&environment=cli
-
-    Pour linux, par exemple :
-    `curl https://install.duckdb.org | sh`
-
-	Pour Windows, par exemple :
-	`winget install DuckDB.cli`
-
-2. Se rendre dans le répertoire où se trouve le script SQL ({repertoire_projet}/application/database/prepare-JDD-test.sql)
-
-    `cd /database/`
-
-3. Lancer la commande de création de la base
-
-    `duckdb -init .\create-database.sql -no-stdin potentiel_solaire.duckdb`
-
-En utilisant un éditeur SQL, par exemple DBeaver : https://dbeaver.io/
-
-1. Installer l'outil
-2. Créer une connexion duckdb en choisissant l'option pour créer une base et lui fournir un chemin pour la base de données
-3. Ouvrir le script sql sur cette nouvelle base de données et l'executer
+    alembic upgrade head
 
 # Executer les calculs de potentiel solaire
 
