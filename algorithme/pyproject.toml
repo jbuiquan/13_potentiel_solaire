@@ -40,7 +40,6 @@ pytest = "^7.2.0"
 tox = "^4.4.8"
 
 [tool.poetry.scripts]
-extract-sample-data = "potentiel_solaire.extract_sample_data:main"
 run-pipeline-algorithme = "potentiel_solaire.main:run_pipeline_algorithme"
 
 [tool.ruff]
