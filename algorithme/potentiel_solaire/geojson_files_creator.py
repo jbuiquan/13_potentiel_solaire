@@ -1,8 +1,11 @@
+import warnings
 import pandas as pd
 import geopandas as gpd
 import shapely.geometry
 import json
 from potentiel_solaire.logger import get_logger
+
+warnings.filterwarnings("ignore", message="'crs' was not provided", category=UserWarning, module="pyogrio")
 
 logger = get_logger()
 
@@ -45,20 +48,24 @@ def export_to_geojson(
         # Convertir la colonne 'geometry' (qui est en format GeoJSON) en objets géométriques Shapely
         def safe_geojson_to_geometry(geojson_value):
             try:
+                if not isinstance(geojson_value, str) or not geojson_value.strip():
+                    return None  # Ignore les valeurs None ou vides
+                
                 geom_dict = json.loads(geojson_value)
-
                 return shapely.geometry.shape(geom_dict)
             except Exception as e:
                 logger.error("Erreur de conversion pour la géométrie: %s", e)
                 return None
 
-        stats['geometry'] = stats['geometry'].apply(safe_geojson_to_geometry)
-        stats = stats.dropna(subset=['geometry'])
+        # Pour pouvoir ré-exécuter la fonction sans souci.
+        df = stats.copy()
+        df['geometry'] = df['geometry'].apply(safe_geojson_to_geometry)
+        df = df.dropna(subset=['geometry'])
 
-        if stats.empty:
+        if df['geometry'].empty:
             raise ValueError("Aucune géométrie valide après conversion.")
 
-        gdf = gpd.GeoDataFrame(stats, geometry='geometry')
+        gdf = gpd.GeoDataFrame(df, geometry='geometry')
         gdf.to_file(output_filepath, driver='GeoJSON')
         logger.info("Fichier '%s' créé avec succès ✅", output_filepath)
 

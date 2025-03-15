@@ -72,23 +72,7 @@ se référer à la [documentation officielle](https://python-poetry.org/docs/#in
 
     poetry update
 
-# Executer les calculs de potentiel solaire
-
-    run-pipeline-algorithme -d 093
-
-# Tester & verifier son code
-
-## Lancer les precommit-hook localement
-
-[Installer les precommit](https://pre-commit.com/)
-    
-    pre-commit run --all-files
-
-## Utiliser Tox pour tester votre code
-
-    tox -vv
-
-# (Optionnel) Créer la base de données
+# Créer la base de données
 
 Pour initialiser une base duckdb :
 
@@ -108,10 +92,26 @@ En utilisant le CLI :
 
 3. Lancer la commande de création de la base
 
-    `duckdb < prepare-JDD-test.sql data-test.duckdb` ou `duckdb -init prepare-JDD-test.sql -no-stdin data-test.duckdb`
+    `duckdb -init .\create-database.sql -no-stdin potentiel_solaire.duckdb`
 
 En utilisant un éditeur SQL, par exemple DBeaver : https://dbeaver.io/
 
 1. Installer l'outil
 2. Créer une connexion duckdb en choisissant l'option pour créer une base et lui fournir un chemin pour la base de données
 3. Ouvrir le script sql sur cette nouvelle base de données et l'executer
+
+# Executer les calculs de potentiel solaire
+
+    run-pipeline-algorithme -d 093
+
+# Tester & verifier son code
+
+## Lancer les precommit-hook localement
+
+[Installer les precommit](https://pre-commit.com/)
+    
+    pre-commit run --all-files
+
+## Utiliser Tox pour tester votre code
+
+    tox -vv
