@@ -82,6 +82,9 @@ se référer à la [documentation officielle](https://python-poetry.org/docs/#in
 
 # Tester & verifier son code
 
+## Analyser les resultats sur un departement
+Le notebook [analyse_qualite_resultats_pipeline.ipynb](notebooks/analyse_qualite_resultats_pipeline.ipynb) permet d'analyser les resulats sur le departement de son choix.
+
 ## Lancer les precommit-hook localement
 
 [Installer les precommit](https://pre-commit.com/)
