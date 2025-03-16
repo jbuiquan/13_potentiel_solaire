@@ -108,6 +108,10 @@ def upgrade() -> None:
                 ST_PointOnSurface(geom) as geo_point
             FROM
                 ST_Read('{etablissements_path}')
+            WHERE
+                type_etablissement IN ('Ecole', 'Lycée', 'Collège')
+                AND statut_public_prive = 'Public'
+                AND etat = 'OUVERT'
     """)
 
 
