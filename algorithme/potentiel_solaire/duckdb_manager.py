@@ -18,6 +18,40 @@ def get_connection():
     return conn
 
 
+def get_departements():
+    with get_connection() as conn:
+        query = """
+        SELECT code_departement
+        FROM departements 
+        GROUP BY code_departement
+        """
+
+        return list(conn.query(query).df()["code_departement"].unique())
+
+
+def get_departements_for_region(code_region: str):
+    with get_connection() as conn:
+        query = f"""
+        SELECT code_departement
+        FROM departements 
+        WHERE code_region = '{code_region}'
+        GROUP BY code_departement
+        """
+
+        return list(conn.query(query).df()["code_departement"].unique())
+
+
+def get_regions():
+    with get_connection() as conn:
+        query = """
+        SELECT code_region
+        FROM regions 
+        GROUP BY code_region
+        """
+
+        return list(conn.query(query).df()["code_region"].unique())
+
+
 def save_solar_potential_by_school(
     results_by_school: pd.DataFrame,
     code_departement: str
@@ -129,5 +163,43 @@ def save_solar_potential_by_department(
                 ST_AsGeoJSON(geom) as geometry 
             FROM
                 departements WHERE code_departement = '{code_departement}'
+            """
+        return conn.query(query).df()
+
+
+def save_solar_potential_by_region(
+    code_region: str
+):
+    with get_connection() as conn:
+        update_query = f"""
+            UPDATE regions
+            SET 
+                surface_utile = agg.surface_utile,
+                potentiel_solaire = agg.potentiel_solaire,
+                count_etablissements = agg.count_etablissements,
+                count_etablissements_proteges = agg.count_etablissements_proteges
+            FROM (
+                SELECT 
+                    code_region,
+                    SUM(surface_utile) AS surface_utile,
+                    SUM(potentiel_solaire) AS potentiel_solaire,
+                    COUNT(*) AS count_etablissements,
+                    SUM(CASE WHEN protection THEN 1 ELSE 0 END) AS count_etablissements_proteges
+                FROM etablissements
+                GROUP BY code_region
+            ) AS agg
+            WHERE
+                regions.code_region = agg.code_region
+                AND regions.code_region = '{code_region}'
+            """
+
+        conn.execute(update_query)
+
+        query = f"""
+            SELECT
+                *,
+                ST_AsGeoJSON(geom) as geometry 
+            FROM
+                regions WHERE code_region = '{code_region}'
             """
         return conn.query(query).df()
