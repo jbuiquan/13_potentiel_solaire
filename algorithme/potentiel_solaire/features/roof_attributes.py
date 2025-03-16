@@ -1,15 +1,15 @@
-# TODO
-from owslib.wms import WebMapService
-import rasterio.mask
-import geopandas as gpd
 import os
 import hashlib
-from shapely import wkt
-from rasterio import MemoryFile
+
+import geopandas as gpd
 import numpy as np
 import pandas as pd
-from scipy.ndimage import sobel, label
+import rasterio.mask
 
+from shapely import wkt
+from rasterio import MemoryFile
+from owslib.wms import WebMapService
+from scipy.ndimage import sobel, label
 
 from potentiel_solaire.constants import DATA_FOLDER
 
@@ -209,15 +209,15 @@ def recuperation_mnh(
 def segmentation_toits(data):
     """Calcule la pente, l'azimut et la surface des segments de toits.
 
+    Voir notebook example_utilisation_segmentation_des_toits.ipynb pour illustrer
+    l utilisation de cette fonction.
+
     Parameters
     data : numpy.ndarray
         Masked elevation raster data corresponding to the building geometry.
 
     Return
       Dataframe with one mine equivalent to a utile segment with a slope and an azimut.
-
-    @To do - Add package to install
-
     """
     # Calculate gradients, then slopes and azimuths.
     dx = sobel(data[0], axis=0)  # Gradient selon l'axe X (est-ouest)
