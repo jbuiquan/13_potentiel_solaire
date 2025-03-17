@@ -93,7 +93,7 @@ def run_pipeline_algorithme():
     if run_on_france:
         agg_on_regions = codes_regions
     elif code_region:
-        agg_on_regions = agg_on_regions.append(code_region)
+        agg_on_regions.append(code_region)
 
     for region in agg_on_regions:
         logger.info("Aggregation on region %s", region)
