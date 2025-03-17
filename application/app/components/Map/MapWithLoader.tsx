@@ -4,7 +4,7 @@ import useCommunesGeoJSON from '@/app/utils/hooks/useCommunesGeoJSON';
 import useEtablissementsGeoJSON from '@/app/utils/hooks/useEtablissementsGeoJSON';
 
 import Loading from '../Loading';
-import { Map } from './Map';
+import Map from './Map';
 
 export default function MapWithLoader() {
 	const communesQuery = useCommunesGeoJSON();

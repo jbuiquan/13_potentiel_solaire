@@ -47,7 +47,7 @@ type MapProps = {
 	communes: CommunesGeoJSON;
 };
 
-export function Map({ etablissements, communes }: MapProps) {
+export default function Map({ etablissements, communes }: MapProps) {
 	const mapRef = useRef<MapRef>(null);
 
 	const onClick = async (event: MapMouseEvent) => {
