@@ -1,16 +1,19 @@
 'use client';
 
 import { useRef } from 'react';
-
-import { CommunesGeoJSON } from '@/app/models/communes';
-import type {
+import {
+	Layer,
 	LngLatLike,
+	Map as MapFromReactMapLibre,
 	MapMouseEvent,
 	MapProps as MapPropsReactMapLibre,
 	MapRef,
-} from '@vis.gl/react-maplibre';
-import { Layer, Map as MapFromReactMapLibre, Source } from '@vis.gl/react-maplibre';
-import { type GeoJSONSource } from 'maplibre-gl';
+	Source,
+} from 'react-map-gl/maplibre';
+
+import { CommunesGeoJSON } from '@/app/models/communes';
+import { GeoJSONSource } from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 import { EtablissementsGeoJSON } from '../../models/etablissements';
 import { COMMUNES_SOURCE_ID, communesLayer } from './communesLayers';
@@ -78,31 +81,29 @@ export function Map({ etablissements, communes }: MapProps) {
 	}
 
 	return (
-		<>
-			<MapFromReactMapLibre
-				ref={mapRef}
-				style={style}
-				initialViewState={initialViewState}
-				mapStyle={MAP_STYLE_URL}
-				interactiveLayerIds={[clusterLayer.id]}
-				onClick={onClick}
+		<MapFromReactMapLibre
+			ref={mapRef}
+			initialViewState={initialViewState}
+			mapStyle={MAP_STYLE_URL}
+			interactiveLayerIds={[clusterLayer.id]}
+			style={style}
+			onClick={onClick}
+		>
+			<Source id={COMMUNES_SOURCE_ID} type='geojson' data={communes}>
+				<Layer {...communesLayer} />
+			</Source>
+			<Source
+				id={ETABLISSEMENTS_SOURCE_ID}
+				type='geojson'
+				data={etablissements}
+				cluster={true}
+				clusterMaxZoom={14}
+				clusterRadius={50}
 			>
-				<Source id={COMMUNES_SOURCE_ID} type='geojson' data={communes}>
-					<Layer {...communesLayer} />
-				</Source>
-				<Source
-					id={ETABLISSEMENTS_SOURCE_ID}
-					type='geojson'
-					data={etablissements}
-					cluster={true}
-					clusterMaxZoom={14}
-					clusterRadius={50}
-				>
-					<Layer {...clusterLayer} />
-					<Layer {...clusterCountLayer} />
-					<Layer {...unclusteredPointLayer} />
-				</Source>
-			</MapFromReactMapLibre>
-		</>
+				<Layer {...clusterLayer} />
+				<Layer {...clusterCountLayer} />
+				<Layer {...unclusteredPointLayer} />
+			</Source>
+		</MapFromReactMapLibre>
 	);
 }
