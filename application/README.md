@@ -88,6 +88,32 @@ npm install
 
 ## Développement
 
+### Installer un éditeur de code
+
+Visual studio code est recommandé pour le développement de l'application.
+
+1. Suivre le processus d'installation sur le site officiel - https://code.visualstudio.com/
+2. Installer l'extension [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+
+	Modifier les paramètres pour utiliser Prettier comme formatteur par défaut et activer le formattage à la sauvegarde.
+
+	Configuration à placer dans les paramètres `settings.json` :
+
+	```json
+	{
+		//... autres configurations
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+  		"editor.formatOnSave": true,
+	}
+	```
+
+
+3. (Conseillé) Installer les autres extensions recommandées pour le projet :	
+	- Un linter - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+	- Intégration de règles de formattage standardisé - [EditorConfig for VS Code](https://marketplace.visualstudio.com/items?itemName=editorconfig.editorconfig)
+	- Suggestion de code pour Tailwind - [Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss)
+	- Affichage amélioré des erreurs typescript - [Pretty TypeScript Errors](https://marketplace.visualstudio.com/items?itemName=yoavbls.pretty-ts-errors)
+
 ### Installer la base de test
 
 Pour initialiser une base duckdb :
