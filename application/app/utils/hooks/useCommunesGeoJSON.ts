@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
+import useSWR from 'swr';
 
 import { fetchCommunesGeoJSON } from '../fetchers/fetchCommunesGeoJSON';
 
-//TODO: use swr / tanstack query to handle loading/errors
 export default function useCommunesGeoJSON() {
-	const [result, setResult] = useState<
-		undefined | Awaited<ReturnType<typeof fetchCommunesGeoJSON>>
-	>();
+	const { data, error, isLoading } = useSWR('communesGeoJSON', fetchCommunesGeoJSON, {
+		revalidateOnFocus: false,
+		revalidateIfStale: false,
+	});
 
-	useEffect(() => {
-		fetchCommunesGeoJSON().then(setResult);
-	}, []);
-
-	return result;
+	return {
+		communesGeoJSON: data,
+		isError: error,
+		isLoading,
+	};
 }
