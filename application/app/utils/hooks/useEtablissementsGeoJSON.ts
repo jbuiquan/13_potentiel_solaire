@@ -1,12 +1,12 @@
-import useSWR from 'swr';
+import useSWRImmutable from 'swr/immutable';
 
 import { fetchEtablissementsGeoJSON } from '../fetchers/fetchEtablissementsGeoJSON';
 
 export default function useEtablissementsGeoJSON() {
-	const { data, error, isLoading } = useSWR('etablissementsGeoJSON', fetchEtablissementsGeoJSON, {
-		revalidateOnFocus: false,
-		revalidateIfStale: false,
-	});
+	const { data, error, isLoading } = useSWRImmutable(
+		'etablissementsGeoJSON',
+		fetchEtablissementsGeoJSON,
+	);
 
 	return {
 		etablissementsGeoJSON: data,
