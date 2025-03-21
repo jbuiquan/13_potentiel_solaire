@@ -2,11 +2,11 @@ import { DepartementsGeoJSON } from '@/app/models/departements';
 
 import getBaseURL from './getBaseURL';
 
-const apiURL = '/api/get-departements';
+const API_ROUTE = '/api/get-departements';
 
 export async function fetchDepartementsGeoJSON(codeRegion: string | null) {
 	try {
-		const url = new URL(getBaseURL(), apiURL);
+		const url = new URL(API_ROUTE, getBaseURL());
 
 		if (codeRegion) url.searchParams.append('codeRegion', codeRegion);
 
