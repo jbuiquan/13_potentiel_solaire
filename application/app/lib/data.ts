@@ -3,6 +3,7 @@ import { DuckDBPreparedStatement } from '@duckdb/node-api';
 import { CommunesGeoJSON } from '../models/communes';
 import { DepartementsGeoJSON } from '../models/departements';
 import { Etablissement, EtablissementsGeoJSON } from '../models/etablissements';
+import { SearchResult } from '../models/search';
 import db from './duckdb';
 
 // --- Etablissements ---
@@ -303,6 +304,41 @@ export async function fetchDepartementsGeoJSON(
 
 		const reader = await prepared.runAndReadAll();
 		return JSON.parse(reader.getRowsJson()[0][0] as string);
+	} catch (error) {
+		console.error('Database Error:', error);
+		throw new Error('Failed to fetch example rows.');
+	}
+}
+
+// --- Search ----
+
+const DEFAULT_LIMIT = 10;
+
+export async function fetchSearchResults(
+	query: string,
+	limit = DEFAULT_LIMIT,
+): Promise<SearchResult[]> {
+	const isCodePostal = /^\d+$/.test(query);
+	const condition = isCodePostal
+		? `sv.source_table = 'communes' and code_postal like $1`
+		: 'sv.lowercase_libelle like $1';
+	try {
+		const connection = await db.connect();
+
+		const prepared = await connection.prepare(
+			`
+		SELECT source_table as source, id, libelle, extra_data
+		FROM main.search_view sv
+		WHERE ${condition}
+		ORDER BY sv.libelle
+		LIMIT $2;
+		`,
+		);
+		prepared.bindVarchar(1, `%${query.toLowerCase()}%`);
+		prepared.bindInteger(2, limit);
+
+		const reader = await prepared.runAndReadAll();
+		return reader.getRowObjectsJson() as unknown as SearchResult[];
 	} catch (error) {
 		console.error('Database Error:', error);
 		throw new Error('Failed to fetch example rows.');
