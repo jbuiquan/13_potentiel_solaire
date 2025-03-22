@@ -99,7 +99,6 @@ def create_basefile_communes(output_directory: str = DATA_FOLDER)->None:
 
     sources = load_sources(SOURCES_FILEPATH)
     
-    print('sources loaded')
     path_communes_geo_7z = os.path.join(output_directory, sources['communes'].zip_filename)
     extraction_folder = path_communes_geo_7z[:-3]
     output_path = os.path.join(output_directory, sources['communes'].filename)
@@ -109,13 +108,12 @@ def create_basefile_communes(output_directory: str = DATA_FOLDER)->None:
 
     if not os.path.isdir(extraction_folder):
         extract_7z(path_communes_geo_7z, extraction_folder)
-        print('extraction made')
 
     communes_gdfs =[]
 
     all_communes = extract_and_load_shapefile(extraction_folder, SUB_PATH_COMMUNES)
-    print('loaded full municipalities')
 
+    # itère sur les departement composés de département pour les retiré du jeu de données de base, et ajouter à la place les arrondissements
     for dep_region in DEP_AVEC_ARRONDISSEMENT:
         print(dep_region)
         all_communes = all_communes[all_communes['INSEE_DEP'].str.lstrip('0') != dep_region[0].lstrip('0')]
@@ -130,11 +128,9 @@ def create_basefile_communes(output_directory: str = DATA_FOLDER)->None:
 
     all_communes = process_communes(all_communes)
     communes_gdfs.append(all_communes)
-    print('started concatenation')
 
     communes_gdfs = pd.concat(communes_gdfs, ignore_index=True)
 
-    print('simplification')
     communes_gdfs['geometry'] = communes_gdfs['geometry'].simplify(0.00005)
 
     communes_gdfs.to_file(output_path)

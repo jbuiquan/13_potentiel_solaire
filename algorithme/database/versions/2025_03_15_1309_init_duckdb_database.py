@@ -20,6 +20,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 # extract sources
 sources = extract_sources()
+create_basefile_communes()
+
 
 # schema
 regions_table = "regions"
@@ -28,9 +30,6 @@ regions_path = sources["regions"].filepath
 departements_table = "departements"
 departements_path = sources["departements"].filepath
 
-print('starting')
-create_basefile_communes()
-print('basefile made')
 communes_table = "communes"
 communes_path = sources["communes"].filepath
 
