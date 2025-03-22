@@ -10,6 +10,7 @@ from typing import Sequence, Union
 from alembic import op
 
 from potentiel_solaire.sources.extract import extract_sources
+from potentiel_solaire.sources.communes import create_basefile_communes
 
 # revision identifiers, used by Alembic.
 revision: str = '73f36b7b95ee'
@@ -27,6 +28,9 @@ regions_path = sources["regions"].filepath
 departements_table = "departements"
 departements_path = sources["departements"].filepath
 
+print('starting')
+create_basefile_communes()
+print('basefile made')
 communes_table = "communes"
 communes_path = sources["communes"].filepath
 

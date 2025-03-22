@@ -18,3 +18,6 @@ CRS_FOR_BUFFERS = 6933
 
 # hypotheses
 BUFFER_SIZE_FOR_PROTECTED_BUILDINGS = 500  # meters
+
+# departement avec arrondissement - tuple (departement, région)
+DEP_AVEC_ARRONDISSEMENT = [("75", "11"), ("13", "93"), ("69", "84")]
