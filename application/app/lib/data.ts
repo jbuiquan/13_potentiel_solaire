@@ -3,6 +3,7 @@ import { DuckDBPreparedStatement } from '@duckdb/node-api';
 import { CommunesGeoJSON } from '../models/communes';
 import { DepartementsGeoJSON } from '../models/departements';
 import { Etablissement, EtablissementsGeoJSON } from '../models/etablissements';
+import { RegionsGeoJSON } from '../models/regions';
 import db from './duckdb';
 
 // --- Etablissements ---
@@ -233,9 +234,7 @@ export async function fetchCommunesGeoJSON(
 				'potentiel_solaire',
 				c.potentiel_solaire,
 				'count_etablissements',
-				c.count_etablissements,
-				'count_etablissements_proteges',
-				c.count_etablissements_proteges
+				c.count_etablissements
 				),
 				'geometry', ST_AsGeoJSON(c.geom)::JSON
 				)
@@ -287,9 +286,7 @@ export async function fetchDepartementsGeoJSON(
 				'potentiel_solaire',
 				d.potentiel_solaire,
 				'count_etablissements',
-				d.count_etablissements,
-				'count_etablissements_proteges',
-				d.count_etablissements_proteges
+				d.count_etablissements
 				),
 				'geometry', ST_AsGeoJSON(d.geom)::JSON
 				)
@@ -300,6 +297,49 @@ export async function fetchDepartementsGeoJSON(
 		if (codeRegion) {
 			prepared.bindVarchar(1, codeRegion);
 		}
+
+		const reader = await prepared.runAndReadAll();
+		return JSON.parse(reader.getRowsJson()[0][0] as string);
+	} catch (error) {
+		console.error('Database Error:', error);
+		throw new Error('Failed to fetch example rows.');
+	}
+}
+
+// --- Regions ---
+export async function fetchRegionsGeoJSON(): Promise<RegionsGeoJSON> {
+	try {
+		const connection = await db.connect();
+		await connection.run('LOAD SPATIAL;');
+
+		const prepared = await connection.prepare(
+			`
+		SELECT
+			json_object(
+			'type','FeatureCollection',
+			'features',
+			COALESCE(json_group_array(
+			json_object(
+				'type','Feature',
+				'properties',
+				json_object(
+				'code_region',
+				r.code_region,
+				'libelle_region',
+				r.libelle_region,
+				'surface_utile',
+				r.surface_utile,
+				'potentiel_solaire',
+				r.potentiel_solaire,
+				'count_etablissements',
+				r.count_etablissements
+				),
+				'geometry', ST_AsGeoJSON(r.geom)::JSON
+				)
+			), [])
+		) as geojson FROM main.regions r
+		`,
+		);
 
 		const reader = await prepared.runAndReadAll();
 		return JSON.parse(reader.getRowsJson()[0][0] as string);

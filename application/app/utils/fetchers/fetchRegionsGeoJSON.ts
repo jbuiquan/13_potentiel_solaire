@@ -4,11 +4,9 @@ import getBaseURL from './getBaseURL';
 
 const API_ROUTE = '/api/get-regions';
 
-export async function fetchRegionsGeoJSON(codeRegion: string | null) {
+export async function fetchRegionsGeoJSON() {
 	try {
 		const url = new URL(API_ROUTE, getBaseURL());
-
-		if (codeRegion) url.searchParams.append('codeRegion', codeRegion);
 
 		const res = await fetch(url.toString());
 		if (!res.ok) throw new Error('Failed to load regions from API');

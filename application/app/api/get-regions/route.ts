@@ -1,5 +1,3 @@
-import { NextRequest } from 'next/server';
-
 import { fetchRegionsGeoJSON } from '@/app/lib/data';
 
 /**
@@ -8,11 +6,9 @@ import { fetchRegionsGeoJSON } from '@/app/lib/data';
  * @param request
  * @returns
  */
-export async function GET(request: NextRequest) {
-	const searchParams = request.nextUrl.searchParams;
-	const codeRegion = searchParams.get('codeRegion');
+export async function GET() {
 	try {
-		const data = await fetchRegionsGeoJSON(codeRegion);
+		const data = await fetchRegionsGeoJSON();
 		return Response.json(data, {
 			status: 200,
 		});

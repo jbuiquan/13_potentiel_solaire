@@ -2,9 +2,9 @@ import useSWRImmutable from 'swr/immutable';
 
 import { fetchRegionsGeoJSON } from '../fetchers/fetchRegionsGeoJSON';
 
-export default function useRegionsGeoJSON(codeRegion: string | null) {
+export default function useRegionsGeoJSON() {
 	const { data, error, isLoading } = useSWRImmutable('regionsGeoJSON', () =>
-		fetchRegionsGeoJSON(codeRegion),
+		fetchRegionsGeoJSON(),
 	);
 
 	return {
