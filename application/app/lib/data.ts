@@ -4,6 +4,7 @@ import { CommunesGeoJSON } from '../models/communes';
 import { DepartementsGeoJSON } from '../models/departements';
 import { Etablissement, EtablissementsGeoJSON } from '../models/etablissements';
 import { SearchResult } from '../models/search';
+import { sanitizeString } from '../utils/string-utils';
 import db from './duckdb';
 
 // --- Etablissements ---
@@ -314,14 +315,16 @@ export async function fetchDepartementsGeoJSON(
 
 const DEFAULT_LIMIT = 10;
 
+/**
+ * Fetch results from the search view.
+ * @param query
+ * @param limit
+ * @returns
+ */
 export async function fetchSearchResults(
 	query: string,
 	limit = DEFAULT_LIMIT,
 ): Promise<SearchResult[]> {
-	const isCodePostal = /^\d+$/.test(query);
-	const condition = isCodePostal
-		? `sv.source_table = 'communes' and code_postal like $1`
-		: 'sv.lowercase_libelle like $1';
 	try {
 		const connection = await db.connect();
 
@@ -329,12 +332,12 @@ export async function fetchSearchResults(
 			`
 		SELECT source_table as source, id, libelle, extra_data
 		FROM main.search_view sv
-		WHERE ${condition}
+		WHERE sv.sanitized_libelle like $1
 		ORDER BY sv.libelle
 		LIMIT $2;
 		`,
 		);
-		prepared.bindVarchar(1, `%${query.toLowerCase()}%`);
+		prepared.bindVarchar(1, `%${sanitizeString(query).toLowerCase()}%`);
 		prepared.bindInteger(2, limit);
 
 		const reader = await prepared.runAndReadAll();

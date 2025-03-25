@@ -142,11 +142,41 @@ FROM (
 WHERE c.code_commune = communeEtablissements.code_commune;
 
 -- create materialized view with a common libelle column on every tables
+-- On nettoie le libellé dans la colonne sanitized_libelle :
+-- 1. suppression des accents
+-- 2. remplacement de la ponctuation par des espaces
+-- 3. suppression des doublons d'espaces
+-- 4. conversion en lowercase.
+-- TODO: add code_postal in etablissement extra_data
 CREATE OR REPLACE TABLE search_view AS 
-SELECT 'etablissements' AS source_table, identifiant_de_l_etablissement as id, nom_etablissement AS libelle, lower(nom_etablissement) AS lowercase_libelle, code_commune AS code_postal, to_json(struct_pack(code_commune, nom_commune)) AS extra_data FROM etablissements
+SELECT 
+'etablissements' AS source_table, 
+identifiant_de_l_etablissement as id, 
+nom_etablissement AS libelle, 
+lower(regexp_replace(regexp_replace(strip_accents(nom_etablissement), '[^\w\s]', ' ', 'g'), '[\s]{2,}', ' ', 'g')) AS sanitized_libelle, 
+to_json(struct_pack(nom_commune)) AS extra_data 
+FROM etablissements
 UNION ALL
-SELECT 'communes' AS source_table, code_commune AS id, nom_commune AS libelle, lower(nom_commune) AS lowercase_libelle, code_commune AS code_postal, NULL::json AS extra_data FROM communes
+SELECT 
+'communes' AS source_table, 
+code_commune AS id, 
+nom_commune AS libelle, 
+lower(regexp_replace(regexp_replace(strip_accents(nom_commune), '[^\w\s]', ' ', 'g'), '[\s]{2,}', ' ', 'g')) AS sanitized_libelle, 
+NULL::json AS extra_data 
+FROM communes
 UNION ALL
-SELECT 'departements' AS source_table, code_departement AS id, libelle_departement AS libelle, lower(libelle_departement) AS lowercase_libelle, null AS code_postal, NULL::json AS extra_data FROM departements
+SELECT 
+'departements' AS source_table,
+code_departement AS id,
+libelle_departement AS libelle,
+lower(regexp_replace(regexp_replace(strip_accents(libelle_departement), '[^\w\s]', ' ', 'g'), '[\s]{2,}', ' ', 'g')) AS sanitized_libelle,
+NULL::json AS extra_data 
+FROM departements
 UNION ALL
-SELECT 'regions' AS source_table, code_region AS id, libelle_region AS libelle, lower(libelle_region) AS lowercase_libelle, null AS code_postal, NULL::json AS extra_data FROM regions;
+SELECT 
+'regions' AS source_table,
+code_region AS id,
+libelle_region AS libelle,
+lower(regexp_replace(regexp_replace(strip_accents(libelle_region), '[^\w\s]', ' ', 'g'), '[\s]{2,}', ' ', 'g')) AS sanitized_libelle,
+NULL::json AS extra_data 
+FROM regions;
