@@ -149,7 +149,7 @@ WHERE c.code_commune = communeEtablissements.code_commune;
 -- create reference table between code_postal and code_insee
 -- source : https://www.data.gouv.fr/fr/datasets/base-officielle-des-codes-postaux/
 CREATE OR REPLACE TABLE ref_code_postal AS
-SELECT "#Code_commune_INSEE" AS code_insee, Code_postal AS code_postal
+SELECT DISTINCT ON(code_insee, code_postal) "#Code_commune_INSEE" AS code_insee, Code_postal AS code_postal
 FROM read_parquet('https://object.files.data.gouv.fr/hydra-parquet/hydra-parquet/54535896c301b2b3928f8db6305309ad.parquet'); -- 0.7s
 
 -- create materialized view with a common libelle column on every tables
