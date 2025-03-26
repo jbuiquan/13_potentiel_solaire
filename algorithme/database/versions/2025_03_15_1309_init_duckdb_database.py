@@ -10,7 +10,6 @@ from typing import Sequence, Union
 from alembic import op
 
 from potentiel_solaire.sources.extract import extract_sources
-from potentiel_solaire.sources.communes import create_basefile_communes
 
 # revision identifiers, used by Alembic.
 revision: str = '73f36b7b95ee'
@@ -20,8 +19,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 # extract sources
 sources = extract_sources()
-create_basefile_communes()
-
 
 # schema
 regions_table = "regions"
