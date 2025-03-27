@@ -74,7 +74,7 @@ CREATE OR REPLACE TABLE etablissements AS
 	adresse_2,
 	adresse_3,
 	code_postal,
-	nombre_d_eleves,
+	nombre_d_eleves AS nb_eleves,
 	code_commune,
 	nom_commune,
 	code_departement,

@@ -7,7 +7,7 @@ export interface EtablissementProperties {
 	adresse_2: string | null;
 	adresse_3: string | null;
 	code_postal: string;
-	nombre_d_eleves: number | null;
+	nb_eleves: number | null;
 	code_commune: string;
 	nom_commune: string;
 	code_departement: string;
