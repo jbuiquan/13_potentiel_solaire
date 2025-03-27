@@ -119,8 +119,8 @@ export default function FranceMap() {
 		codeCommune !== undefined,
 	);
 
-	async function zoomOnCluster(feature?: ClusterEtablissementFeature) {
-		if (!mapRef.current || !feature) return;
+	async function zoomOnCluster(feature: ClusterEtablissementFeature) {
+		if (!mapRef.current) return;
 
 		const clusterId = feature.properties.cluster_id;
 
@@ -141,8 +141,8 @@ export default function FranceMap() {
 		});
 	}
 
-	function zoomOnFeature(feature?: CommuneFeature | DepartementFeature | RegionFeature) {
-		if (!mapRef.current || !feature) return;
+	function zoomOnFeature(feature: CommuneFeature | DepartementFeature | RegionFeature) {
+		if (!mapRef.current) return;
 
 		const [minLng, minLat, maxLng, maxLat] = bbox(feature);
 
@@ -155,22 +155,22 @@ export default function FranceMap() {
 		);
 	}
 
-	async function handleClickOnRegion(feature?: RegionFeature) {
+	async function handleClickOnRegion(feature: RegionFeature) {
 		zoomOnFeature(feature);
 
-		setCodeRegion(feature?.properties.code_region);
+		setCodeRegion(feature.properties.code_region);
 	}
 
-	async function handleClickOnDepartement(feature?: DepartementFeature) {
+	async function handleClickOnDepartement(feature: DepartementFeature) {
 		zoomOnFeature(feature);
 
-		setCodeDepartement(feature?.properties.code_departement);
+		setCodeDepartement(feature.properties.code_departement);
 	}
 
-	async function handleClickOnCommunes(feature?: CommuneFeature) {
+	async function handleClickOnCommunes(feature: CommuneFeature) {
 		zoomOnFeature(feature);
 
-		setCodeCommune(feature?.properties.code_commune);
+		setCodeCommune(feature.properties.code_commune);
 	}
 
 	async function onClick(event: MapMouseEvent) {
