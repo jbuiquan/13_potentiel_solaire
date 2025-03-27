@@ -7,7 +7,7 @@ import {
 	EtablissementFeature,
 	EtablissementsGeoJSON,
 } from '../models/etablissements';
-import { RegionFeature, RegionsGeoJSON } from '../models/regions';
+import { RegionsGeoJSON } from '../models/regions';
 import { SearchResult } from '../models/search';
 import { sanitizeString } from '../utils/string-utils';
 import db from './duckdb';
@@ -402,7 +402,9 @@ export async function fetchDepartementsGeoJSON(
 				'potentiel_solaire',
 				d.potentiel_solaire,
 				'count_etablissements',
-				d.count_etablissements
+				d.count_etablissements,
+				'count_etablissements_proteges',
+				d.count_etablissements_proteges
 				),
 				'geometry', ST_AsGeoJSON(d.geom)::JSON
 				)
@@ -465,49 +467,6 @@ export async function fetchDepartementGeoJSONById(id: string): Promise<Departeme
 	} catch (error) {
 		console.error('Database Error:', error);
 		throw new Error('Failed to fetch departements rows.');
-	}
-}
-
-// --- Régions ----
-export async function fetchRegionGeoJSONById(id: string): Promise<RegionFeature | null> {
-	try {
-		const connection = await db.connect();
-		await connection.run('LOAD SPATIAL;');
-
-		const prepared = await connection.prepare(
-			`
-			SELECT
-			json_object(
-				'type','Feature',
-				'properties',
-				json_object(
-				'code_region',
-				r.code_region,
-				'libelle_region',
-				r.libelle_region,
-				'surface_utile',
-				r.surface_utile,
-				'potentiel_solaire',
-				r.potentiel_solaire,
-				'count_etablissements',
-				r.count_etablissements,
-				'count_etablissements_proteges',
-				r.count_etablissements_proteges
-				),
-				'geometry', ST_AsGeoJSON(r.geom)::JSON
-			) as geojson
-			FROM main.regions r
-			WHERE r.code_region = $1
-		`,
-		);
-		prepared.bindVarchar(1, id);
-
-		const reader = await prepared.runAndReadAll();
-		const result = reader.getRowsJson()?.[0]?.[0];
-		return result ? JSON.parse(result as string) : null;
-	} catch (error) {
-		console.error('Database Error:', error);
-		throw new Error('Failed to fetch regions rows.');
 	}
 }
 
