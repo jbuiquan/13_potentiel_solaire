@@ -100,9 +100,13 @@ export default function FranceMap() {
 	const mapRef = useRef<MapRef>(null);
 	const [currentZoom, setCurrentZoom] = useState(initialViewState.zoom);
 
-	const [codeRegion, setCodeRegion] = useState<string>();
-	const [codeDepartement, setCodeDepartement] = useState<string>();
-	const [codeCommune, setCodeCommune] = useState<string>();
+	const [regionFeature, setRegionFeature] = useState<RegionFeature>();
+	const [departementFeature, setDepartementFeature] = useState<DepartementFeature>();
+	const [communeFeature, setCommuneFeature] = useState<CommuneFeature>();
+
+	const codeRegion = regionFeature?.properties.code_region;
+	const codeDepartement = departementFeature?.properties.code_departement;
+	const codeCommune = communeFeature?.properties.code_commune;
 
 	const { regionsGeoJSON } = useRegionsGeoJSON();
 	const { departementsGeoJSON } = useDepartementsGeoJSON(
@@ -158,19 +162,41 @@ export default function FranceMap() {
 	async function handleClickOnRegion(feature: RegionFeature) {
 		zoomOnFeature(feature);
 
-		setCodeRegion(feature.properties.code_region);
+		setRegionFeature(feature);
 	}
 
 	async function handleClickOnDepartement(feature: DepartementFeature) {
+		if (
+			regionFeature &&
+			feature.properties.code_departement === departementFeature?.properties.code_departement
+		) {
+			zoomOnFeature(regionFeature);
+
+			setDepartementFeature(undefined);
+
+			return;
+		}
+
 		zoomOnFeature(feature);
 
-		setCodeDepartement(feature.properties.code_departement);
+		setDepartementFeature(feature);
 	}
 
 	async function handleClickOnCommunes(feature: CommuneFeature) {
+		if (
+			departementFeature &&
+			feature.properties.code_departement === communeFeature?.properties.code_departement
+		) {
+			zoomOnFeature(departementFeature);
+
+			setCommuneFeature(undefined);
+
+			return;
+		}
+
 		zoomOnFeature(feature);
 
-		setCodeCommune(feature.properties.code_commune);
+		setCommuneFeature(feature);
 	}
 
 	async function onClick(event: MapMouseEvent) {
