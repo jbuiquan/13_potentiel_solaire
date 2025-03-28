@@ -2,7 +2,7 @@ import { EtablissementsGeoJSON } from '@/app/models/etablissements';
 
 import getBaseURL from './getBaseURL';
 
-const API_ROUTE = '/api/get-etablissements';
+const API_ROUTE = '/api/etablissements';
 
 export async function fetchEtablissementsGeoJSON(codeCommune: string | null) {
 	try {

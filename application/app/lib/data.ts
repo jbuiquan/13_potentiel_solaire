@@ -472,43 +472,6 @@ export async function fetchDepartementGeoJSONById(id: string): Promise<Departeme
 	}
 }
 
-// --- Search ----
-
-const DEFAULT_LIMIT = 10;
-
-/**
- * Fetch results from the search view.
- * @param query
- * @param limit
- * @returns
- */
-export async function fetchSearchResults(
-	query: string,
-	limit = DEFAULT_LIMIT,
-): Promise<SearchResult[]> {
-	try {
-		const connection = await db.connect();
-
-		const prepared = await connection.prepare(
-			`
-		SELECT source_table as source, id, libelle, extra_data
-		FROM main.search_view sv
-		WHERE sv.sanitized_libelle like $1
-		ORDER BY sv.libelle
-		LIMIT $2;
-		`,
-		);
-		prepared.bindVarchar(1, `%${sanitizeString(query).toLowerCase()}%`);
-		prepared.bindInteger(2, limit);
-
-		const reader = await prepared.runAndReadAll();
-		return reader.getRowObjectsJson() as unknown as SearchResult[];
-	} catch (error) {
-		console.error('Database Error:', error);
-		throw new Error('Failed to fetch search view rows.');
-	}
-}
-
 // --- Regions ---
 export async function fetchRegionGeoJSONById(id: string): Promise<RegionFeature | null> {
 	try {
@@ -549,5 +512,42 @@ export async function fetchRegionGeoJSONById(id: string): Promise<RegionFeature 
 	} catch (error) {
 		console.error('Database Error:', error);
 		throw new Error('Failed to fetch regions rows.');
+	}
+}
+
+// --- Search ----
+
+const DEFAULT_LIMIT = 10;
+
+/**
+ * Fetch results from the search view.
+ * @param query
+ * @param limit
+ * @returns
+ */
+export async function fetchSearchResults(
+	query: string,
+	limit = DEFAULT_LIMIT,
+): Promise<SearchResult[]> {
+	try {
+		const connection = await db.connect();
+
+		const prepared = await connection.prepare(
+			`
+		SELECT source_table as source, id, libelle, extra_data
+		FROM main.search_view sv
+		WHERE sv.sanitized_libelle like $1
+		ORDER BY sv.libelle
+		LIMIT $2;
+		`,
+		);
+		prepared.bindVarchar(1, `%${sanitizeString(query).toLowerCase()}%`);
+		prepared.bindInteger(2, limit);
+
+		const reader = await prepared.runAndReadAll();
+		return reader.getRowObjectsJson() as unknown as SearchResult[];
+	} catch (error) {
+		console.error('Database Error:', error);
+		throw new Error('Failed to fetch search view rows.');
 	}
 }
