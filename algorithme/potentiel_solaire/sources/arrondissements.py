@@ -1,9 +1,6 @@
 import os
 
-from typing import Tuple
-
 import geopandas as gpd
-import pandas as pd
 import requests
 import topojson as tp
 
