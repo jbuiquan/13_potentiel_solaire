@@ -1,4 +1,4 @@
-import FranceMap from './components/Map/Map';
+import FranceMap from './components/Map/FranceMap';
 
 export default function Home() {
 	return (
