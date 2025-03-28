@@ -492,7 +492,7 @@ export async function fetchDepartementGeoJSONById(id: string): Promise<Departeme
 	}
 }
 
-// --- Régions ----
+// --- Regions ---
 export async function fetchRegionGeoJSONById(id: string): Promise<RegionFeature | null> {
 	try {
 		const connection = await db.connect();
