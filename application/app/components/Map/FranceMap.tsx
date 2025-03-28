@@ -29,8 +29,10 @@ import { ClusterFeature } from './interfaces';
 import {
 	COMMUNES_SOURCE_ID,
 	communesLayer,
+	communesTransparentLayer,
 	getDynamicalCommunesLayer,
 	getDynamicalCommunesLineLayer,
+	getDynamicalCommunesTransparentLayer,
 } from './layers/communesLayers';
 import {
 	DEPARTEMENTS_SOURCE_ID,
@@ -196,7 +198,10 @@ export default function FranceMap() {
 			return;
 		}
 
-		if (isFeatureFrom<EventCommunesFeature>(feature, communesLayer)) {
+		if (
+			isFeatureFrom<EventCommunesFeature>(feature, communesLayer) ||
+			isFeatureFrom<EventCommunesFeature>(feature, communesTransparentLayer)
+		) {
 			handleClickOnCommunes(feature);
 
 			return;
@@ -213,7 +218,13 @@ export default function FranceMap() {
 		setCurrentZoom(event.viewState.zoom);
 	}
 
-	if (!clusterLayer.id || !regionsLayer.id || !departementsLayer.id || !communesLayer.id) {
+	if (
+		!clusterLayer.id ||
+		!regionsLayer.id ||
+		!departementsLayer.id ||
+		!communesLayer.id ||
+		!communesTransparentLayer.id
+	) {
 		throw new Error('Layers not defined');
 	}
 
@@ -233,6 +244,7 @@ export default function FranceMap() {
 				regionsLayer.id,
 				departementsLayer.id,
 				communesLayer.id,
+				communesTransparentLayer.id,
 				clusterLayer.id,
 			]}
 			style={style}
@@ -251,8 +263,9 @@ export default function FranceMap() {
 			)}
 			{communesGeoJSON && (
 				<Source id={COMMUNES_SOURCE_ID} type='geojson' data={communesGeoJSON}>
-					<Layer {...getDynamicalCommunesLayer(isCommunesLayerVisible)} />
+					<Layer {...getDynamicalCommunesTransparentLayer(isCommunesLayerVisible)} />
 					<Layer {...getDynamicalCommunesLineLayer(isCommunesLayerVisible)} />
+					<Layer {...getDynamicalCommunesLayer(isCommunesLayerVisible)} />
 				</Source>
 			)}
 			{etablissementsGeoJSON && (

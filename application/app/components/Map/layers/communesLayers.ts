@@ -8,8 +8,6 @@ export const communesLayer = {
 	id: 'communes',
 	type: 'fill',
 	source: COMMUNES_SOURCE_ID,
-	// The communes zones arent filled to be able to see the map
-	//paint: { ...zonesLayerPaint, 'fill-color': '', 'fill-opacity': 0 },
 	paint: zonesLayerPaint,
 	maxzoom: 11,
 } satisfies LayerProps;
@@ -17,6 +15,21 @@ export const communesLayer = {
 export function getDynamicalCommunesLayer(isVisible: boolean): LayerProps {
 	return {
 		...communesLayer,
+		layout: { visibility: isVisible ? 'visible' : 'none' },
+	};
+}
+
+// Used to be able to click
+export const communesTransparentLayer = {
+	id: 'communesTransparent',
+	type: 'fill',
+	source: COMMUNES_SOURCE_ID,
+	paint: { 'fill-color': 'transparent' },
+} satisfies LayerProps;
+
+export function getDynamicalCommunesTransparentLayer(isVisible: boolean): LayerProps {
+	return {
+		...communesTransparentLayer,
 		layout: { visibility: isVisible ? 'visible' : 'none' },
 	};
 }
