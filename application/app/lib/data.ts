@@ -7,7 +7,7 @@ import {
 	EtablissementFeature,
 	EtablissementsGeoJSON,
 } from '../models/etablissements';
-import { RegionsGeoJSON } from '../models/regions';
+import { RegionFeature } from '../models/regions';
 import { SearchResult } from '../models/search';
 import { sanitizeString } from '../utils/string-utils';
 import db from './duckdb';
@@ -300,7 +300,9 @@ export async function fetchCommunesGeoJSON(
 				'potentiel_solaire',
 				c.potentiel_solaire,
 				'count_etablissements',
-				c.count_etablissements
+				c.count_etablissements,
+				'count_etablissements_proteges',
+				c.count_etablissements_proteges
 				),
 				'geometry', ST_AsGeoJSON(c.geom)::JSON
 				)
@@ -508,18 +510,14 @@ export async function fetchSearchResults(
 }
 
 // --- Regions ---
-export async function fetchRegionsGeoJSON(): Promise<RegionsGeoJSON> {
+export async function fetchRegionGeoJSONById(id: string): Promise<RegionFeature | null> {
 	try {
 		const connection = await db.connect();
 		await connection.run('LOAD SPATIAL;');
 
 		const prepared = await connection.prepare(
 			`
-		SELECT
-			json_object(
-			'type','FeatureCollection',
-			'features',
-			COALESCE(json_group_array(
+			SELECT
 			json_object(
 				'type','Feature',
 				'properties',
@@ -533,19 +531,23 @@ export async function fetchRegionsGeoJSON(): Promise<RegionsGeoJSON> {
 				'potentiel_solaire',
 				r.potentiel_solaire,
 				'count_etablissements',
-				r.count_etablissements
+				r.count_etablissements,
+				'count_etablissements_proteges',
+				r.count_etablissements_proteges
 				),
 				'geometry', ST_AsGeoJSON(r.geom)::JSON
-				)
-			), [])
-		) as geojson FROM main.regions r
+			) as geojson
+			FROM main.regions r
+			WHERE r.code_region = $1
 		`,
 		);
+		prepared.bindVarchar(1, id);
 
 		const reader = await prepared.runAndReadAll();
-		return JSON.parse(reader.getRowsJson()[0][0] as string);
+		const result = reader.getRowsJson()?.[0]?.[0];
+		return result ? JSON.parse(result as string) : null;
 	} catch (error) {
 		console.error('Database Error:', error);
-		throw new Error('Failed to fetch example rows.');
+		throw new Error('Failed to fetch regions rows.');
 	}
 }

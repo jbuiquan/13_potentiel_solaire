@@ -2,7 +2,7 @@ import { DepartementsGeoJSON } from '@/app/models/departements';
 
 import getBaseURL from './getBaseURL';
 
-const API_ROUTE = '/api/get-departements';
+const API_ROUTE = '/api/departements';
 
 export async function fetchDepartementsGeoJSON(codeRegion: string | null) {
 	try {

@@ -2,7 +2,7 @@ import { CommunesGeoJSON } from '@/app/models/communes';
 
 import getBaseURL from './getBaseURL';
 
-const API_ROUTE = '/api/get-communes';
+const API_ROUTE = '/api/communes';
 
 export async function fetchCommunesGeoJSON(codeDepartement: string | null) {
 	try {
