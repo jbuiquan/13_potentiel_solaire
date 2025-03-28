@@ -6,10 +6,10 @@ export const zonesLayerPaint = {
 		['linear'],
 		['get', 'potentiel_solaire'],
 		0,
-		'black',
-		200,
+		'white',
+		1000000,
 		'yellow',
 	],
-	'fill-opacity': 0.4,
+	'fill-opacity': 0.9,
 	'fill-outline-color': 'black',
 } satisfies FillLayerSpecification['paint'];

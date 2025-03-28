@@ -30,6 +30,7 @@ import {
 	COMMUNES_SOURCE_ID,
 	communesLayer,
 	getDynamicalCommunesLayer,
+	getDynamicalCommunesLineLayer,
 } from './layers/communesLayers';
 import {
 	DEPARTEMENTS_SOURCE_ID,
@@ -65,8 +66,9 @@ const style: React.CSSProperties = {
 
 const ANIMATION_TIME_MS = 800;
 
+const ETABLISSEMENT_VISIBLE_ZOOM_THRESHOLD = 8;
 const COMMUNES_VISIBLE_ZOOM_THRESHOLD = 7;
-const DEPARTEMENTS_VISIBLE_ZOOM_THRESHOLD = 5;
+const DEPARTEMENTS_VISIBLE_ZOOM_THRESHOLD = 6;
 
 type EventFeature<Feature extends GeoJSON.Feature = GeoJSON.Feature> = Feature & {
 	layer: LayerProps;
@@ -220,7 +222,7 @@ export default function FranceMap() {
 	const isCommunesLayerVisible =
 		Boolean(codeDepartement) && currentZoom > COMMUNES_VISIBLE_ZOOM_THRESHOLD;
 	const isEtablissementsLayerVisible =
-		Boolean(codeCommune) && currentZoom > COMMUNES_VISIBLE_ZOOM_THRESHOLD;
+		Boolean(codeCommune) && currentZoom > ETABLISSEMENT_VISIBLE_ZOOM_THRESHOLD;
 
 	return (
 		<MapFromReactMapLibre
@@ -250,6 +252,7 @@ export default function FranceMap() {
 			{communesGeoJSON && (
 				<Source id={COMMUNES_SOURCE_ID} type='geojson' data={communesGeoJSON}>
 					<Layer {...getDynamicalCommunesLayer(isCommunesLayerVisible)} />
+					<Layer {...getDynamicalCommunesLineLayer(isCommunesLayerVisible)} />
 				</Source>
 			)}
 			{etablissementsGeoJSON && (

@@ -9,6 +9,7 @@ export const regionsLayer = {
 	type: 'fill',
 	source: REGIONS_SOURCE_ID,
 	paint: zonesLayerPaint,
+	maxzoom: 10,
 } satisfies LayerProps;
 
 export function getDynamicalRegionsLayer(isVisible: boolean): LayerProps {

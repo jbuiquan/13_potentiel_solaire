@@ -9,6 +9,7 @@ export const departementsLayer = {
 	type: 'fill',
 	source: DEPARTEMENTS_SOURCE_ID,
 	paint: zonesLayerPaint,
+	maxzoom: 11,
 } satisfies LayerProps;
 
 export function getDynamicalDepartementsLayer(isVisible: boolean): LayerProps {
