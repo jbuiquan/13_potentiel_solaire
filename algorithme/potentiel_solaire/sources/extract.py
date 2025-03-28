@@ -30,3 +30,6 @@ def extract_sources(
             download_file(url=source.url, output_filepath=filepath)
 
     return sources
+
+if __name__ == "__main__":
+    extract_sources()
