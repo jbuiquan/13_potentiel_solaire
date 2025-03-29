@@ -75,12 +75,13 @@ def attach_educational_zones_to_schools(
     educational_zones_attached_to_schools.drop_duplicates(ignore_index=True, inplace=True)
 
     # On attache l etablissement a la grande zone
-    big_zones_attached_to_schools = educational_zones.merge(
+    big_zones_attached_to_schools = educational_zones.drop(columns=["cleabs_grande_zone"]).merge(
         educational_zones_attached_to_schools[
             ["cleabs_grande_zone", "identifiant_de_l_etablissement", "nombre_d_eleves"]
         ],
-        on="cleabs_grande_zone",
-        how='left'
+        left_on="cleabs",
+        right_on="cleabs_grande_zone",
+        how='inner'
     )
 
     return big_zones_attached_to_schools
@@ -163,7 +164,7 @@ def attach_buildings_to_schools(
     nb_schools_without_ambiguity = len(educational_zones_attached_to_schools["identifiant_de_l_etablissement"].unique())
 
     if nb_schools_without_ambiguity < nb_schools_linked_to_zone:
-        logger.warning("{} ecoles partagent une zone d education avec d autres sur un total {} ({}%)".format(
+        logger.warning("{} ecoles partagent une zone d education avec d autres sur un total {} ({}%) et sont ecartees du calcul".format(
             nb_schools_linked_to_zone - nb_schools_without_ambiguity,
             nb_schools_linked_to_zone,
             round(100*(nb_schools_linked_to_zone - nb_schools_without_ambiguity) / (nb_schools_linked_to_zone)))
