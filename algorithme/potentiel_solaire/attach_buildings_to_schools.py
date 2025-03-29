@@ -71,7 +71,7 @@ def attach_educational_zones_to_schools(
     )[["cleabs_grande_zone", "identifiant_de_l_etablissement", "nombre_d_eleves"]]
 
     # Cleanup
-    educational_zones_attached_to_schools.dropna(ignore_index=True, inplace=True)
+    educational_zones_attached_to_schools.dropna(subset=["cleabs_grande_zone", "identifiant_de_l_etablissement"], ignore_index=True, inplace=True)
     educational_zones_attached_to_schools.drop_duplicates(ignore_index=True, inplace=True)
 
     # On attache l etablissement a la grande zone
