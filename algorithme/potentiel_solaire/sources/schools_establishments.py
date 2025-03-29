@@ -38,6 +38,7 @@ def get_schools_establishments_of_interest(
         "libelle_region",
         "etat",
         "etablissement_mere",
+        "nombre_d_eleves",
         "geometry"
     ]
 
