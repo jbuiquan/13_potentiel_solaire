@@ -8,7 +8,6 @@ Create Date: 2025-03-30 20:54:54.246291
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
@@ -17,12 +16,12 @@ down_revision: Union[str, None] = '6ae9d430a286'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-
 # 53 lignes dans la table etablissements correspondent a 26 etablissements uniques (27 lignes à supprimer)
 # Une analyse rapide a montree que pour determiner quels etablissements garder
 # On peut essayer de se baser sur le nom de la commune qui semble pas bien renseigne dans ces cas
 # Ca reste tout de meme plutot arbitraire
 
+# schema
 etablissements_table = "etablissements"
 communes_table = "communes"
 departements_table = "departements"
