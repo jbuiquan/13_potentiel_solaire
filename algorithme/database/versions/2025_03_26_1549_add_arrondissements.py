@@ -2,7 +2,7 @@ from typing import Sequence, Union
 
 from alembic import op
 
-from potentiel_solaire.sources.arrondissements import create_arrondissements_geojson
+from potentiel_solaire.sources.arrondissements import split_municipalities_into_arrondissements
 from potentiel_solaire.sources.extract import extract_sources
 
 # revision identifiers, used by Alembic.
@@ -12,7 +12,7 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 sources = extract_sources()
-arrondissements_path = create_arrondissements_geojson()
+arrondissements_path, modified_departements = split_municipalities_into_arrondissements()
 etablissements_path = sources["etablissements"].filepath
 communes_path = sources["communes"].filepath
 
@@ -21,11 +21,19 @@ communes_table = "communes"
 departements_table = "departements"
 regions_table = "regions"
 
+#add a 0 in front to make it 3 char long
+modified_departements = [ d.rjust(3, '0') for d in modified_departements]
+
 def upgrade() -> None:
     """Upgrade schema."""
     op.execute("""
         INSTALL spatial;
         LOAD spatial;
+    """)
+
+    op.execute(f"""
+        DELETE FROM {communes_table}
+        WHERE code_departement IN {tuple(modified_departements)}
     """)
     
     # Insert arrondissements into communes table
@@ -44,11 +52,11 @@ def upgrade() -> None:
             geom
         )
         SELECT
-            arr.insee_arm AS code_commune,
-            arr.nom AS nom_commune,
-            CONCAT('0', LPAD(arr.insee_arm, 2, '0')) AS code_departement,
+            arr.codgeo AS code_commune,
+            arr.libgeo AS nom_commune,
+            CONCAT('0', LPAD(arr.dep, 2, '0')) AS code_departement,
             NULL AS libelle_departement,
-            NULL AS code_region,
+            arr.reg AS code_region,
             NULL AS libelle_region,
             0 AS surface_utile,
             0::BIGINT AS potentiel_solaire,
@@ -68,12 +76,6 @@ def upgrade() -> None:
             libelle_region = r.libelle_region
         FROM {departements_table} d, {regions_table} r
         WHERE c.code_departement = d.code_departement AND d.code_region = r.code_region
-    """)
-
-    # Remove communes for Paris, Lyon and Marseille ('13055', '69123', '75056')
-    op.execute(f"""
-        DELETE FROM {communes_table}
-        WHERE code_commune IN ('13055', '69123', '75056')
     """)
 
     # Filter TOM (code_region == "00")
@@ -118,10 +120,11 @@ def upgrade() -> None:
         ) AS agg
         WHERE {communes_table}.code_commune = agg.code_commune
             AND ({communes_table}.code_commune IN (
-                    SELECT arr.insee_arm
+                    SELECT arr.codgeo
                     FROM ST_Read('{arrondissements_path}') arr
             ) OR {communes_table}.code_commune IN ('27676', '75105'))
     """)
+
 
 
 def downgrade() -> None:
@@ -131,16 +134,13 @@ def downgrade() -> None:
         LOAD spatial;
     """)
 
-    # Remove arrondissements from communes table
+    # Remove added communes based on department codes
     op.execute(f"""
         DELETE FROM {communes_table}
-        WHERE code_commune IN (
-            SELECT arr.insee_arm
-            FROM ST_Read('{arrondissements_path}') arr
-        )
+        WHERE code_departement IN {tuple(modified_departements)}
     """)
 
-    # Add back communes for Paris, Lyon and Marseille
+    # Restore original communes for these departments
     op.execute(f"""
         INSERT INTO {communes_table} (
             code_commune,
@@ -169,7 +169,7 @@ def downgrade() -> None:
             geom
         FROM
             ST_Read('{communes_path}') com
-        WHERE com.codgeo IN ('13055', '69123', '75056')     
+        WHERE code_departement IN {tuple(modified_departements)}
     """)
 
     # Add etablissements for TOM (code_region == "00")
