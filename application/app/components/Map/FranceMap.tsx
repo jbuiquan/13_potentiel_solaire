@@ -45,8 +45,10 @@ import {
 	getDynamicalClusterCountLayer,
 	getDynamicalClusterLayer,
 	getDynamicalUnclusteredPointLayer,
+  unclusteredPointLayer,
 } from './layers/etablissementsLayers';
 import { REGIONS_SOURCE_ID, getDynamicalRegionsLayer, regionsLayer } from './layers/regionsLayers';
+import Fiches from './Fiches';
 
 const MAP_STYLE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/map-styles/map-style.json`;
 
@@ -181,6 +183,8 @@ export default function FranceMap() {
 		setCommuneFeature(feature);
 	}
 
+  const [selectedEtablissement, setSelectedEtablissement] = useState<EtablissementsGeoJSON['features'][number] | null>(null);
+
 	async function onClick(event: MapMouseEvent) {
 		if (!mapRef.current || !event.features) return;
 
@@ -212,6 +216,11 @@ export default function FranceMap() {
 
 			return;
 		}
+
+    if (isFeatureFrom<EventFeature<EtablissementsGeoJSON['features'][number]>>(feature, getDynamicalUnclusteredPointLayer(true))) {
+      setSelectedEtablissement(feature);
+      return;
+  }
 	}
 
 	function handleZoom(event: ViewStateChangeEvent) {
@@ -246,6 +255,7 @@ export default function FranceMap() {
 				communesLayer.id,
 				communesTransparentLayer.id,
 				clusterLayer.id,
+        unclusteredPointLayer.id
 			]}
 			style={style}
 			onClick={onClick}
@@ -282,6 +292,9 @@ export default function FranceMap() {
 					<Layer {...getDynamicalUnclusteredPointLayer(isEtablissementsLayerVisible)} />
 				</Source>
 			)}
+      {selectedEtablissement && (
+          <Fiches etablissement={selectedEtablissement} onClose={() => setSelectedEtablissement(null)} />
+      )}
 		</MapFromReactMapLibre>
 	);
 }
