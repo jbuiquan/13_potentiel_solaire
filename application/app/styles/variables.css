@@ -1,0 +1,18 @@
+/* Valeurs temporaires pour éviter des problèmes avec des valeurs vides*/
+:root {
+  --color-primary: #000000;
+  --color-secondary: #666666;
+  --color-accent: #ffcc00;
+  --color-green: #E7FFD3;
+  --color-darkgreen: #355917;
+  --color-yellow: #FFF9C5;
+  --color-orange: #FFEBD3;
+  --color-blue: #221C3E;
+  --font-sans: "Verdana", sans-serif;
+  --font-serif: "Times New Roman", serif;
+}
+.dark {
+  --color-primary: #051948;
+  --color-secondary: #6B7280;
+  --color-accent: #F59E0B;
+}
