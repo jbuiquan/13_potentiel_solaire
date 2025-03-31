@@ -30,6 +30,11 @@ regions_table = "regions"
 
 def upgrade() -> None:
     """Upgrade schema."""
+    op.execute("""
+        INSTALL spatial;
+        LOAD spatial;
+    """)
+    
     op.execute(f"""          
         ALTER TABLE {etablissements_table}
         ADD COLUMN IF NOT EXISTS row_number INTEGER;
