@@ -3,6 +3,11 @@ export interface EtablissementProperties {
 	nom_etablissement: string;
 	type_etablissement: string;
 	libelle_nature: string;
+	adresse_1: string | null;
+	adresse_2: string | null;
+	adresse_3: string | null;
+	code_postal: string;
+	nb_eleves: number | null;
 	code_commune: string;
 	nom_commune: string;
 	code_departement: string;
@@ -20,9 +25,9 @@ export type Etablissement = EtablissementProperties & {
 	latitude: number;
 };
 
-export type EtablissementGeojson = EtablissementsGeojson['features'][number];
-
-export type EtablissementsGeojson = GeoJSON.FeatureCollection<
-	GeoJSON.Geometry,
+export type EtablissementsGeoJSON = GeoJSON.FeatureCollection<
+	GeoJSON.Point,
 	EtablissementProperties
 >;
+
+export type EtablissementFeature = EtablissementsGeoJSON['features'][number];

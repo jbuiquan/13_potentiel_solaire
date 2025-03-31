@@ -1,7 +1,9 @@
+import FranceMap from './components/Map/FranceMap';
+
 export default function Home() {
 	return (
-		<main>
-			<div>Hello world!</div>
-		</main>
+		<div className='mx-auto flex max-w-screen-xl items-center justify-around'>
+			<FranceMap />
+		</div>
 	);
 }

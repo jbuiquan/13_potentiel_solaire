@@ -10,6 +10,9 @@ export interface CommuneProperties {
 	count_etablissements: number;
 	count_etablissements_proteges: number;
 }
-export type Commune = Communes['features'][number];
+export type CommuneFeature = CommunesGeoJSON['features'][number];
 
-export type Communes = GeoJSON.FeatureCollection<GeoJSON.Geometry, CommuneProperties>;
+export type CommunesGeoJSON = GeoJSON.FeatureCollection<
+	GeoJSON.Polygon | GeoJSON.MultiPolygon,
+	CommuneProperties
+>;

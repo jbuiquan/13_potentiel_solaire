@@ -1,18 +1,19 @@
 import { NextRequest } from 'next/server';
 
-import { fetchCommunes } from '@/app/lib/data';
+import { fetchEtablissements } from '@/app/lib/data';
 
+//TODO: remove later - just here for demo purpose
 /**
- * Get communes.
- * Get every communes if no codeDepartement is provided.
+ * Get etablissements.
+ * Get every etablissements if no code_commune is provided.
  * @param request
  * @returns
  */
 export async function GET(request: NextRequest) {
 	const searchParams = request.nextUrl.searchParams;
-	const codeDepartement = searchParams.get('codeDepartement');
+	const codeCommune = searchParams.get('codeCommune');
 	try {
-		const data = await fetchCommunes(codeDepartement);
+		const data = await fetchEtablissements(codeCommune);
 		return Response.json(data, {
 			status: 200,
 		});
