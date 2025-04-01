@@ -23,7 +23,7 @@ depends_on: Union[str, Sequence[str], None] = None
 etablissements_table = "etablissements"
 communes_table = "communes"
 new_columns = {
-    "nombre_d_eleves": "INTEGER",
+    "nb_eleves": "INTEGER",
     "adresse_1": "VARCHAR",
     "adresse_2": "VARCHAR",
     "adresse_3": "VARCHAR",
@@ -56,7 +56,7 @@ def upgrade() -> None:
     op.execute(f"""
         UPDATE {etablissements_table}
         SET
-            nombre_d_eleves = annuaire.nombre_d_eleves,
+            nb_eleves = annuaire.nombre_d_eleves,
             adresse_1 = annuaire.adresse_1,
             adresse_2 = annuaire.adresse_2,
             adresse_3 = annuaire.adresse_3,
