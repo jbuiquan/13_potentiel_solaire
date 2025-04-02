@@ -50,16 +50,30 @@ def calculate_solar_potential(
     # On prend comme longitude et latitude du batiment le plus proche du centre de la geometrie d interet
     center = Point(geom_of_interest.centroid.x, geom_of_interest.centroid.y)
     schools_buildings["distance_to_center"] = schools_buildings.geometry.distance(center)
-    closest_building = schools_buildings.loc[schools_buildings["distance_to_center"].idxmin()].geometry
-    longitude = closest_building.centroid.x
-    latitude = closest_building.centroid.y
+    # closest_building = schools_buildings.loc[schools_buildings["distance_to_center"].idxmin()].geometry
+    
+    for index_bat in range(len(schools_buildings)):
+        try :
+            closest_building = schools_buildings.sort_values(by = 'distance_to_center', 
+                                                                    ascending=True).iloc[index_bat]['geometry']
+            closest_building
+            longitude = closest_building.centroid.x
+            latitude = closest_building.centroid.y
+            
+            # On calcul le potentiel solaire pour 1kW de puissance installee via l'API PVGIS
+            potentiel_solaire_unitaire = get_potentiel_solaire_from_pvgis_api(
+                longitude=longitude,
+                latitude=latitude,
+                peakpower=1
+            )
+            print(potentiel_solaire_unitaire)
+            break
+        except : 
+            pass
 
-    # On calcul le potentiel solaire pour 1kW de puissance installee via l'API PVGIS
-    potentiel_solaire_unitaire = get_potentiel_solaire_from_pvgis_api(
-        longitude=longitude,
-        latitude=latitude,
-        peakpower=1
-    )
+
+
+
 
     # On le multiplie par le peakpower de chaque batiment
     schools_buildings["potentiel_solaire"] = potentiel_solaire_unitaire * schools_buildings["peakpower"]
