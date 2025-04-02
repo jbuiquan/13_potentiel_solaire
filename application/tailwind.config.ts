@@ -59,6 +59,7 @@ export default {
 				gray: 'var(--color-gray)',
 			},
 			fontFamily: {
+				verdana: ['var(--font-verdana)', 'sans-serif'],
 				sans: ['var(--font-sans)', 'sans-serif'],
 				serif: ['var(--font-serif)', 'serif'],
 			},
