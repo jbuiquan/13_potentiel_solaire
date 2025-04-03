@@ -1,6 +1,6 @@
 'use client';
 
-import FranceMap from './components/Map/FranceMap';
+import MapWithFiches from './components/Map/MapWithFiches';
 import SearchBar from './components/SearchBar/SearchBar';
 import { SearchResult } from './models/search';
 
@@ -12,7 +12,7 @@ export default function Home() {
 	return (
 		<div className='mx-auto flex max-w-screen-xl flex-col items-center justify-around'>
 			<SearchBar onSelect={handleSearchSelect} />
-			<FranceMap />
+			<MapWithFiches />
 		</div>
 	);
 }

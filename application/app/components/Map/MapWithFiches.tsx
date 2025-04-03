@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import FranceMap from "./FranceMap";
-import Fiches from "./fiches/Fiches";
+import Fiches from "../fiches/Fiches";
 import { EtablissementsGeoJSON } from "@/app/models/etablissements";
 
 export default function MapWithFiches() {

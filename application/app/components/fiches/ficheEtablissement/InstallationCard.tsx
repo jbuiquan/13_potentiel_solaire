@@ -18,6 +18,7 @@ const InstallationCard = ({surface_utile}: InstallationCardProps) => {
         <p className="font-medium text-center">
           <span className="text-xl">≈{surface_utile || UNKNOWN_TEXTS.surface_utile}</span> M²
         </p>
+        <br />
         <div className="flex  gap-1">
           <ChartPie />
           <p className="font-medium">Estimation des revenus mensuels maximaux de l&apos;installation</p>

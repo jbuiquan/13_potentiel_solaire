@@ -30,17 +30,18 @@ const PotentielSolaireCard = ({ potentiel_solaire }: PotentielSolaireCardProps) 
         <p className="font-medium">Potentiel de production annuelle :</p>
       </div>
       <p className="font-medium">
-        &nbsp;🟡 &nbsp;&nbsp;
+        🟡 &nbsp;
         <span className="text-xl">
           {potentiel_solaire !== undefined ? Math.round(potentiel_solaire / 1000) : UNKNOWN_TEXTS.potentiel_solaire}
         </span>{" "}
         MWh/an
       </p>
 
+      <br />
       {/* Équivalence en foyers */}
       <div className="flex gap-1">
         <HousePlug />
-        <p className="font-medium">Équivalent à la consommation électrique annuelle de :</p>
+        <p className="font-medium">&nbsp;Équivalent à la consommation électrique annuelle de :</p>
       </div>
       <div className="flex items-center justify-between w-full ps-7 text-darkgreen">
         <div className="flex items-center gap-2">

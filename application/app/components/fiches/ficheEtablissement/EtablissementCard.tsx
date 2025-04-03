@@ -1,16 +1,15 @@
+import { Etablissement } from "@/app/models/etablissements";
+
+type EtablissementCardProps = Pick<
+  Etablissement,
+  "nom_etablissement" | "adresse_1" | "adresse_2" | "adresse_3" | "nb_eleves"
+>;
+
 const UNKNOWN_TEXTS = {
   name: "Nom inconnu",
   adresse: "Adresse inconnue",
   nb_eleves: "Nombre d'élèves concernés inconnus",
 };
-
-interface EtablissementCardProps {
-  nom_etablissement?: string;
-  adresse_1?: string | null;
-  adresse_2?: string | null;
-  adresse_3?: string | null;
-  nb_eleves?: number | null;
-}
 
 const EtablissementCard = ({
   nom_etablissement,
