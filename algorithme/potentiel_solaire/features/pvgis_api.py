@@ -80,7 +80,7 @@ def get_potentiel_solaire_from_pvgis_api(
             raise requests.exceptions.HTTPError(response.raise_for_status())
         
         except requests.exceptions.HTTPError as e:
-            if response.status_code == 500:
+            if e.response.status_code == 500:
                 logger.warning(f'500 error encountered for building {number_building}. Trying next building.')
                 continue  
             
