@@ -30,6 +30,7 @@ import {
 	COMMUNES_SOURCE_ID,
 	communesLayer,
 	communesTransparentLayer,
+	getCommunesLabelLayer,
 	getDynamicalCommunesLayer,
 	getDynamicalCommunesLineLayer,
 	getDynamicalCommunesTransparentLayer,
@@ -37,6 +38,7 @@ import {
 import {
 	DEPARTEMENTS_SOURCE_ID,
 	departementsLayer,
+	getDepartementsLabelLayer,
 	getDynamicalDepartementsLayer,
 } from './layers/departementsLayers';
 import {
@@ -46,7 +48,12 @@ import {
 	getDynamicalClusterLayer,
 	getDynamicalUnclusteredPointLayer,
 } from './layers/etablissementsLayers';
-import { REGIONS_SOURCE_ID, getDynamicalRegionsLayer, regionsLayer } from './layers/regionsLayers';
+import {
+	REGIONS_SOURCE_ID,
+	getDynamicalRegionsLayer,
+	getRegionsLabelLayer,
+	regionsLayer,
+} from './layers/regionsLayers';
 
 const MAP_STYLE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/map-styles/map-style.json`;
 
@@ -254,11 +261,13 @@ export default function FranceMap() {
 			{regionsGeoJSON && (
 				<Source id={REGIONS_SOURCE_ID} type='geojson' data={regionsGeoJSON}>
 					<Layer {...getDynamicalRegionsLayer(true)} />
+					<Layer {...getRegionsLabelLayer(true)} />
 				</Source>
 			)}
 			{departementsGeoJSON && (
 				<Source id={DEPARTEMENTS_SOURCE_ID} type='geojson' data={departementsGeoJSON}>
 					<Layer {...getDynamicalDepartementsLayer(isDepartementsLayerVisible)} />
+					<Layer {...getDepartementsLabelLayer(isDepartementsLayerVisible)} />
 				</Source>
 			)}
 			{communesGeoJSON && (
@@ -266,6 +275,7 @@ export default function FranceMap() {
 					<Layer {...getDynamicalCommunesTransparentLayer(isCommunesLayerVisible)} />
 					<Layer {...getDynamicalCommunesLineLayer(isCommunesLayerVisible)} />
 					<Layer {...getDynamicalCommunesLayer(isCommunesLayerVisible)} />
+					<Layer {...getCommunesLabelLayer(isCommunesLayerVisible)} />
 				</Source>
 			)}
 			{etablissementsGeoJSON && (
