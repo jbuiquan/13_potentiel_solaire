@@ -14,11 +14,7 @@
 				"name": "Transportation"
 			}
 		},
-		"maplibre:type": "template",
-		"openmaptiles:maplibre:owner": "openmaptiles",
-		"openmaptiles:maplibre:source:url": "maplibre://openmaptiles.4qljc88t",
-		"openmaptiles:version": "3.x",
-		"maputnik:renderer": "mlgljs"
+		"maplibre:type": "template"
 	},
 	"sources": {
 		"openmaptiles": {
@@ -26,7 +22,7 @@
 			"url": "https://openmaptiles.data.gouv.fr/data/planet-vector.json"
 		}
 	},
-	"sprite": "https://openmaptiles.github.io/positron-gl-style/sprite",
+	"sprite": "https://openmaptiles.data.gouv.fr/sprites/fiord-color/sprite",
 	"glyphs": "https://openmaptiles.data.gouv.fr/fonts/{fontstack}/{range}.pbf",
 	"layers": [
 		{
