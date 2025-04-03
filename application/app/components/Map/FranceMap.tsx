@@ -48,7 +48,6 @@ import {
   unclusteredPointLayer,
 } from './layers/etablissementsLayers';
 import { REGIONS_SOURCE_ID, getDynamicalRegionsLayer, regionsLayer } from './layers/regionsLayers';
-import Fiches from './Fiches';
 
 const MAP_STYLE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/map-styles/map-style.json`;
 
@@ -87,6 +86,8 @@ type ClusterEtablissementFeature = EventFeature<
 	ClusterFeature<EtablissementsGeoJSON['features'][number]['geometry']>
 >;
 
+type EtablissementFeature = EventFeature<EtablissementsGeoJSON["features"][number]>;
+
 /**
  * Type guard function that checks if the feature is from a layer
  * @param feature to check
@@ -102,7 +103,7 @@ function isFeatureFrom<T extends EventFeature>(
 	return feature.layer.id === layer.id;
 }
 
-export default function FranceMap() {
+export default function FranceMap({ onSelect }: { onSelect: (feature: EtablissementsGeoJSON["features"][number]) => void }) {
 	const mapRef = useRef<MapRef>(null);
 	const [currentZoom, setCurrentZoom] = useState(initialViewState.zoom);
 
@@ -183,8 +184,6 @@ export default function FranceMap() {
 		setCommuneFeature(feature);
 	}
 
-  const [selectedEtablissement, setSelectedEtablissement] = useState<EtablissementsGeoJSON['features'][number] | null>(null);
-
 	async function onClick(event: MapMouseEvent) {
 		if (!mapRef.current || !event.features) return;
 
@@ -217,10 +216,10 @@ export default function FranceMap() {
 			return;
 		}
 
-    if (isFeatureFrom<EventFeature<EtablissementsGeoJSON['features'][number]>>(feature, getDynamicalUnclusteredPointLayer(true))) {
-      setSelectedEtablissement(feature);
+    if (isFeatureFrom<EtablissementFeature>(feature, getDynamicalUnclusteredPointLayer(true))) {
+      onSelect(feature);
       return;
-  }
+    }
 	}
 
 	function handleZoom(event: ViewStateChangeEvent) {
@@ -292,9 +291,6 @@ export default function FranceMap() {
 					<Layer {...getDynamicalUnclusteredPointLayer(isEtablissementsLayerVisible)} />
 				</Source>
 			)}
-      {selectedEtablissement && (
-          <Fiches etablissement={selectedEtablissement} onClose={() => setSelectedEtablissement(null)} />
-      )}
 		</MapFromReactMapLibre>
 	);
 }
