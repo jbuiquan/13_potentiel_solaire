@@ -1,55 +1,59 @@
-import { useState } from "react";
-import { Etablissement } from "@/app/models/etablissements";
-import FicheEtablissement from "./ficheEtablissement/ficheEtablissement";
-import { X } from "lucide-react";
+import { useState } from 'react';
 
-type TabId = "region" | "departement" | "commune" | "etablissement";
+import { Etablissement } from '@/app/models/etablissements';
+import { X } from 'lucide-react';
+
+import FicheEtablissement from './ficheEtablissement/ficheEtablissement';
+
+type TabId = 'region' | 'departement' | 'commune' | 'etablissement';
 type Tab = { id: TabId; label: string }[];
 
 interface FichesProps {
-  etablissement?: Etablissement;
-  onClose: () => void;
+	etablissement?: Etablissement;
+	onClose: () => void;
 }
 
 export default function Fiches({ etablissement, onClose }: FichesProps) {
-  const [activeTab, setActiveTab] = useState<TabId>("etablissement");
+	const [activeTab, setActiveTab] = useState<TabId>('etablissement');
 
-  if (!etablissement) return null;
+	if (!etablissement) return null;
 
-  const tabs: Tab = [
-    { id: "region", label: "Région" },
-    { id: "departement", label: "Département" },
-    { id: "commune", label: "Commune" },
-    { id: "etablissement", label: "Établissement" },
-  ];
+	const tabs: Tab = [
+		{ id: 'region', label: 'Région' },
+		{ id: 'departement', label: 'Département' },
+		{ id: 'commune', label: 'Commune' },
+		{ id: 'etablissement', label: 'Établissement' },
+	];
 
-  return (
-    <div className="fixed right-0 top-0 w-full max-w-sm md:w-96 h-full bg-white shadow-lg overflow-y-auto pt-1 pl-5 z-50">
-      <button
-        onClick={onClose}
-        className="absolute top-4 left-1 text-xl text-gray-500 hover:text-black"
-      >
-        <X />
-      </button>
+	return (
+		<div className='fixed right-0 top-0 z-50 h-full w-full max-w-sm overflow-y-auto bg-white pl-5 pt-1 shadow-lg md:w-96'>
+			<button
+				onClick={onClose}
+				className='absolute left-1 top-4 text-xl text-gray-500 hover:text-black'
+			>
+				<X />
+			</button>
 
-      <div className="flex border-b pl-2">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`w-1/4 py-2 px-4 text-sm md:text-base truncate rounded-md ${activeTab === tab.id ? "bg-gray-500 text-green font-bold" : "bg-green text-gray-500"}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+			<div className='flex border-b pl-2'>
+				{tabs.map((tab) => (
+					<button
+						key={tab.id}
+						className={`w-1/4 truncate rounded-md px-4 py-2 text-sm md:text-base ${activeTab === tab.id ? 'bg-gray-500 font-bold text-green' : 'bg-green text-gray-500'}`}
+						onClick={() => setActiveTab(tab.id)}
+					>
+						{tab.label}
+					</button>
+				))}
+			</div>
 
-      <div className="p-4">
-        {activeTab === "region" && <div>Contenu onglet région</div>}
-        {activeTab === "departement" && <div>Contenu onglet département</div>}
-        {activeTab === "commune" && <div>Contenu onglet commune</div>}
-        {activeTab === "etablissement" && <FicheEtablissement feature={etablissement} onClose={onClose} />}
-      </div>
-    </div>
-  );
+			<div className='p-4'>
+				{activeTab === 'region' && <div>Contenu onglet région</div>}
+				{activeTab === 'departement' && <div>Contenu onglet département</div>}
+				{activeTab === 'commune' && <div>Contenu onglet commune</div>}
+				{activeTab === 'etablissement' && (
+					<FicheEtablissement feature={etablissement} onClose={onClose} />
+				)}
+			</div>
+		</div>
+	);
 }

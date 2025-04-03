@@ -1,26 +1,30 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import FranceMap from "./FranceMap";
-import Fiches from "../fiches/Fiches";
-import { EtablissementsGeoJSON } from "@/app/models/etablissements";
+import { useState } from 'react';
+
+import { EtablissementFeature } from '@/app/models/etablissements';
+
+import Fiches from '../fiches/Fiches';
+import FranceMap from './FranceMap';
 
 export default function MapWithFiches() {
-  const [selectedEtablissement, setSelectedEtablissement] = useState<EtablissementsGeoJSON["features"][number] | null>(null);
+	const [selectedEtablissement, setSelectedEtablissement] = useState<EtablissementFeature | null>(
+		null,
+	);
 
-  return (
-    <>
-      <FranceMap onSelect={setSelectedEtablissement} />
-      {selectedEtablissement && (
-        <Fiches
-          etablissement={{
-            ...selectedEtablissement.properties,
-            longitude: selectedEtablissement.geometry.coordinates[0],
-            latitude: selectedEtablissement.geometry.coordinates[1],
-          }}
-          onClose={() => setSelectedEtablissement(null)}
-        />
-      )}
-    </>
-  );
+	return (
+		<>
+			<FranceMap onSelect={setSelectedEtablissement} />
+			{selectedEtablissement && (
+				<Fiches
+					etablissement={{
+						...selectedEtablissement.properties,
+						longitude: selectedEtablissement.geometry.coordinates[0],
+						latitude: selectedEtablissement.geometry.coordinates[1],
+					}}
+					onClose={() => setSelectedEtablissement(null)}
+				/>
+			)}
+		</>
+	);
 }

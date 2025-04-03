@@ -45,7 +45,7 @@ import {
 	getDynamicalClusterCountLayer,
 	getDynamicalClusterLayer,
 	getDynamicalUnclusteredPointLayer,
-  unclusteredPointLayer,
+	unclusteredPointLayer,
 } from './layers/etablissementsLayers';
 import { REGIONS_SOURCE_ID, getDynamicalRegionsLayer, regionsLayer } from './layers/regionsLayers';
 
@@ -86,7 +86,11 @@ type ClusterEtablissementFeature = EventFeature<
 	ClusterFeature<EtablissementsGeoJSON['features'][number]['geometry']>
 >;
 
-type EtablissementFeature = EventFeature<EtablissementsGeoJSON["features"][number]>;
+type EtablissementFeature = EventFeature<EtablissementsGeoJSON['features'][number]>;
+
+interface FranceMapProps {
+	onSelect: (feature: EtablissementFeature) => void;
+}
 
 /**
  * Type guard function that checks if the feature is from a layer
@@ -103,7 +107,7 @@ function isFeatureFrom<T extends EventFeature>(
 	return feature.layer.id === layer.id;
 }
 
-export default function FranceMap({ onSelect }: { onSelect: (feature: EtablissementsGeoJSON["features"][number]) => void }) {
+export default function FranceMap({ onSelect }: FranceMapProps) {
 	const mapRef = useRef<MapRef>(null);
 	const [currentZoom, setCurrentZoom] = useState(initialViewState.zoom);
 
@@ -216,10 +220,10 @@ export default function FranceMap({ onSelect }: { onSelect: (feature: Etablissem
 			return;
 		}
 
-    if (isFeatureFrom<EtablissementFeature>(feature, getDynamicalUnclusteredPointLayer(true))) {
-      onSelect(feature);
-      return;
-    }
+		if (isFeatureFrom<EtablissementFeature>(feature, getDynamicalUnclusteredPointLayer(true))) {
+			onSelect(feature);
+			return;
+		}
 	}
 
 	function handleZoom(event: ViewStateChangeEvent) {
@@ -254,7 +258,7 @@ export default function FranceMap({ onSelect }: { onSelect: (feature: Etablissem
 				communesLayer.id,
 				communesTransparentLayer.id,
 				clusterLayer.id,
-        unclusteredPointLayer.id
+				unclusteredPointLayer.id,
 			]}
 			style={style}
 			onClick={onClick}
