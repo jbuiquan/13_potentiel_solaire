@@ -24,7 +24,7 @@ import { bbox } from '@turf/turf';
 import { GeoJSONSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import { EtablissementsGeoJSON } from '../../models/etablissements';
+import { EtablissementFeature, EtablissementsGeoJSON } from '../../models/etablissements';
 import { ClusterFeature } from './interfaces';
 import {
 	COMMUNES_SOURCE_ID,
@@ -45,6 +45,7 @@ import {
 	getDynamicalClusterCountLayer,
 	getDynamicalClusterLayer,
 	getDynamicalUnclusteredPointLayer,
+	unclusteredPointLayer,
 } from './layers/etablissementsLayers';
 import { REGIONS_SOURCE_ID, getDynamicalRegionsLayer, regionsLayer } from './layers/regionsLayers';
 
@@ -85,6 +86,12 @@ type ClusterEtablissementFeature = EventFeature<
 	ClusterFeature<EtablissementsGeoJSON['features'][number]['geometry']>
 >;
 
+type EventEtablissementFeature = EventFeature<EtablissementFeature>;
+
+interface FranceMapProps {
+	onSelect: (feature: EtablissementFeature) => void;
+}
+
 /**
  * Type guard function that checks if the feature is from a layer
  * @param feature to check
@@ -100,7 +107,7 @@ function isFeatureFrom<T extends EventFeature>(
 	return feature.layer.id === layer.id;
 }
 
-export default function FranceMap() {
+export default function FranceMap({ onSelect }: FranceMapProps) {
 	const mapRef = useRef<MapRef>(null);
 	const [currentZoom, setCurrentZoom] = useState(initialViewState.zoom);
 
@@ -212,6 +219,16 @@ export default function FranceMap() {
 
 			return;
 		}
+
+		if (
+			isFeatureFrom<EventEtablissementFeature>(
+				feature,
+				getDynamicalUnclusteredPointLayer(true),
+			)
+		) {
+			onSelect(feature);
+			return;
+		}
 	}
 
 	function handleZoom(event: ViewStateChangeEvent) {
@@ -246,6 +263,7 @@ export default function FranceMap() {
 				communesLayer.id,
 				communesTransparentLayer.id,
 				clusterLayer.id,
+				unclusteredPointLayer.id,
 			]}
 			style={style}
 			onClick={onClick}
