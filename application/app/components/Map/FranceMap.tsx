@@ -126,12 +126,12 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 	const codeDepartement = departementFeature?.properties.code_departement;
 	const codeCommune = communeFeature?.properties.code_commune;
 
-	const { regionsGeoJSON } = useRegionsGeoJSON();
-	const { departementsGeoJSON } = useDepartementsGeoJSON(
+	const { regionsGeoJSON, regionLabelPoints } = useRegionsGeoJSON();
+	const { departementsGeoJSON, departementLabelPoints } = useDepartementsGeoJSON(
 		codeRegion ?? null,
 		codeRegion !== undefined,
 	);
-	const { communesGeoJSON } = useCommunesGeoJSON(
+	const { communesGeoJSON, communeLabelPoints } = useCommunesGeoJSON(
 		codeDepartement ?? null,
 		codeDepartement !== undefined,
 	);
@@ -252,6 +252,7 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 		throw new Error('Layers not defined');
 	}
 
+	const isRegionsLayerVisible = !codeRegion;
 	const isDepartementsLayerVisible =
 		Boolean(codeRegion) && currentZoom > DEPARTEMENTS_VISIBLE_ZOOM_THRESHOLD;
 	const isCommunesLayerVisible =
@@ -279,12 +280,20 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 			{regionsGeoJSON && (
 				<Source id={REGIONS_SOURCE_ID} type='geojson' data={regionsGeoJSON}>
 					<Layer {...getDynamicalRegionsLayer(true)} />
-					<Layer {...getRegionsLabelLayer(true)} />
+				</Source>
+			)}
+			{regionLabelPoints && (
+				<Source id='regions-labels' type='geojson' data={regionLabelPoints}>
+					<Layer {...getRegionsLabelLayer(isRegionsLayerVisible)} />
 				</Source>
 			)}
 			{departementsGeoJSON && (
 				<Source id={DEPARTEMENTS_SOURCE_ID} type='geojson' data={departementsGeoJSON}>
 					<Layer {...getDynamicalDepartementsLayer(isDepartementsLayerVisible)} />
+				</Source>
+			)}
+			{departementLabelPoints && (
+				<Source id='departements-labels' type='geojson' data={departementLabelPoints}>
 					<Layer {...getDepartementsLabelLayer(isDepartementsLayerVisible)} />
 				</Source>
 			)}
@@ -293,6 +302,10 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 					<Layer {...getDynamicalCommunesTransparentLayer(isCommunesLayerVisible)} />
 					<Layer {...getDynamicalCommunesLineLayer(isCommunesLayerVisible)} />
 					<Layer {...getDynamicalCommunesLayer(isCommunesLayerVisible)} />
+				</Source>
+			)}
+			{communeLabelPoints && (
+				<Source id='communes-labels' type='geojson' data={communeLabelPoints}>
 					<Layer {...getCommunesLabelLayer(isCommunesLayerVisible)} />
 				</Source>
 			)}

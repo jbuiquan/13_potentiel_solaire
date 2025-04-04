@@ -22,7 +22,7 @@ export function getRegionsLabelLayer(isVisible: boolean): LayerProps {
 	return {
 		id: 'regions-labels',
 		type: 'symbol',
-		source: REGIONS_SOURCE_ID,
+		source: 'regions-labels-source',
 		layout: {
 			'text-field': ['get', 'libelle_region'],
 			'text-size': 14,
