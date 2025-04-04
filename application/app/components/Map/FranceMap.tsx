@@ -65,14 +65,9 @@ const MAP_STYLE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/map-styles/map-style.
 
 const initialViewState = {
 	longitude: 1.888334,
-	latitude: 46.603354,
-	zoom: 5,
+	latitude: 45.603354,
+	zoom: 4.5,
 } satisfies MapPropsReactMapLibre['initialViewState'];
-
-const style: React.CSSProperties = {
-	width: 1200,
-	height: 800,
-};
 
 const ANIMATION_TIME_MS = 800;
 
@@ -273,7 +268,6 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 				clusterLayer.id,
 				unclusteredPointLayer.id,
 			]}
-			style={style}
 			onClick={onClick}
 			onZoom={handleZoom}
 		>
