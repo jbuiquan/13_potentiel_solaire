@@ -9,17 +9,27 @@ const SOLAR_TEXT = {
 	low: 'Des optimisations sont à prévoir pour un bon potentiel solaire',
 };
 
+// TODO: valider les valeurs ci-dessous avec des sources précises
+const FOYER_CONSO_KWH = 2300;
+const PERSONNES_PAR_FOYER = 4;
+const HIGH_SOLAR_THRESHOLD = 500_000;
+
 interface potentielSolaireCardProps {
 	potentiel_solaire?: number;
 }
 
 function potentielSolaireEnFoyers(potentielSolaire?: number): number | string {
 	if (potentielSolaire === undefined) return UNKNOWN_TEXTS.potentiel_solaire;
-	return Math.round(potentielSolaire / 2300 / 4);
+	return Math.round(potentielSolaire / FOYER_CONSO_KWH / PERSONNES_PAR_FOYER);
 }
 
 const PotentielSolaireCard = ({ potentiel_solaire }: potentielSolaireCardProps) => {
-	const isHigh = (potentiel_solaire ?? 0) > 500000;
+	const isHigh = (potentiel_solaire ?? 0) > HIGH_SOLAR_THRESHOLD;
+
+	const potentielAsMwh =
+		potentiel_solaire !== undefined
+			? Math.round(potentiel_solaire / 1000)
+			: UNKNOWN_TEXTS.potentiel_solaire;
 
 	return (
 		<div className='mb-4 rounded-2xl bg-gray-100 p-2'>
@@ -34,11 +44,7 @@ const PotentielSolaireCard = ({ potentiel_solaire }: potentielSolaireCardProps) 
 			</div>
 			<p className='font-medium'>
 				🟡 &nbsp;
-				<span className='text-xl'>
-					{potentiel_solaire !== undefined
-						? Math.round(potentiel_solaire / 1000)
-						: UNKNOWN_TEXTS.potentiel_solaire}
-				</span>{' '}
+				<span className='text-xl'>{potentielAsMwh}</span>
 				MWh/an
 			</p>
 

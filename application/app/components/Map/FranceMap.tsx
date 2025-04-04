@@ -24,7 +24,7 @@ import { bbox } from '@turf/turf';
 import { GeoJSONSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import { EtablissementsGeoJSON } from '../../models/etablissements';
+import { EtablissementFeature, EtablissementsGeoJSON } from '../../models/etablissements';
 import { ClusterFeature } from './interfaces';
 import {
 	COMMUNES_SOURCE_ID,
@@ -86,7 +86,7 @@ type ClusterEtablissementFeature = EventFeature<
 	ClusterFeature<EtablissementsGeoJSON['features'][number]['geometry']>
 >;
 
-type EtablissementFeature = EventFeature<EtablissementsGeoJSON['features'][number]>;
+type EventEtablissementFeature = EventFeature<EtablissementFeature>;
 
 interface FranceMapProps {
 	onSelect: (feature: EtablissementFeature) => void;
@@ -220,7 +220,12 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 			return;
 		}
 
-		if (isFeatureFrom<EtablissementFeature>(feature, getDynamicalUnclusteredPointLayer(true))) {
+		if (
+			isFeatureFrom<EventEtablissementFeature>(
+				feature,
+				getDynamicalUnclusteredPointLayer(true),
+			)
+		) {
 			onSelect(feature);
 			return;
 		}

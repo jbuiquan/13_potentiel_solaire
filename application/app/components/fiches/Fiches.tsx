@@ -8,6 +8,13 @@ import FicheEtablissement from './ficheEtablissement/ficheEtablissement';
 type TabId = 'region' | 'departement' | 'commune' | 'etablissement';
 type Tab = { id: TabId; label: string }[];
 
+const tabs: Tab = [
+	{ id: 'region', label: 'Région' },
+	{ id: 'departement', label: 'Département' },
+	{ id: 'commune', label: 'Commune' },
+	{ id: 'etablissement', label: 'Établissement' },
+];
+
 interface FichesProps {
 	etablissement?: Etablissement;
 	onClose: () => void;
@@ -17,13 +24,6 @@ export default function Fiches({ etablissement, onClose }: FichesProps) {
 	const [activeTab, setActiveTab] = useState<TabId>('etablissement');
 
 	if (!etablissement) return null;
-
-	const tabs: Tab = [
-		{ id: 'region', label: 'Région' },
-		{ id: 'departement', label: 'Département' },
-		{ id: 'commune', label: 'Commune' },
-		{ id: 'etablissement', label: 'Établissement' },
-	];
 
 	return (
 		<div className='fixed right-0 top-0 z-50 h-full w-full max-w-sm overflow-y-auto bg-white pl-5 pt-1 shadow-lg md:w-96'>
