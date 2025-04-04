@@ -14,7 +14,8 @@
 				"name": "Transportation"
 			}
 		},
-		"maplibre:type": "template"
+		"maplibre:type": "template",
+		"openmaptiles:version": "3.x"
 	},
 	"sources": {
 		"openmaptiles": {
