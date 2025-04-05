@@ -25,6 +25,7 @@ import { GeoJSONSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import { EtablissementFeature, EtablissementsGeoJSON } from '../../models/etablissements';
+import GeolocButton from '../GeolocButton';
 import { ClusterFeature } from './interfaces';
 import {
 	COMMUNES_SOURCE_ID,
@@ -252,6 +253,14 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 	const isEtablissementsLayerVisible =
 		Boolean(codeCommune) && currentZoom > ETABLISSEMENT_VISIBLE_ZOOM_THRESHOLD;
 
+	const handleOnLocate = (geojson: CommuneFeature) => {
+		if (!mapRef.current) return;
+
+		zoomOnFeature(geojson);
+		setCommuneFeature(geojson);
+		//TODO: load higher levels (departement, region)
+	};
+
 	return (
 		<MapFromReactMapLibre
 			ref={mapRef}
@@ -269,6 +278,7 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 			onClick={onClick}
 			onZoom={handleZoom}
 		>
+			<GeolocButton onLocate={handleOnLocate} />
 			{regionsGeoJSON && (
 				<Source id={REGIONS_SOURCE_ID} type='geojson' data={regionsGeoJSON}>
 					<Layer {...getDynamicalRegionsLayer(true)} />
