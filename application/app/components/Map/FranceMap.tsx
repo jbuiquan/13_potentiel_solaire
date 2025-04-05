@@ -274,7 +274,6 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 			{regionsGeoJSON && (
 				<Source id={REGIONS_SOURCE_ID} type='geojson' data={regionsGeoJSON}>
 					<Layer {...getDynamicalRegionsLayer(true)} />
-					<Layer {...getRegionsLabelLayer(true)} />
 				</Source>
 			)}
 			{regionLabelPoints && (
@@ -285,7 +284,6 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 			{departementsGeoJSON && (
 				<Source id={DEPARTEMENTS_SOURCE_ID} type='geojson' data={departementsGeoJSON}>
 					<Layer {...getDynamicalDepartementsLayer(isDepartementsLayerVisible)} />
-					<Layer {...getDepartementsLabelLayer(isDepartementsLayerVisible)} />
 				</Source>
 			)}
 			{departementLabelPoints && (
@@ -298,7 +296,6 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 					<Layer {...getDynamicalCommunesTransparentLayer(isCommunesLayerVisible)} />
 					<Layer {...getDynamicalCommunesLineLayer(isCommunesLayerVisible)} />
 					<Layer {...getDynamicalCommunesLayer(isCommunesLayerVisible)} />
-					<Layer {...getCommunesLabelLayer(isCommunesLayerVisible)} />
 				</Source>
 			)}
 			{communeLabelPoints && (
