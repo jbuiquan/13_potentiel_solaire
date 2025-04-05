@@ -83,7 +83,7 @@ def save_solar_potential_by_school(
         query = f"""
             SELECT
                 *,
-                ST_AsGeoJSON(geo_point) as geometry
+                ST_AsGeoJSON(geom) as geometry
             FROM
                 etablissements
             WHERE
