@@ -22,8 +22,10 @@ DEFAULT_QUERY_PARAMS = {
     "optimalangles": 1,  # Letting the engine optimise the ti
 }
 
+
 def get_potentiel_solaire_from_pvgis_api(
-    schools_with_distance: gpd.GeoDataFrame,
+    latitude: float,
+    longitude: float,
     peakpower: float,
 ) -> float:
     """
@@ -36,51 +38,76 @@ def get_potentiel_solaire_from_pvgis_api(
     """
     if peakpower <= 0:
         return 0.0
+
+    params = {
+        "lat": latitude,
+        "lon": longitude,
+        "peakpower": peakpower,
+        **DEFAULT_QUERY_PARAMS
+    }
+
+    response = requests.get(PVGIS_BASE_URL, params=params)
+    response.raise_for_status()
     
+    if response.status_code == 200:
+        data = response.json()
+        return data['outputs']['totals']['fixed']['E_y']
+
+    if response.status_code == 429:
+        sleep(0.04)
+        return get_potentiel_solaire_from_pvgis_api(
+            latitude=latitude,
+            longitude=longitude,
+            peakpower=peakpower
+        )
+
+    if response.status_code == 529:
+        sleep(5)
+        return get_potentiel_solaire_from_pvgis_api(
+            latitude=latitude,
+            longitude=longitude,
+            peakpower=peakpower
+        )
+
+    logger.error(f'Failed to query API. Response: {response}')
+    response.raise_for_status()
+
+
+
+def get_potentiel_solaire_from_closest_building(
+    schools_with_distance: gpd.GeoDataFrame,
+    peakpower: float,
+) -> float:
+    """
+    Method used to get the solar potential from the building with the minimum value for distance_to_center.
     
+    Args:  
+        schools_with_distance (gpd.GeoDataFrame): DataFrame containing the buildings and their distance to the center.
+        peakpower (float): Peak power of the solar system.
+    """
+
     for number_building in range(len(schools_with_distance)):
+        n_closest_building = schools_with_distance.sort_values(
+                by = 'distance_to_center',
+                ascending = True).iloc[number_building]
+            
+        longitude = n_closest_building.geometry.centroid.x
+        latitude = n_closest_building.geometry.centroid.y
+        
         try : 
-            n_closest_building = schools_with_distance.sort_values(by = 'distance_to_center',
-                                                               ascending = True).iloc[number_building]['geometry']
-            
-            longitude = n_closest_building.centroid.x
-            latitude = n_closest_building.centroid.y
-    
-            params = {
-                "lat": latitude,
-                "lon": longitude,
-                "peakpower": peakpower,
-                **DEFAULT_QUERY_PARAMS
-            }
+            potentiel_solaire = get_potentiel_solaire_from_pvgis_api(
+                latitude=latitude,
+                longitude=longitude,
+                peakpower=peakpower
+            )
 
-            response = requests.get(PVGIS_BASE_URL, params=params)
-           
-            
-            if response.status_code == 200:
-                data = response.json()
-                return data['outputs']['totals']['fixed']['E_y']
+            logger.info(f"Potentiel solaire calculé sur le batiment {n_closest_building.cleabs_bat}")
 
-            if response.status_code == 429:
-                sleep(0.04)
-                return get_potentiel_solaire_from_pvgis_api(
-                    latitude=latitude,
-                    longitude=longitude,
-                    peakpower=peakpower
-                )
-
-            if response.status_code == 529:
-                sleep(5)
-                return get_potentiel_solaire_from_pvgis_api(
-                    latitude=latitude,
-                    longitude=longitude,
-                    peakpower=peakpower
-                )
-                
-            logger.error(f'Failed to query API. Response: {response}')
-            raise requests.exceptions.HTTPError(response.raise_for_status())
+            return potentiel_solaire
         
         except requests.exceptions.HTTPError as e:
+            # Cette erreur arrive quand lapi ne couvre pas la position demandee
             if e.response.status_code == 500:
-                logger.warning(f'500 error encountered for building {number_building}. Trying next building.')
-                continue  
-            
+                logger.warning(f'500 error encountered for building {n_closest_building.cleabs_bat}. Trying next building.')
+                continue 
+            raise e       

@@ -2,7 +2,7 @@ import geopandas as gpd
 
 from shapely.geometry import Point
 
-from potentiel_solaire.features.pvgis_api import get_potentiel_solaire_from_pvgis_api
+from potentiel_solaire.features.pvgis_api import get_potentiel_solaire_from_closest_building
 from potentiel_solaire.logger import get_logger
 from potentiel_solaire.features.protected_tag import link_protected_buildings
 from potentiel_solaire.constants import (
@@ -52,15 +52,10 @@ def calculate_solar_potential(
     schools_buildings["distance_to_center"] = schools_buildings.geometry.distance(center)
 
     # On calcul le potentiel solaire pour 1kW de puissance installee via l'API PVGIS
-    potentiel_solaire_unitaire = get_potentiel_solaire_from_pvgis_api(
+    potentiel_solaire_unitaire = get_potentiel_solaire_from_closest_building(
         schools_with_distance=schools_buildings,
         peakpower=1
     )
-
-
-
-
-
 
     # On le multiplie par le peakpower de chaque batiment
     schools_buildings["potentiel_solaire"] = potentiel_solaire_unitaire * schools_buildings["peakpower"]
