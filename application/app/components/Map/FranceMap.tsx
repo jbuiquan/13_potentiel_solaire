@@ -31,6 +31,7 @@ import {
 	COMMUNES_SOURCE_ID,
 	communesLayer,
 	communesTransparentLayer,
+	getCommunesLabelLayer,
 	getDynamicalCommunesLayer,
 	getDynamicalCommunesLineLayer,
 	getDynamicalCommunesTransparentLayer,
@@ -38,6 +39,7 @@ import {
 import {
 	DEPARTEMENTS_SOURCE_ID,
 	departementsLayer,
+	getDepartementsLabelLayer,
 	getDynamicalDepartementsLayer,
 } from './layers/departementsLayers';
 import {
@@ -48,7 +50,12 @@ import {
 	getDynamicalUnclusteredPointLayer,
 	unclusteredPointLayer,
 } from './layers/etablissementsLayers';
-import { REGIONS_SOURCE_ID, getDynamicalRegionsLayer, regionsLayer } from './layers/regionsLayers';
+import {
+	REGIONS_SOURCE_ID,
+	getDynamicalRegionsLayer,
+	getRegionsLabelLayer,
+	regionsLayer,
+} from './layers/regionsLayers';
 
 const MAP_STYLE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/map-styles/map-style.json`;
 
@@ -59,14 +66,9 @@ const MAP_STYLE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/map-styles/map-style.
 
 const initialViewState = {
 	longitude: 1.888334,
-	latitude: 46.603354,
-	zoom: 5,
+	latitude: 45.603354,
+	zoom: 4.5,
 } satisfies MapPropsReactMapLibre['initialViewState'];
-
-const style: React.CSSProperties = {
-	width: 1200,
-	height: 800,
-};
 
 const ANIMATION_TIME_MS = 800;
 
@@ -120,12 +122,12 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 	const codeDepartement = departementFeature?.properties.code_departement;
 	const codeCommune = communeFeature?.properties.code_commune;
 
-	const { regionsGeoJSON } = useRegionsGeoJSON();
-	const { departementsGeoJSON } = useDepartementsGeoJSON(
+	const { regionsGeoJSON, regionLabelPoints } = useRegionsGeoJSON();
+	const { departementsGeoJSON, departementLabelPoints } = useDepartementsGeoJSON(
 		codeRegion ?? null,
 		codeRegion !== undefined,
 	);
-	const { communesGeoJSON } = useCommunesGeoJSON(
+	const { communesGeoJSON, communeLabelPoints } = useCommunesGeoJSON(
 		codeDepartement ?? null,
 		codeDepartement !== undefined,
 	);
@@ -246,6 +248,7 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 		throw new Error('Layers not defined');
 	}
 
+	const isRegionsLayerVisible = !codeRegion;
 	const isDepartementsLayerVisible =
 		Boolean(codeRegion) && currentZoom > DEPARTEMENTS_VISIBLE_ZOOM_THRESHOLD;
 	const isCommunesLayerVisible =
@@ -274,7 +277,6 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 				clusterLayer.id,
 				unclusteredPointLayer.id,
 			]}
-			style={style}
 			onClick={onClick}
 			onZoom={handleZoom}
 		>
@@ -284,9 +286,19 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 					<Layer {...getDynamicalRegionsLayer(true)} />
 				</Source>
 			)}
+			{regionLabelPoints && (
+				<Source id='regions-labels' type='geojson' data={regionLabelPoints}>
+					<Layer {...getRegionsLabelLayer(isRegionsLayerVisible)} />
+				</Source>
+			)}
 			{departementsGeoJSON && (
 				<Source id={DEPARTEMENTS_SOURCE_ID} type='geojson' data={departementsGeoJSON}>
 					<Layer {...getDynamicalDepartementsLayer(isDepartementsLayerVisible)} />
+				</Source>
+			)}
+			{departementLabelPoints && (
+				<Source id='departements-labels' type='geojson' data={departementLabelPoints}>
+					<Layer {...getDepartementsLabelLayer(isDepartementsLayerVisible)} />
 				</Source>
 			)}
 			{communesGeoJSON && (
@@ -294,6 +306,11 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 					<Layer {...getDynamicalCommunesTransparentLayer(isCommunesLayerVisible)} />
 					<Layer {...getDynamicalCommunesLineLayer(isCommunesLayerVisible)} />
 					<Layer {...getDynamicalCommunesLayer(isCommunesLayerVisible)} />
+				</Source>
+			)}
+			{communeLabelPoints && (
+				<Source id='communes-labels' type='geojson' data={communeLabelPoints}>
+					<Layer {...getCommunesLabelLayer(isCommunesLayerVisible)} />
 				</Source>
 			)}
 			{etablissementsGeoJSON && (
