@@ -1,12 +1,10 @@
 'use client';
 
-import { useCallback } from 'react';
-
 import { toast } from '@/hooks/use-toast';
 import { Download, Share2 } from 'lucide-react';
 
 const ActionButtons = () => {
-	const handleShare = useCallback(async () => {
+	const handleShare = async () => {
 		const url = window.location.href;
 
 		if (navigator.share) {
@@ -45,7 +43,7 @@ const ActionButtons = () => {
 				});
 			}
 		}
-	}, []);
+	};
 
 	return (
 		<div className='flex gap-4'>
