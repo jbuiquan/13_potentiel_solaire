@@ -2,8 +2,8 @@
 
 import { useCallback } from 'react';
 
+import { toast } from '@/hooks/use-toast';
 import { Download, Share2 } from 'lucide-react';
-import { toast } from 'sonner';
 
 const ActionButtons = () => {
 	const handleShare = useCallback(async () => {
@@ -15,16 +15,34 @@ const ActionButtons = () => {
 					title: document.title,
 					url,
 				});
-			} catch (err) {
-				console.error('Erreur lors du partage :', err);
+			} catch (err: unknown) {
+				if (
+					err instanceof DOMException &&
+					(err.name === 'AbortError' ||
+						err.message?.includes('cancelled') ||
+						err.message?.includes('aborted'))
+				) {
+					console.info('Partage annulé par l’utilisateur.');
+				} else {
+					console.error('Erreur lors du partage :', err);
+					toast({
+						title: 'Le partage a échoué',
+						variant: 'destructive',
+					});
+				}
 			}
 		} else {
 			try {
 				await navigator.clipboard.writeText(url);
-				toast.success('Lien copié dans le presse-papiers !');
+				toast({
+					title: 'Lien copié dans le presse-papiers !',
+				});
 			} catch (err) {
 				console.error('Erreur lors de la copie du lien :', err);
-				toast.error('Impossible de copier le lien');
+				toast({
+					title: 'Impossible de copier le lien',
+					variant: 'destructive',
+				});
 			}
 		}
 	}, []);
