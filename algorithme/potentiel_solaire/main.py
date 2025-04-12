@@ -8,9 +8,9 @@ from potentiel_solaire.constants import ALGORITHME_FOLDER, RESULTS_FOLDER
 from potentiel_solaire.database_queries import (
     get_departements, get_regions,
     get_departements_for_region,
-    save_indicators_for_communes,
-    save_indicators_for_departements,
-    save_indicators_for_regions,
+    update_indicators_for_communes,
+    update_indicators_for_departements,
+    update_indicators_for_regions,
 )
 from potentiel_solaire.logger import get_logger
 
@@ -90,11 +90,9 @@ def run_pipeline_algorithme():
             with open(error_file_path, "w") as error_file:
                 error_file.write(traceback.format_exc())
 
-    # save indicators for communes, departements and regions
-    save_indicators_for_communes()
-    save_indicators_for_departements()
-    save_indicators_for_regions()
 
-
-if __name__ == "__main__":
-    run_pipeline_algorithme()
+def update_database_indicators():
+    """Update indicators in database used by application"""
+    update_indicators_for_communes()
+    update_indicators_for_departements()
+    update_indicators_for_regions()

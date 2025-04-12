@@ -136,71 +136,6 @@ def upgrade() -> None:
             DROP COLUMN IF EXISTS {zone_agg_ind.column_name}
         """)
 
-    # Update values with new schema
-    for aggregation in new_aggregations:
-        agg_filter = f"type_etablissement = '{aggregation.type_etablissement}'" if aggregation.type_etablissement else "1 = 1"
-
-        op.execute(f"""
-            WITH 
-                agg AS (
-                    SELECT 
-                        {aggregation.group_by},
-                        SUM(COALESCE(nb_eleves, 0)) AS nb_eleves,
-                        COUNT(*) AS nb_etablissements,
-                        SUM(CASE WHEN protection THEN 1 ELSE 0 END) AS nb_etablissements_proteges,
-                        SUM(surface_exploitable_max) AS surface_exploitable_max,
-                        SUM(potentiel_solaire) AS potentiel_solaire,
-                    FROM etablissements
-                    WHERE {agg_filter}
-                    GROUP BY {aggregation.group_by})
-
-
-            UPDATE {aggregation.table}
-            SET 
-                nb_eleves{aggregation.suffix} = agg.nb_eleves,
-                nb_etablissements{aggregation.suffix} = agg.nb_etablissements,
-                nb_etablissements_proteges{aggregation.suffix} = agg.nb_etablissements_proteges,
-                surface_exploitable_max{aggregation.suffix} = agg.surface_exploitable_max,
-                potentiel_solaire{aggregation.suffix} = agg.potentiel_solaire,
-                potentiel_nb_foyers{aggregation.suffix} = FLOOR(agg.potentiel_solaire / 5000),
-            FROM agg
-            WHERE {aggregation.table}.{aggregation.group_by} = agg.{aggregation.group_by}
-        """)
-
-
-        op.execute(f"""
-            WITH
-                top_etablissements AS (
-                    SELECT
-                        {aggregation.group_by},
-                        json_object(
-                            'id', identifiant_de_l_etablissement, 
-                            'libelle', nom_etablissement, 
-                            'potentiel_solaire', potentiel_solaire
-                        ) AS etablissement_json,
-                    FROM etablissements
-                    WHERE {agg_filter} 
-                        AND NOT protection 
-                        AND potentiel_solaire > 0
-                    QUALIFY ROW_NUMBER() OVER (PARTITION BY {aggregation.group_by} ORDER BY potentiel_solaire DESC) <= 3
-                    ORDER BY {aggregation.group_by}, potentiel_solaire DESC),
-                
-                agg AS (
-                    SELECT
-                        {aggregation.group_by},
-                        list(etablissement_json)::JSON AS top_etablissements
-                    FROM top_etablissements
-                    GROUP BY {aggregation.group_by}
-                )
-            
-            UPDATE {aggregation.table}
-            SET
-                top_etablissements{aggregation.suffix} = agg.top_etablissements
-            FROM agg
-            WHERE {aggregation.table}.{aggregation.group_by} = agg.{aggregation.group_by}
-        """)
-
-
 def downgrade() -> None:
     """Downgrade schema."""
     op.execute("""
@@ -227,31 +162,3 @@ def downgrade() -> None:
         ALTER TABLE etablissements
         RENAME COLUMN surface_exploitable_max TO surface_utile
     """)
-
-    # Update values with old schema
-    for aggregation in deleted_aggregations:
-        agg_filter = f"type_etablissement = '{aggregation.type_etablissement}'" if aggregation.type_etablissement else "1 = 1"
-
-        op.execute(f"""
-            WITH 
-                agg AS (
-                    SELECT 
-                        {aggregation.group_by},
-                        SUM(surface_utile) AS surface_utile,
-                        SUM(potentiel_solaire) AS potentiel_solaire,
-                        COUNT(*) AS count_etablissements,
-                        SUM(CASE WHEN protection THEN 1 ELSE 0 END) AS count_etablissements_proteges,             
-                    FROM etablissements
-                    WHERE {agg_filter}
-                    GROUP BY {aggregation.group_by})
-
-
-            UPDATE {aggregation.table}
-            SET 
-                surface_utile{aggregation.suffix} = agg.surface_utile,
-                potentiel_solaire{aggregation.suffix} = agg.potentiel_solaire,
-                count_etablissements{aggregation.suffix} = agg.count_etablissements,
-                count_etablissements_proteges{aggregation.suffix} = agg.count_etablissements_proteges,        
-            FROM agg
-            WHERE {aggregation.table}.{aggregation.group_by} = agg.{aggregation.group_by}
-        """)

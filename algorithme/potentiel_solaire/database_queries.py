@@ -67,7 +67,7 @@ def get_regions():
         return list(conn.query(query).df()["code_region"].unique())
 
 
-def save_indicators_by_school(
+def update_results_for_schools(
     results_by_school: pd.DataFrame,
 ):
     with get_connection() as conn:
@@ -93,7 +93,7 @@ def save_indicators_by_school(
         conn.execute(update_query)
 
 
-def save_indicators_for_aggregation(
+def update_indicators_for_aggregation(
     aggregation: ZoneAggregation,
 ):
     """Save indicators for a given aggregation"""
@@ -162,32 +162,35 @@ def save_indicators_for_aggregation(
 
 
 
-def save_indicators_for_communes():
+def update_indicators_for_communes():
+    """Update indicators for communes"""
     agggregations = [
         ZoneAggregation(table="communes", group_by="code_commune", suffix="_primaires", type_etablissement="Ecole"),
         ZoneAggregation(table="communes", group_by="code_commune", suffix="_total"),
     ]
 
     for aggregation in agggregations:
-        save_indicators_for_aggregation(aggregation)
+        update_indicators_for_aggregation(aggregation)
 
 
 
-def save_indicators_for_departements():
+def update_indicators_for_departements():
+    """Update indicators for departements"""
     agggregations = [
         ZoneAggregation(table="departements", group_by="code_departement", suffix="_colleges", type_etablissement="Collège"),
         ZoneAggregation(table="departements", group_by="code_departement", suffix="_total"),
     ]
 
     for aggregation in agggregations:
-        save_indicators_for_aggregation(aggregation)
+        update_indicators_for_aggregation(aggregation)
 
 
-def save_indicators_for_regions():
+def update_indicators_for_regions():
+    """Update indicators for regions"""
     agggregations = [
         ZoneAggregation(table="regions", group_by="code_region", suffix="_lycees", type_etablissement="Lycée"),
         ZoneAggregation(table="regions", group_by="code_region", suffix="_total"),
     ]
 
     for aggregation in agggregations:
-        save_indicators_for_aggregation(aggregation)
+        update_indicators_for_aggregation(aggregation)
