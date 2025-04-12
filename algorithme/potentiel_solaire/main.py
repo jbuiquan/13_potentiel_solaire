@@ -5,12 +5,14 @@ import papermill as pm
 from papermill.exceptions import PapermillExecutionError
 
 from potentiel_solaire.constants import ALGORITHME_FOLDER, RESULTS_FOLDER
-from potentiel_solaire.database_queries import (
-    get_departements, get_regions,
+from potentiel_solaire.database.queries import (
+    get_departements, 
+    get_regions,
     get_departements_for_region,
     update_indicators_for_communes,
     update_indicators_for_departements,
-    update_indicators_for_regions,
+    update_indicators_for_regions, 
+    update_indicators_for_schools,
 )
 from potentiel_solaire.logger import get_logger
 
@@ -93,6 +95,7 @@ def run_pipeline_algorithme():
 
 def update_database_indicators():
     """Update indicators in database used by application"""
+    update_indicators_for_schools()
     update_indicators_for_communes()
     update_indicators_for_departements()
     update_indicators_for_regions()

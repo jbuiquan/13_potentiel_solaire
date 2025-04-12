@@ -17,6 +17,13 @@ down_revision: Union[str, None] = '49d44d790ee6'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+# schema
+etablissements_table = "etablissements"
+communes_table = "communes"
+departements_table = "departements"
+regions_table = "regions"
+seuils_niveaux_potentiels_table = "seuils_niveaux_potentiels"
+
 
 @dataclass
 class Aggregation:
@@ -51,12 +58,12 @@ class ZoneAggregationIndicator:
 
 # aggregations to add
 new_aggregations = [
-    Aggregation(table="communes", group_by="code_commune", suffix="_primaires", type_etablissement="Ecole"),
-    Aggregation(table="communes", group_by="code_commune", suffix="_total"),
-    Aggregation(table="departements", group_by="code_departement", suffix="_colleges", type_etablissement="Collège"),
-    Aggregation(table="departements", group_by="code_departement", suffix="_total"),
-    Aggregation(table="regions", group_by="code_region", suffix="_lycees", type_etablissement="Lycée"),
-    Aggregation(table="regions", group_by="code_region", suffix="_total"),
+    Aggregation(table=communes_table, group_by="code_commune", suffix="_primaires", type_etablissement="Ecole"),
+    Aggregation(table=communes_table, group_by="code_commune", suffix="_total"),
+    Aggregation(table=departements_table, group_by="code_departement", suffix="_colleges", type_etablissement="Collège"),
+    Aggregation(table=departements_table, group_by="code_departement", suffix="_total"),
+    Aggregation(table=regions_table, group_by="code_region", suffix="_lycees", type_etablissement="Lycée"),
+    Aggregation(table=regions_table, group_by="code_region", suffix="_total"),
 ]
 
 
@@ -68,7 +75,8 @@ new_indicators = [
     Indicator(name="surface_exploitable_max", data_type="INTEGER", default_value="0"),
     Indicator(name="potentiel_solaire", data_type="BIGINT", default_value="0"),
     Indicator(name="potentiel_nb_foyers", data_type="INTEGER", default_value="0"),
-    Indicator(name="top_etablissements", data_type="JSON"),
+    Indicator(name="top_etablissements", data_type="JSON", default_value="'[]'"),
+    Indicator(name="nb_etablissements_par_niveau_potentiel", data_type="JSON", default_value="'{\"1_HIGH\": 0,\"2_GOOD\": 0,\"3_LIMITED\": 0}'"),
 ]
 
 
@@ -93,9 +101,9 @@ deleted_indicators = [
 
 # aggregations to delete
 deleted_aggregations = [
-    Aggregation(table="communes", group_by="code_commune"),
-    Aggregation(table="departements", group_by="code_departement"),
-    Aggregation(table="regions", group_by="code_region"),
+    Aggregation(table=communes_table, group_by="code_commune"),
+    Aggregation(table=departements_table, group_by="code_departement"),
+    Aggregation(table=regions_table, group_by="code_region"),
 ]
 
 # deleted indicators x aggregations to delete
@@ -117,9 +125,34 @@ def upgrade() -> None:
     """)
 
     # Rename column for surface_utile in etablissements table
-    op.execute("""
-        ALTER TABLE etablissements
+    op.execute(f"""
+        ALTER TABLE {etablissements_table}
         RENAME COLUMN surface_utile TO surface_exploitable_max
+    """)
+
+    # Create table with min values for each niveau_potentiel
+    op.execute(f"""
+        CREATE TABLE IF NOT EXISTS {seuils_niveaux_potentiels_table} (
+            niveau_potentiel VARCHAR UNIQUE NOT NULL,
+            min_potentiel_solaire BIGINT NOT NULL,
+            max_potentiel_solaire BIGINT NOT NULL,
+        )
+    """)
+
+    # Insert values into seuils_niveaux_potentiels table
+    op.execute(f"""
+        INSERT INTO {seuils_niveaux_potentiels_table} 
+            (niveau_potentiel, min_potentiel_solaire, max_potentiel_solaire)
+        VALUES
+            ('1_HIGH', 250000, 999999999999),
+            ('2_GOOD', 100000, 249999), 
+            ('3_LIMITED', 0, 99999)
+    """)
+
+    # Add niveau_potentiel column to etablissements table
+    op.execute(f"""
+        ALTER TABLE {etablissements_table}
+        ADD COLUMN IF NOT EXISTS niveau_potentiel VARCHAR DEFAULT '3_LIMITED'
     """)
 
     # Add new columns to each table
@@ -156,9 +189,20 @@ def downgrade() -> None:
             ALTER TABLE {zone_agg_ind.table_name}
             DROP COLUMN IF EXISTS {zone_agg_ind.column_name}
         """)
+
+    # Remove niveau_potentiel column from etablissements table
+    op.execute(f"""
+        ALTER TABLE {etablissements_table}
+        DROP COLUMN IF EXISTS niveau_potentiel
+    """)
+
+    # Remove seuils_niveaux_potentiels table
+    op.execute(f"""
+        DROP TABLE IF EXISTS {seuils_niveaux_potentiels_table}
+    """)
     
     # Rename column for surface_exploitable_max in etablissements table
-    op.execute("""
-        ALTER TABLE etablissements
+    op.execute(f"""
+        ALTER TABLE {etablissements_table}
         RENAME COLUMN surface_exploitable_max TO surface_utile
     """)
