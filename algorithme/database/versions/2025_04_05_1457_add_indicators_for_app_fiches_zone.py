@@ -28,9 +28,7 @@ seuils_niveaux_potentiels_table = "seuils_niveaux_potentiels"
 @dataclass
 class Aggregation:
     table: str
-    group_by: str
     suffix: str = ""
-    type_etablissement: Optional[str] = None
 
 @dataclass
 class Indicator:
@@ -58,12 +56,12 @@ class ZoneAggregationIndicator:
 
 # aggregations to add
 new_aggregations = [
-    Aggregation(table=communes_table, group_by="code_commune", suffix="_primaires", type_etablissement="Ecole"),
-    Aggregation(table=communes_table, group_by="code_commune", suffix="_total"),
-    Aggregation(table=departements_table, group_by="code_departement", suffix="_colleges", type_etablissement="Collège"),
-    Aggregation(table=departements_table, group_by="code_departement", suffix="_total"),
-    Aggregation(table=regions_table, group_by="code_region", suffix="_lycees", type_etablissement="Lycée"),
-    Aggregation(table=regions_table, group_by="code_region", suffix="_total"),
+    Aggregation(table=communes_table, suffix="_primaires"),
+    Aggregation(table=communes_table, suffix="_total"),
+    Aggregation(table=departements_table, suffix="_colleges"),
+    Aggregation(table=departements_table, suffix="_total"),
+    Aggregation(table=regions_table, suffix="_lycees"),
+    Aggregation(table=regions_table, suffix="_total"),
 ]
 
 
@@ -101,9 +99,9 @@ deleted_indicators = [
 
 # aggregations to delete
 deleted_aggregations = [
-    Aggregation(table=communes_table, group_by="code_commune"),
-    Aggregation(table=departements_table, group_by="code_departement"),
-    Aggregation(table=regions_table, group_by="code_region"),
+    Aggregation(table=communes_table),
+    Aggregation(table=departements_table),
+    Aggregation(table=regions_table),
 ]
 
 # deleted indicators x aggregations to delete
