@@ -8,11 +8,13 @@ DATABASE_FOLDER = ALGORITHME_FOLDER / 'database'
 RESULTS_FOLDER = DATA_FOLDER / 'results'
 RESULTS_FOLDER.mkdir(exist_ok=True)
 
-BD_TOPO_PAGE = "https://geoservices.ign.fr/bdtopo"
-BD_TOPO_DATE = "2025-03-15"
 SOURCES_FILEPATH = DATA_FOLDER / "sources.yaml"
 
 DUCK_DB_PATH = DATABASE_FOLDER / 'potentiel_solaire.duckdb'
+
+# BD TOPO
+BD_TOPO_PAGE = "https://geoservices.ign.fr/bdtopo"
+BD_TOPO_DATE = "2025-03-15"
 
 # projections
 DEFAULT_CRS = 4326
