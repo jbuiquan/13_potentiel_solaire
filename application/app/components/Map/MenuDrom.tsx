@@ -54,8 +54,8 @@ const LOCATIONS: MenuDromLocation[] = [
 ];
 
 const buttonStyle =
-	'flex items-center justify-center rounded-md bg-blue border border-white text-sm font-semibold shadow-md flex-shrink-0'
-	+ ' h-[clamp(2rem,10vw,3rem)] w-[clamp(2rem,10vw,3rem)]';
+	'flex items-center justify-center rounded-md bg-blue border border-white text-sm font-semibold shadow-md flex-shrink-0' +
+	' h-[clamp(2rem,10vw,3rem)] w-[clamp(2rem,10vw,3rem)]';
 const buttonActiveStyle = 'bg-gray-400';
 const buttonHoverStyle = 'hover:bg-white';
 
@@ -68,17 +68,16 @@ function MenuDrom({ onClickDrom, onClickMetropole }: MenuDromProps) {
 	const [activeTab, setActiveTab] = useState('hexagone');
 	const [isOpen, setIsOpen] = useState(true);
 
-	function handleTabChange(location: MenuDromLocation) {
-		setActiveTab(location.code);
+  function handleTabChange(location: MenuDromLocation) {
+    setActiveTab(location.code);
 
-		if (location.code === 'hexagone') {
-			onClickMetropole();
+    if (location.code === 'hexagone') {
+      onClickMetropole();
+      return;
+    }
 
-			return;
-		}
-
-		onClickDrom(location);
-	}
+    onClickDrom(location);
+  }
 
 	const activeLocation = LOCATIONS.find((location) => location.code === activeTab);
 
@@ -87,7 +86,7 @@ function MenuDrom({ onClickDrom, onClickMetropole }: MenuDromProps) {
 	}
 
 	return (
-		<div className='mt-2 flex w-full max-w-sm flex-row justify-center gap-2 bg-transparent'>
+		<div className='mt-2 flex w-full max-w-sm flex-row justify-start gap-2 bg-transparent md:justify-center'>
 			<button onClick={() => setIsOpen(!isOpen)} className={buttonStyle}>
 				{isOpen ? (
 					<X color='white' />
