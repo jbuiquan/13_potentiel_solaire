@@ -54,7 +54,8 @@ const LOCATIONS: MenuDromLocation[] = [
 ];
 
 const buttonStyle =
-	'flex h-12 w-12 items-center justify-center rounded-md bg-blue border border-white text-sm font-semibold shadow-md';
+	'flex items-center justify-center rounded-md bg-blue border border-white text-sm font-semibold shadow-md flex-shrink-0'
+	+ ' h-[clamp(2rem,10vw,3rem)] w-[clamp(2rem,10vw,3rem)]';
 const buttonActiveStyle = 'bg-gray-400';
 const buttonHoverStyle = 'hover:bg-white';
 
