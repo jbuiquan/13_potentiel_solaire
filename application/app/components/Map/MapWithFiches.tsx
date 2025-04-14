@@ -13,7 +13,7 @@ export default function MapWithFiches() {
 	);
 
 	return (
-		<div className=''>
+		<div>
 			<FranceMap onSelect={setSelectedEtablissement} />
 			{selectedEtablissement && (
 				<Fiches

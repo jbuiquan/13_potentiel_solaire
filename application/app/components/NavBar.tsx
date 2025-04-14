@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 import { ListFilter, Menu, X } from 'lucide-react';
 
-import imgLogo from '../images/logo.svg';
+import imgLogo from '../../public/images/logo.svg';
 import { CommuneFeature } from '../models/communes';
 import { SearchResult } from '../models/search';
 import GeolocButton from './GeolocButton';
@@ -122,13 +122,13 @@ export default function NavBar() {
 					</div>
 
 					{/* Liens verticaux */}
-					<div className='w-full space-y-4 bg-green px-6 py-4 text-xl text-blue'>
+					<div className='w-full space-y-4 bg-green px-6 py-4 text-xl font-bold text-darkgreen'>
 						{links.map((link) => (
 							<Link
 								key={link.href}
 								href={link.href}
 								onClick={() => setIsOpen(false)}
-								className='flex items-center justify-between border-b border-white pb-2 hover:underline'
+								className='flex items-center justify-between pb-2 hover:underline'
 							>
 								{link.title}
 								<span className='text-2xl'>→</span>
