@@ -43,7 +43,7 @@ const GeolocButton: React.FC<GeolocButtonProps> = ({ onLocate }) => {
 
 	return (
 		<button
-			className='absolute left-4 top-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-500 hover:bg-gray-600'
+			className='bg-gray-500 hover:bg-gray-600 flex h-12 w-12 items-center justify-center rounded-full text-green'
 			onClick={debouncedHandleClick}
 		>
 			<LocateFixed />

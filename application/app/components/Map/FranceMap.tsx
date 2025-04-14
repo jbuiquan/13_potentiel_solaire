@@ -24,7 +24,6 @@ import { EaseToOptions, GeoJSONSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import { EtablissementFeature } from '../../models/etablissements';
-import GeolocButton from '../GeolocButton';
 import BackButton from './BackButton';
 import Legend from './Legend/Legend';
 import MenuDrom, { MenuDromLocation } from './MenuDrom';
@@ -72,11 +71,6 @@ const initialViewState = {
 	latitude: 45.603354,
 	zoom: 4.5,
 } satisfies MapPropsReactMapLibre['initialViewState'];
-
-const style: React.CSSProperties = {
-	width: 1200,
-	height: 800,
-};
 
 const ANIMATION_TIME_MS = 800;
 
@@ -308,7 +302,8 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 		}
 	}
 
-	function handleOnLocate(feature: CommuneFeature) {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		function handleOnLocate(feature: CommuneFeature) {
 		if (!mapRef.current) return;
 
 		handleClickOnCommunes(feature);
@@ -316,7 +311,7 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 	}
 
 	return (
-		<div className='relative'>
+		<div className='relative h-[80vh] w-full sm:h-[600px] md:h-[800px] lg:h-[1000px]'>
 			<MapFromReactMapLibre
 				ref={mapRef}
 				initialViewState={initialViewState}
@@ -329,12 +324,10 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 					clusterLayer.id,
 					unclusteredPointLayer.id,
 				]}
-				style={style}
 				onClick={onClick}
 				onLoad={() => toggleInteractions(false)}
 				{...interact(isInteractive)}
 			>
-				<GeolocButton onLocate={handleOnLocate} />
 				{regionsGeoJSON && (
 					<Source
 						key={REGIONS_SOURCE_ID}
