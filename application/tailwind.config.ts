@@ -77,15 +77,15 @@ export default {
 				'2xl': 'var(--lineHeight-2xl)',
 			},
 			letterSpacing: {
-        sm: 'var(--letterSpacing-sm)',
-        lg: 'var(--letterSpacing-lg)',
+				sm: 'var(--letterSpacing-sm)',
+				lg: 'var(--letterSpacing-lg)',
 			},
 			spacing: {
-        xs: 'var(--spacing-xs)',
-        sm: 'var(--spacing-sm)',
-        md: 'var(--spacing-md)',
-        lg: 'var(--spacing-lg)',
-        xl: 'var(--spacing-xl)',
+				xs: 'var(--spacing-xs)',
+				sm: 'var(--spacing-sm)',
+				md: 'var(--spacing-md)',
+				lg: 'var(--spacing-lg)',
+				xl: 'var(--spacing-xl)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
