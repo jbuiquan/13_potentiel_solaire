@@ -1,91 +1,142 @@
 'use client';
 
-import Link from 'next/link';
-import Image from "next/image";
-import imgLogo from "../images/logo.svg"
+import { KeyboardEvent, useState } from 'react';
 
-import { useState, KeyboardEvent } from 'react';
-import { Menu, X, Search, LocateFixed, ListFilter } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+
+import { ListFilter, Menu, X } from 'lucide-react';
+
+import imgLogo from '../images/logo.svg';
+import { CommuneFeature } from '../models/communes';
+import { SearchResult } from '../models/search';
+import GeolocButton from './GeolocButton';
+import SearchBar from './SearchBar/SearchBar';
 
 const links = [
-	{
-		title: 'Accueil',
-		href: '/',
-	},
-	{
-		title: 'Source & méthodologie',
-		href: '/source-methodology',
-	},
-	{
-		title: 'A propos',
-		href: '/about',
-	},
+	{ title: 'Accueil', href: '/' },
+	{ title: 'Comment agir ?', href: '/comment-agir' },
+	{ title: 'Notre méthodologie', href: '/notre-methodologie' },
+	{ title: 'À propos', href: '/about' },
 ];
 
 export default function NavBar() {
-	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [isOpen, setIsOpen] = useState(false);
 
-	const handleToggle = () => {
-		setIsOpen(!isOpen);
-	}
+	const handleSearchSelect = (selection: SearchResult) => {
+		alert(selection.libelle + ' - ' + selection.source);
+	};
 
-	const handleClose = (e:KeyboardEvent<HTMLButtonElement>) => {
-		if(e.code === 'Escape'){
-			setIsOpen(false);
-		};
-	}
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const handleOnLocate = (_feature: CommuneFeature) => {
+		// TODO: connecter à la carte
+	};
 
-	const handleKeypress = (e:KeyboardEvent<HTMLButtonElement>) => {
-		
-		if(e.code === 'Escape'){
-			setIsOpen(false);
-		};
-		
-		if(e.code === 'Enter')
-		{
+	const handleToggle = () => setIsOpen(!isOpen);
+
+	const handleClose = (e: KeyboardEvent<HTMLButtonElement>) => {
+		if (e.code === 'Escape') setIsOpen(false);
+	};
+
+	const handleKeypress = (e: KeyboardEvent<HTMLButtonElement>) => {
+		if (e.code === 'Escape') setIsOpen(false);
+		if (e.code === 'Enter') {
 			e.preventDefault();
 			setIsOpen(!isOpen);
-		};
-	}
+		}
+	};
 
 	return (
-		<section className='py-[10px] px-5 bg-BG-darkmode'>
-			<div className='mx-auto flex flex-row-reverse w-full items-end justify-between h-[3.375rem]'>
-				
-				<Link href='/'>
-					<Image src={imgLogo} alt="logo" width={108} height={33}/>
-				</Link>
+		<header className='bg-blue px-4 py-2'>
+			<div className='flex flex-col gap-4 xl:flex-row xl:flex-nowrap xl:items-center xl:justify-between'>
+				{/* Bloc gauche : menu (mobile) + logo */}
+				<div className='flex w-full items-center justify-between xl:w-auto xl:justify-start xl:gap-6'>
+					{/* Burger menu */}
+					<button
+						className='text-white xl:hidden'
+						onClick={handleToggle}
+						onKeyDown={handleKeypress}
+						type='button'
+						aria-expanded={isOpen}
+						aria-controls='menu-principal'
+						aria-label='Toggle Menu'
+					>
+						{isOpen ? (
+							<X className='stroke-green' />
+						) : (
+							<Menu className='stroke-green' />
+						)}
+					</button>
 
-				<button className="text-white items-end" onClick={handleToggle} onKeyDown={handleKeypress} type="button" aria-expanded={isOpen} aria-controls="menu-principal" aria-label="Toggle Menu">
-        			<span className="sr-only">Open menu</span>
-					{isOpen ? <X className='stroke-light-green' /> : <Menu className='stroke-light-green' /> }
-				</button>
+					{/* Logo */}
+					<Link href='/' className='flex-none xl:ml-0'>
+						<Image src={imgLogo} alt='logo' width={108} height={33} />
+					</Link>
+				</div>
 
-				<nav  onKeyDown={handleClose} aria-label='menu-principal' className={`absolute left-0 top-0 bg-BG-darkmode p-5 rounded-md shadow-primary translate-x-sm z-50 transition-all ease-in-out
-					${isOpen ? "duration-300 translate-y-20 pointer-events-auto " : "duration-150 -translate-y-0 opacity-0 pointer-events-none "}`}>
-					<ul>
-						{links.map((link) => (
-							<li key={link.href}>
-								<Link href={link.href} tabIndex={!isOpen ? -1 : 0} className='block px-sm py-1 text-white text-base font-verdana'>
-									{link.title}
-								</Link>
-							</li>
-						))}
-					</ul>
+				{/* Bloc SearchBar + boutons */}
+				<div className='flex w-full items-center gap-2 xl:min-w-0 xl:max-w-[600px] xl:flex-grow'>
+					<SearchBar onSelect={handleSearchSelect} />
+					<GeolocButton onLocate={handleOnLocate} />
+					<ListFilter className='shrink-0 cursor-pointer stroke-green' size={24} />
+				</div>
+
+				{/* Menu desktop */}
+				<nav className='hidden shrink-0 xl:flex xl:gap-4' aria-label='Menu principal'>
+					{links.map((link) => (
+						<Link
+							key={link.href}
+							href={link.href}
+							className='whitespace-nowrap text-base text-white hover:underline'
+						>
+							{link.title}
+						</Link>
+					))}
 				</nav>
 			</div>
 
-			<section className='mt-4 flex place-content-center place-items-center gap-4 w-full'>
-				<div className='relative w-full'>
-					<Search className='absolute top-1/2 left-2 stroke-[#EBEBF599] -translate-y-1/2' size={15.5}/>
-					<input type="text" className='w-full py-[0.438rem] px-8 rounded-[0.625rem] text-base bg-[#7676803D] font-verdana  leading-[-0.41px] focus:outline-1 focus:outline-offset-2 focus:outline-sol-ok outline-none placeholder:text-[#EBEBF5/60] text-[#EBEBF5]' placeholder='Entrez une ville, une adresse...' />
-					<LocateFixed className='absolute top-1/2 right-2 stroke-light-green -translate-y-1/2' size={24}/>
-				</div>
-				<ListFilter className='stroke-light-green cursor-pointer' size={24}/>
-			</section>
+			{/* Menu mobile plein écran */}
+			{isOpen && (
+				<div className='fixed inset-0 z-50 flex flex-col bg-blue'>
+					{/* Bouton de fermeture */}
+					<div className='flex items-start justify-between p-4'>
+						<button
+							onClick={handleToggle}
+							onKeyDown={handleClose}
+							className='text-white'
+							aria-label='Fermer le menu'
+						>
+							<X className='stroke-green' size={32} />
+						</button>
+					</div>
 
-		</section>
+					{/* Logo centré */}
+					<div className='mb-8 flex items-center justify-center'>
+						<Image
+							src={imgLogo}
+							alt='logo'
+							width={108}
+							height={33}
+							className='h-[33px] w-[108px]'
+						/>
+					</div>
+
+					{/* Liens verticaux */}
+					<div className='w-full space-y-4 bg-green px-6 py-4 text-xl text-blue'>
+						{links.map((link) => (
+							<Link
+								key={link.href}
+								href={link.href}
+								onClick={() => setIsOpen(false)}
+								className='flex items-center justify-between border-b border-white pb-2 hover:underline'
+							>
+								{link.title}
+								<span className='text-2xl'>→</span>
+							</Link>
+						))}
+					</div>
+				</div>
+			)}
+		</header>
 	);
 }
-
-
