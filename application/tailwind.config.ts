@@ -63,19 +63,19 @@ export default {
 				sans: ['var(--font-sans)', 'sans-serif'],
 				serif: ['var(--font-serif)', 'serif'],
 			},
-			fontSize:{
-        sm: "var(--fontSize-Sm)",
-        base: "var(--fontSize-Base)",
-        lg:'var(--fontSize-Lg)',
-        xl:'var(--fontSize-Xl)',
-      },
-      lineHeight:{
-        normal:'var(--lineHeight-normal)',
-        md:'var(--lineHeight-md)',
-        lg:'var(--lineHeight-lg)',
-        xl:'var(--lineHeight-xl)',
-        '2xl':'var(--lineHeight-2xl)',
-      },
+			fontSize: {
+				sm: 'var(--fontSize-Sm)',
+				base: 'var(--fontSize-Base)',
+				lg: 'var(--fontSize-Lg)',
+				xl: 'var(--fontSize-Xl)',
+			},
+			lineHeight: {
+				normal: 'var(--lineHeight-normal)',
+				md: 'var(--lineHeight-md)',
+				lg: 'var(--lineHeight-lg)',
+				xl: 'var(--lineHeight-xl)',
+				'2xl': 'var(--lineHeight-2xl)',
+			},
 			letterSpacing: {
 				sm: '-3%',
 				lg: '50%',
