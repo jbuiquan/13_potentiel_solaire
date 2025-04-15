@@ -302,8 +302,8 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 		}
 	}
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		function handleOnLocate(feature: CommuneFeature) {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	function handleOnLocate(feature: CommuneFeature) {
 		if (!mapRef.current) return;
 
 		handleClickOnCommunes(feature);
@@ -311,7 +311,7 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 	}
 
 	return (
-		<div className='relative h-[80vh] w-full sm:h-[600px] md:h-[800px] lg:h-[1000px]'>
+		<div className='relative h-full w-full'>
 			<MapFromReactMapLibre
 				ref={mapRef}
 				initialViewState={initialViewState}
@@ -429,7 +429,7 @@ export default function FranceMap({ onSelect }: FranceMapProps) {
 				)}
 			</MapFromReactMapLibre>
 			{level !== 'regions' && <BackButton onBack={goBackOneLevel} />}
-			<div className='absolute bottom-2 left-2 flex flex-col items-start md:flex-row md:gap-4'>
+			<div className='absolute bottom-2 left-2 z-50 flex flex-col items-start md:bottom-4 md:left-1/2 md:-translate-x-1/2 md:flex-row md:items-center md:gap-4'>
 				<Legend thresholds={COLOR_THRESHOLDS[level]} />
 				{isRegionsLayerVisible && (
 					<MenuDrom onClickDrom={handleClickOnDroms} onClickMetropole={handleResetMap} />
