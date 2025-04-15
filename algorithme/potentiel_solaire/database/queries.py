@@ -244,7 +244,8 @@ def update_indicators_for_schools():
         update_query = f"""
         UPDATE {etablissements_table.name}
         SET 
-            niveau_potentiel = s.niveau_potentiel
+            niveau_potentiel = s.niveau_potentiel,
+            potentiel_nb_foyers = FLOOR(potentiel_solaire / 5000)
         FROM {seuils_niveaux_potentiels_table.name} s
         WHERE potentiel_solaire >= s.min_potentiel_solaire
               AND potentiel_solaire <= s.max_potentiel_solaire

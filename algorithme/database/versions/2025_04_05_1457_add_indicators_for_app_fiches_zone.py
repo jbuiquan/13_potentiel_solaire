@@ -153,6 +153,12 @@ def upgrade() -> None:
         ADD COLUMN IF NOT EXISTS niveau_potentiel VARCHAR DEFAULT '3_LIMITED'
     """)
 
+    # Add potentiel_solaire column to etablissements table
+    op.execute(f"""
+        ALTER TABLE {etablissements_table}
+        ADD COLUMN IF NOT EXISTS potentiel_nb_foyers INTEGER DEFAULT 0
+    """)
+
     # Add new columns to each table
     for zone_agg_ind in new_zone_aggregation_indicators:
         op.execute(f"""
@@ -187,6 +193,12 @@ def downgrade() -> None:
             ALTER TABLE {zone_agg_ind.table_name}
             DROP COLUMN IF EXISTS {zone_agg_ind.column_name}
         """)
+
+    # Remove potentiel_nb_foyers column from etablissements table
+    op.execute(f"""
+        ALTER TABLE {etablissements_table}
+        DROP COLUMN IF EXISTS potentiel_nb_foyers
+    """)
 
     # Remove niveau_potentiel column from etablissements table
     op.execute(f"""
