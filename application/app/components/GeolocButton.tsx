@@ -5,27 +5,39 @@ import { useToast } from '@/hooks/use-toast';
 import { LocateFixed } from 'lucide-react';
 
 import { CommuneFeature } from '../models/communes';
-import { fetchCommuneGeoJSONWithGeoloc } from '../utils/fetchers/getCommuneGeolocGeoJSON';
+import { fetchCommuneFeatureWithGeoloc } from '../utils/fetchers/getCommuneGeolocGeoJSON';
 import { getUserLocation } from '../utils/geoloc';
 import { useDebouncedCallback } from '../utils/hooks/useDebouncedCallback';
-
-type GeolocButtonProps = {
-	onLocate: (geojson: CommuneFeature) => void;
-};
+import useURLParams, { Codes } from '../utils/hooks/useURLParams';
 
 const DEBOUNCE_DELAY_MS = 500;
 
-const GeolocButton: React.FC<GeolocButtonProps> = ({ onLocate }) => {
+const GeolocButton: React.FC = () => {
 	const { toast } = useToast();
+	const { setCodes } = useURLParams();
+
+	function setCommuneInURL(commune: CommuneFeature) {
+		const codes: Codes = {
+			codeRegion: commune.properties.code_region,
+			codeDepartement: commune.properties.code_departement,
+			codeCommune: commune.properties.code_commune,
+			codeEtablissement: null,
+		};
+
+		setCodes(codes);
+	}
 
 	async function handleClick() {
 		try {
 			const { latitude, longitude } = await getUserLocation();
-			const res = await fetchCommuneGeoJSONWithGeoloc({ lat: latitude, lng: longitude });
-			if (!res) {
+			const commune = await fetchCommuneFeatureWithGeoloc({
+				lat: latitude,
+				lng: longitude,
+			});
+			if (!commune) {
 				throw new Error('Commune not found with geoloc data');
 			}
-			onLocate(res);
+			setCommuneInURL(commune);
 		} catch {
 			toast({
 				title: 'Erreur lors de la géolocalisation',
