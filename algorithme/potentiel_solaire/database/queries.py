@@ -235,6 +235,33 @@ def update_indicators_for_table(
         logger.info(message)
         conn.execute(update_query)
 
+def update_additional_map_indicators_for_table(table: Table):
+    """Update des indicateurs additionnels pour la carte"""
+    update_query = f"""
+    WITH 
+        agg AS (
+            SELECT 
+                {table.pkey} AS code_zone,
+                SUM(CASE WHEN type_etablissement = 'Ecole' THEN potentiel_solaire ELSE 0 END) AS potentiel_solaire_primaires,
+                SUM(CASE WHEN type_etablissement = 'Collège' THEN potentiel_solaire ELSE 0 END) AS potentiel_solaire_colleges,
+                SUM(CASE WHEN type_etablissement = 'Lycée' THEN potentiel_solaire ELSE 0 END) AS potentiel_solaire_lycees,
+            FROM {etablissements_table.name}
+            GROUP BY code_zone
+        )
+
+    UPDATE {table.name}
+    SET 
+        potentiel_solaire_primaires = agg.potentiel_solaire_primaires,
+        potentiel_solaire_colleges = agg.potentiel_solaire_colleges,
+        potentiel_solaire_lycees = agg.potentiel_solaire_lycees,
+    FROM agg
+    WHERE {table.name}.{table.pkey} = agg.code_zone
+    """
+
+    with get_connection() as conn:
+        logger.info(f"Update des indicateurs additionnels pour la carte de la table {table.name}")
+        conn.execute(update_query)
+    
 
 def update_indicators_for_schools():
     """Update des indicateurs de la table etablissements"""
@@ -266,6 +293,9 @@ def update_indicators_for_communes():
         type_etablissement="Ecole"
     )
 
+    # Calcul des indicateurs utiles pour la carte par commune
+    update_additional_map_indicators_for_table(table=communes_table)
+
 
 def update_indicators_for_departements():
     """Update des indicateurs de la table departements"""
@@ -278,7 +308,9 @@ def update_indicators_for_departements():
         suffix="_colleges", 
         type_etablissement="Collège"
     )
-    
+
+    # Calcul des indicateurs utiles pour la carte par departement
+    update_additional_map_indicators_for_table(table=departements_table)
 
 
 def update_indicators_for_regions():
@@ -292,3 +324,6 @@ def update_indicators_for_regions():
         suffix="_lycees", 
         type_etablissement="Lycée"
     )
+
+    # Calcul des indicateurs utiles pour la carte par region
+    update_additional_map_indicators_for_table(table=regions_table)

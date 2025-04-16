@@ -64,6 +64,15 @@ new_aggregations = [
     Aggregation(table=regions_table, suffix="_total"),
 ]
 
+additional_aggregations_for_potentiel_solaire = [
+    Aggregation(table=communes_table, suffix="_colleges"),
+    Aggregation(table=communes_table, suffix="_lycees"),
+    Aggregation(table=departements_table, suffix="_primaires"),
+    Aggregation(table=departements_table, suffix="_lycees"),
+    Aggregation(table=regions_table, suffix="_primaires"),
+    Aggregation(table=regions_table, suffix="_colleges"),   
+]
+    
 
 # indicators to add
 new_indicators = [
@@ -87,6 +96,15 @@ new_zone_aggregation_indicators = [
     for aggregation in new_aggregations
     for indicator in new_indicators
 ]
+
+potentiel_solaire_indicator = Indicator(name="potentiel_solaire", data_type="BIGINT", default_value="0")
+for aggregation in additional_aggregations_for_potentiel_solaire:
+    new_zone_aggregation_indicators.append(
+        ZoneAggregationIndicator(
+            aggregation=aggregation,
+            indicator=potentiel_solaire_indicator
+        )
+    )
 
 
 # indicators to delete
