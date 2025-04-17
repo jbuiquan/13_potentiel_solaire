@@ -41,6 +41,5 @@ jobs:
     - name: Run pre-commit
       working-directory: ${{env.working-directory}}
       run: |
-        poetry add marshmallow==3.26.1
         poetry run pre-commit run --all-files --show-diff-on-failure --color=always 
     
