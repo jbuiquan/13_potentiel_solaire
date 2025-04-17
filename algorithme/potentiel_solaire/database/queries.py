@@ -146,6 +146,7 @@ def update_indicators_for_table(
                 json_object(
                     'id', {etablissements_table.pkey}, 
                     'libelle', nom_etablissement, 
+                    'type_etablissement', type_etablissement,
                     'potentiel_solaire', potentiel_solaire
                 ) AS etablissement_json,
             FROM {etablissements_table.name}
