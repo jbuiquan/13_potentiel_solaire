@@ -117,14 +117,14 @@ Il est aussi possible de le faire avec Docker d'installé sans passer par python
 
 ### Build l'image docker de l'algortihme :
 
-    docker build -t 13_potentiel_solaire_algo .
+    docker build -t 13_potentiel_solaire_algo --platform linux/amd64 .
 
 ### Lancement des calculs sur toute la France :
 
     docker run --rm \
-        --volume $(pwd)/data:/app/data \
-        --volume $(pwd)/database:/app/database \
-        --volume $(pwd)/notebooks/exports:/app/notebooks/exports \
+        --volume ./data:/app/data \
+        --volume ./database:/app/database \
+        --volume ./notebooks/exports:/app/notebooks/exports \
         13_potentiel_solaire_algo calculate-for-schools --all
 
 ## 4.2 Créer un token github (classic) personnel

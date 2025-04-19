@@ -18,7 +18,11 @@ fi
 echo "Using '$ALGORITHME_VERSION' as the version for algorithme."
 
 # Build Docker image for algorithme
-docker build -t 13_potentiel_solaire_algo:$ALGORITHME_VERSION -f $ALGORITHME_DIR/Dockerfile $ALGORITHME_DIR
+docker build \
+    -t 13_potentiel_solaire_algo:$ALGORITHME_VERSION \
+    -f $ALGORITHME_DIR/Dockerfile \
+    --platform linux/amd64 \
+    $ALGORITHME_DIR
 
 # Run Docker container to update database indicators
 # This command will fails if the database is not init and calculations done on all schools
