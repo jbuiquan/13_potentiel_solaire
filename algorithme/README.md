@@ -9,6 +9,10 @@
     - [Analyser les resultats sur un departement](#31-analyser-les-resultats-sur-un-departement)
     - [Lancer les precommit-hook localement](#32-lancer-les-precommit-hook-localement)
     - [Lancer les tests unitaires](#33-lancer-les-tests-unitaires)
+- [Publier les resultats](#4-publier-les-resultats-github-package-registry)
+    - [Réaliser les calculs pour tous les établissements scolaires](#41-réaliser-les-calculs-pour-tous-les-établissements-scolaires)
+    - [Créer un token github (classic) personnel](#42-créer-un-token-github-classic-personnel)
+    - [Exectuer le script de publication de la database](#43-exectuer-le-script-de-publication-de-la-database)
 
 
 # 1. Installation
@@ -100,3 +104,35 @@ Le notebook [analyse_qualite_resultats_pipeline.ipynb](notebooks/analyse_qualite
 ## 3.3 Lancer les tests unitaires
 
     poetry run tox -vv
+
+# 4. Publier les resultats (Github Package Registry)
+
+### Naviguer dans le dossier algorithme
+
+    cd algorithme
+
+## 4.1 Réaliser les calculs pour tous les établissements scolaires 
+
+Il est aussi possible de le faire avec Docker d'installé sans passer par python (cf [2.1](#21-executer-les-calculs)).
+
+### Build l'image docker de l'algortihme :
+
+    docker build -t 13_potentiel_solaire_algo .
+
+### Lancement des calculs sur toute la France :
+
+    docker run --rm \
+        --volume $(pwd)/data:/app/data \
+        --volume $(pwd)/database:/app/database \
+        --volume $(pwd)/notebooks/exports:/app/notebooks/exports \
+        13_potentiel_solaire_algo calculate-for-schools --all
+
+## 4.2 Créer un token github (classic) personnel
+
+Avec comme scope : write:packages.
+
+Plus de détails [ici](https://docs.github.com/fr/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
+
+## 4.3 Exectuer le script de publication de la database
+
+    sh publish_algortihme_results.sh
