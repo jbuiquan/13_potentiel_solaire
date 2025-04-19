@@ -6,6 +6,7 @@ from papermill.exceptions import PapermillExecutionError
 
 from potentiel_solaire.constants import ALGORITHME_FOLDER, RESULTS_FOLDER
 from potentiel_solaire.database.queries import (
+    check_if_results_for_schools_are_exhaustive,
     get_departements, 
     get_regions,
     get_departements_for_region,
@@ -95,6 +96,8 @@ def run_pipeline_algorithme():
 
 def update_database_indicators():
     """Update indicators in database used by application"""
+    check_if_results_for_schools_are_exhaustive()
+
     update_indicators_for_schools()
     update_indicators_for_communes()
     update_indicators_for_departements()
