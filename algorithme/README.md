@@ -71,13 +71,13 @@ se référer à la [documentation officielle](https://python-poetry.org/docs/#in
 
 ## 2.1 Executer les calculs
 
-* Sur un departement: `poetry run run-pipeline-algorithme -d 093`
+* Sur un departement: `poetry run algorithme calculate-for-schools -d 093`
 
-* Sur une region: `poetry run run-pipeline-algorithme -r 11`
+* Sur une region: `poetry run algorithme calculate-for-schools -r 11`
 
-* Sur toute la France: `poetry run run-pipeline-algorithme --all`
+* Sur toute la France: `poetry run algorithme calculate-for-schools --all`
 
-* Mettre à jour les indicateurs dans la database duckdb: `poetry run update-database-indicators`
+* Mettre à jour les indicateurs dans la database duckdb: `poetry run algorithme update-database-indicators`
  
 Note : pour executer la pipeline sur toute la France, il faut avoir à minima 180 Go d'espace disponible et compter minimum 4H de temps d'execution.
 
