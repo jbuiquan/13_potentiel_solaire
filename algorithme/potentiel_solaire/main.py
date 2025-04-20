@@ -30,11 +30,11 @@ def cli():
 @cli.command()
 @click.option("--code_departement", "-d", default=None, help="Code departement", type=click.Choice(get_departements()))
 @click.option("--code_region", "-r", default=None, help="Code region", type=click.Choice(get_regions()))
-@click.option("--all", is_flag=True, help="Run pipeline on all departements")
+@click.option("--all_departements", "-a", is_flag=True, help="Run pipeline on all departements")
 def calculate_for_schools(
     code_departement: str = None,
     code_region: str = None,
-    all: bool = False,
+    all_departements: bool = False,
 ):
     """Script principal pour realiser les calculs de potentiel solaire"""
     notebooks_folder = ALGORITHME_FOLDER / "notebooks"
@@ -42,7 +42,7 @@ def calculate_for_schools(
     exports_folder.mkdir(exist_ok=True)
 
     # selection des departements sur lesquels les calculs vont se faire
-    if all:
+    if all_departements:
         run_on_departements = get_departements()
     elif code_departement:
         run_on_departements = [code_departement]
