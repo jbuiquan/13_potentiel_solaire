@@ -1,19 +1,14 @@
 import SearchBar from '@/app/components/SearchBar/SearchBar';
-import { SearchResult } from '@/app/models/search';
+import { useInitialView } from '@/app/utils/providers/initialViewProvider';
 
-interface HomeOverlayProps {
-	onUseMap: () => void;
-}
+export default function HomeOverlay() {
+	const { isInitialView, closeInitialView } = useInitialView();
 
-export const HomeOverlay: React.FC<HomeOverlayProps> = ({ onUseMap }: HomeOverlayProps) => {
-	//TODO: update in Issue #157
-	const handleSearchSelect = (selection: SearchResult) => {
-		alert(selection.libelle + ' - ' + selection.source);
-	};
+	if (!isInitialView) return null;
 
 	return (
 		<div className='absolute inset-0 z-40 flex h-full w-full flex-col items-center justify-start bg-blue/80 p-4'>
-			{/* TODO: text color should be Gray-6 */}
+			{/* TODO: text color should be gray-6 */}
 			<h1 className='mb-24 inline-block font-verdana text-[28px] font-normal leading-normal tracking-sm text-slate-100 lg:ms-24 lg:self-start'>
 				Découvrez le
 				<br />
@@ -27,13 +22,13 @@ export const HomeOverlay: React.FC<HomeOverlayProps> = ({ onUseMap }: HomeOverla
 						Saisir une région, un département, une commune ou le nom d&#39;un
 						établissement :
 					</h2>
-					<SearchBar onSelect={handleSearchSelect} />
+					<SearchBar onSelect={closeInitialView} />
 				</div>
 				<hr className='my-5 h-[1px] w-full border-light-green' />
 				<div className='flex items-center justify-center'>
 					<button
 						className='rounded-md bg-light-green px-4 py-2 text-sm font-bold leading-6 text-darkgreen'
-						onClick={onUseMap}
+						onClick={closeInitialView}
 					>
 						Je préfère utiliser la carte
 					</button>
@@ -41,6 +36,4 @@ export const HomeOverlay: React.FC<HomeOverlayProps> = ({ onUseMap }: HomeOverla
 			</div>
 		</div>
 	);
-};
-
-export default HomeOverlay;
+}

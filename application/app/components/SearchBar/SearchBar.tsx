@@ -1,9 +1,18 @@
 'use client';
 
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-import { SearchResult } from '@/app/models/search';
+import { CommunePropertiesKeys } from '@/app/models/communes';
+import { DepartementPropertiesKeys } from '@/app/models/departements';
+import { EtablissementPropertiesKeys } from '@/app/models/etablissements';
+import { RegionPropertiesKeys } from '@/app/models/regions';
+import { SearchPropertiesKeys, SearchResult } from '@/app/models/search';
+import useCommune from '@/app/utils/hooks/useCommune';
 import useDebouncedSearch from '@/app/utils/hooks/useDebouncedSearch';
+import useDepartement from '@/app/utils/hooks/useDepartement';
+import useEtablissement from '@/app/utils/hooks/useEtablissement';
+import useRegion from '@/app/utils/hooks/useRegion';
+import useURLParams from '@/app/utils/hooks/useURLParams';
 import { Command, CommandEmpty, CommandGroup, CommandList } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
@@ -18,20 +27,25 @@ const DEFAULT_PLACEHOLDER = 'Entrez une ville, un établissement...';
 const DEFAULT_EMPTY_RESULT_TEXT = 'Aucun résultat trouvé';
 
 type SearchBarProps = {
-	onSelect: (selection: SearchResult) => void;
+	onSelect?: () => void;
 };
 
 export default function SearchBar({ onSelect }: SearchBarProps) {
 	const [query, setQuery] = useState('');
 	const { items, isLoading } = useDebouncedSearch(query);
 
-	function handleSelect(selection: SearchResult) {
+	const [selection, setSelection] = useState<SearchResult | null>(null);
+
+	useChangeCodesOnSelection(selection, onSelect);
+
+	async function handleSelect(selection: SearchResult) {
 		setQuery(selection.libelle);
-		onSelect(selection);
+		setSelection(selection);
 	}
 
 	function clearSearch() {
 		setQuery('');
+		setSelection(null);
 	}
 
 	return (
@@ -44,6 +58,81 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
 			onClear={clearSearch}
 		/>
 	);
+}
+
+function useChangeCodesOnSelection(selection: SearchResult | null, onChange?: () => void) {
+	const { setCodes } = useURLParams();
+	const { region } = useRegion(
+		selection?.[SearchPropertiesKeys.Source] === 'regions'
+			? selection?.[SearchPropertiesKeys.Id]
+			: null,
+	);
+	const { departement } = useDepartement(
+		selection?.[SearchPropertiesKeys.Source] === 'departements'
+			? selection?.[SearchPropertiesKeys.Id]
+			: null,
+	);
+	const { commune } = useCommune(
+		selection?.[SearchPropertiesKeys.Source] === 'communes'
+			? selection?.[SearchPropertiesKeys.Id]
+			: null,
+	);
+	const { etablissement } = useEtablissement(
+		selection?.[SearchPropertiesKeys.Source] === 'etablissements'
+			? selection?.[SearchPropertiesKeys.Id]
+			: null,
+	);
+
+	useEffect(() => {
+		if (region != null) {
+			setCodes(
+				{
+					codeRegion: region[RegionPropertiesKeys.Id],
+					codeDepartement: null,
+					codeCommune: null,
+					codeEtablissement: null,
+				},
+				true,
+			);
+			onChange?.();
+		}
+		if (departement != null) {
+			setCodes(
+				{
+					codeRegion: departement[DepartementPropertiesKeys.CodeRegion],
+					codeDepartement: departement[DepartementPropertiesKeys.Id],
+					codeCommune: null,
+					codeEtablissement: null,
+				},
+				true,
+			);
+			onChange?.();
+		}
+		if (commune != null) {
+			setCodes(
+				{
+					codeRegion: commune[CommunePropertiesKeys.CodeRegion],
+					codeDepartement: commune[CommunePropertiesKeys.CodeDepartement],
+					codeCommune: commune[CommunePropertiesKeys.Id],
+					codeEtablissement: null,
+				},
+				true,
+			);
+			onChange?.();
+		}
+		if (etablissement != null) {
+			setCodes(
+				{
+					codeRegion: etablissement[EtablissementPropertiesKeys.CodeRegion],
+					codeDepartement: etablissement[EtablissementPropertiesKeys.CodeDepartement],
+					codeCommune: etablissement[EtablissementPropertiesKeys.CodeCommune],
+					codeEtablissement: etablissement[EtablissementPropertiesKeys.Id],
+				},
+				true,
+			);
+			onChange?.();
+		}
+	}, [commune, departement, etablissement, onChange, region, setCodes]);
 }
 
 type AutocompleteProps = {

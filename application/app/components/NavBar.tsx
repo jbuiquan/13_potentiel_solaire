@@ -8,7 +8,6 @@ import Link from 'next/link';
 import { ListFilter, Menu, X } from 'lucide-react';
 
 import imgLogo from '../../public/images/logo.svg';
-import { SearchResult } from '../models/search';
 import { useInitialView } from '../utils/providers/initialViewProvider';
 import SearchBar from './SearchBar/SearchBar';
 
@@ -22,10 +21,6 @@ const links = [
 export default function NavBar() {
 	const { isInitialView } = useInitialView();
 	const [isOpen, setIsOpen] = useState(false);
-
-	const handleSearchSelect = (selection: SearchResult) => {
-		alert(selection.libelle + ' - ' + selection.source);
-	};
 
 	const handleToggle = () => setIsOpen(!isOpen);
 
@@ -74,7 +69,7 @@ export default function NavBar() {
 				{!isInitialView && (
 					<div className='m-4 flex w-full items-center gap-2 xl:min-w-0 xl:max-w-[600px] xl:flex-grow'>
 						<Suspense>
-							<SearchBar onSelect={handleSearchSelect} />
+							<SearchBar />
 							<ListFilter
 								className='shrink-0 cursor-pointer stroke-green'
 								size={24}
