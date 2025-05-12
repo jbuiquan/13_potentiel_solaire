@@ -122,9 +122,9 @@ Il est aussi possible de le faire avec Docker d'installé sans passer par python
 ### Initialiser la database duckdb
 
     docker run --rm \
-        --volume /mnt/c/Developpement/13_potentiel_solaire/algorithme/data:/app/data \
-        --volume /mnt/c/Developpement/13_potentiel_solaire/algorithme/database:/app/database \
-        --volume /mnt/c/Developpement/13_potentiel_solaire/algorithme/notebooks/exports:/app/notebooks/exports \
+        --volume ./data:/app/data \
+        --volume ./database:/app/database \
+        --volume ./notebooks/exports:/app/notebooks/exports \
         13_potentiel_solaire_algo alembic upgrade head
 
 ### Lancement des calculs sur toute la France :
