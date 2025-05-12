@@ -38,8 +38,11 @@ def calculate_for_schools(
 ):
     """Script principal pour realiser les calculs de potentiel solaire"""
     notebooks_folder = ALGORITHME_FOLDER / "notebooks"
+
     exports_folder = notebooks_folder / "exports"
     exports_folder.mkdir(exist_ok=True)
+
+    RESULTS_FOLDER.mkdir(exist_ok=True)
 
     # selection des departements sur lesquels les calculs vont se faire
     if all_departements:

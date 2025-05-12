@@ -119,13 +119,21 @@ Il est aussi possible de le faire avec Docker d'installé sans passer par python
 
     docker build -t 13_potentiel_solaire_algo --platform linux/amd64 .
 
+### Initialiser la database duckdb
+
+    docker run --rm \
+        --volume /mnt/c/Developpement/13_potentiel_solaire/algorithme/data:/app/data \
+        --volume /mnt/c/Developpement/13_potentiel_solaire/algorithme/database:/app/database \
+        --volume /mnt/c/Developpement/13_potentiel_solaire/algorithme/notebooks/exports:/app/notebooks/exports \
+        13_potentiel_solaire_algo alembic upgrade head
+
 ### Lancement des calculs sur toute la France :
 
     docker run --rm \
         --volume ./data:/app/data \
         --volume ./database:/app/database \
         --volume ./notebooks/exports:/app/notebooks/exports \
-        13_potentiel_solaire_algo calculate-for-schools --all_departements
+        13_potentiel_solaire_algo algorithme calculate-for-schools --all_departements
 
 ## 4.2 Créer un token github (classic) personnel
 
