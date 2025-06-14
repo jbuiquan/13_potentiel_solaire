@@ -1,15 +1,12 @@
 from pathlib import Path
 
 
-# path
+# Paths
 ALGORITHME_FOLDER = Path(__file__).parent.parent
 DATA_FOLDER = ALGORITHME_FOLDER / 'data'
 DATABASE_FOLDER = ALGORITHME_FOLDER / 'database'
 RESULTS_FOLDER = DATA_FOLDER / 'results'
-RESULTS_FOLDER.mkdir(exist_ok=True)
-
-SOURCES_FILEPATH = DATA_FOLDER / "sources.yaml"
-
+SOURCES_FILEPATH = ALGORITHME_FOLDER / "sources.yaml"
 DUCK_DB_PATH = DATABASE_FOLDER / 'potentiel_solaire.duckdb'
 
 # BD TOPO
