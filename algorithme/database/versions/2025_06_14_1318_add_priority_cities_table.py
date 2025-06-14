@@ -30,7 +30,7 @@ def upgrade() -> None:
         CREATE TABLE IF NOT EXISTS {villes_prioritaires_table} AS (
             SELECT
                 ville,
-                code_insee
+                code_commune
             FROM
                 '{villes_prioritaires_path}'
         );
