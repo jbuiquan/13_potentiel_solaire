@@ -376,6 +376,7 @@ def get_high_priority_schools() -> pd.DataFrame:
                     e.code_departement,
                     e.code_region,
                     e.potentiel_solaire,
+                    e.protection
                 FROM {etablissements_table.name} e
                 WHERE NOT protection AND potentiel_solaire > 0
             ),
