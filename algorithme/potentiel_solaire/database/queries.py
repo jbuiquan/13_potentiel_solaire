@@ -392,10 +392,10 @@ def get_high_priority_schools() -> pd.DataFrame:
             
             etablissements_seuls_sur_leur_commune AS (
                 SELECT
-                    e.*,
+                    e.identifiant_de_l_etablissement,
                     e.protection,
                     e.potentiel_solaire
-                FROM etablissements_avec_potentiel e
+                FROM {etablissements_table.name} e
                 QUALIFY COUNT(DISTINCT e.identifiant_de_l_etablissement) OVER (PARTITION BY e.code_commune) = 1
             ),
             
@@ -424,6 +424,7 @@ def get_high_priority_schools() -> pd.DataFrame:
                 SELECT
                     e.identifiant_de_l_etablissement, 
                 FROM etablissements_seuls_sur_leur_commune e
+                WHERE NOT protection AND potentiel_solaire > 0
                 QUALIFY ROW_NUMBER() OVER (ORDER BY e.potentiel_solaire DESC) <= 100
             ),
             
