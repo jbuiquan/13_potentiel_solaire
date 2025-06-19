@@ -26,7 +26,7 @@ const InstallationCard = ({ surfaceExploitableMax }: installationCardProps) => {
 				{hasSurface && 'M²'}
 			</p>
 			<span className='sr-only'>Environ {surfaceExploitableMax} mètres carrés</span>
-      <br />
+			<br />
 			<div className='flex gap-1 text-sm text-grey'>
 				<ChartPie aria-hidden='true' focusable='false' />
 				<p className='font-bold'>

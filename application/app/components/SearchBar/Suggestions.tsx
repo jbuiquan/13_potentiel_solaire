@@ -13,9 +13,9 @@ function getIconFromResult(source: SearchResult['source']) {
 		case 'communes':
 		case 'departements':
 		case 'regions':
-			return <MapPin aria-hidden="true" focusable="false" />;
+			return <MapPin aria-hidden='true' focusable='false' />;
 		case 'etablissements':
-			return <School aria-hidden="true" focusable="false" />;
+			return <School aria-hidden='true' focusable='false' />;
 		default:
 			throw new Error('Unexpected type - ' + source);
 	}
@@ -28,7 +28,7 @@ type ResultsListProps = {
 
 export default function Suggestions({ items, onSelect }: ResultsListProps) {
 	return (
-		<div role="listbox" aria-label="Suggestions">
+		<div role='listbox' aria-label='Suggestions'>
 			{items.map((item) => {
 				const { id, libelle, source } = item;
 				const icon = getIconFromResult(source);
@@ -38,7 +38,7 @@ export default function Suggestions({ items, onSelect }: ResultsListProps) {
 						key={id}
 						className='flex grow cursor-pointer'
 						onSelect={() => onSelect(item)}
-						role="option"
+						role='option'
 						tabIndex={0}
 					>
 						<div className='flex items-center gap-2'>
