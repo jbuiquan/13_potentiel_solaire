@@ -88,3 +88,11 @@ export const unclusteredPointProtegeIconLayer = {
 		'text-color': '#221c3e',
 	},
 } satisfies LayerProps;
+
+//TODO: filter by etablissement type
+// export function filterByTypeFromFilters(filters: FilterState) {
+// 	const potentielKeys = Object.entries(filters)
+// 		.filter(([key, value]) => key !== 'All' && value === true)
+// 		.map(([key]) => ['get', POTENTIEL_KEY_BY_LEVEL_MAPPING[key as TypeEtablissement]]);
+// 	return ['+', ...potentielKeys];
+// }

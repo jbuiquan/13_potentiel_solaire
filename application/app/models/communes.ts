@@ -1,5 +1,34 @@
 import { NbEtablissementsByNiveauPotentiel } from './common';
-import { TopEtablissement } from './etablissements';
+import { TopEtablissement, TypeEtablissement } from './etablissements';
+
+/**
+ * List of the Commune type properties.
+ */
+//TODO: change values to camelCase after merge #190
+export const CommunePropertiesKeys = {
+	Id: 'code_commune',
+	Nom: 'nom_commune',
+	CodeDepartement: 'code_departement',
+	LibelleDepartement: 'libelle_departement',
+	CodeRegion: 'code_region',
+	LibelleRegion: 'libelle_region',
+	NbElevesTotal: 'nb_eleves_total',
+	NbElevesPrimaires: 'nb_eleves_primaires',
+	NbEtablissementsTotal: 'nb_etablissements_total',
+	NbEtablissementsPrimaires: 'nb_etablissements_primaires',
+	NbEtablissementsProtegesTotal: 'nb_etablissements_proteges_total',
+	NbEtablissementsProtegesPrimaires: 'nb_etablissements_proteges_primaires',
+	SurfaceExploitableMaxTotal: 'surface_exploitable_max_total',
+	SurfaceExploitableMaxPrimaires: 'surface_exploitable_max_primaires',
+	PotentielSolaireTotal: 'potentiel_solaire_total',
+	PotentielSolairePrimaires: 'potentiel_solaire_primaires',
+	PotentielNbFoyersTotal: 'potentiel_nb_foyers_total',
+	PotentielNbFoyersPrimaires: 'potentiel_nb_foyers_primaires',
+	TopEtablissementsTotal: 'top_etablissements_total',
+	TopEtablissementsPrimaires: 'top_etablissements_primaires',
+	NbEtablissementsParNiveauPotentielTotal: 'nb_etablissements_par_niveau_potentiel_total',
+	NbEtablissementsParNiveauPotentielPrimaires: 'nb_etablissements_par_niveau_potentiel_primaires',
+} as const;
 
 export type Commune = {
 	code_commune: string;
@@ -46,3 +75,12 @@ export type CommunesGeoJSON = GeoJSON.FeatureCollection<
 
 // Reference keys for proper access with maplibre layer properties
 export const COMMUNE_GEOJSON_KEY_NOM: keyof CommuneFeatureProperties = 'nom_commune';
+
+export const POTENTIEL_KEY_BY_LEVEL_MAPPING: Record<
+	TypeEtablissement,
+	keyof CommuneFeatureProperties
+> = {
+	Lycée: 'potentiel_solaire_lycees',
+	Collège: 'potentiel_solaire_colleges',
+	Ecole: 'potentiel_solaire_primaires',
+};

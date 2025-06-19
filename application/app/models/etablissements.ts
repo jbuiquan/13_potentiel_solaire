@@ -3,7 +3,7 @@ import { NiveauPotentiel } from './common';
 export type Etablissement = {
 	identifiant_de_l_etablissement: string;
 	nom_etablissement: string;
-	type_etablissement: string;
+	type_etablissement: TypeEtablissement;
 	libelle_nature: string;
 	adresse_1: string | null;
 	adresse_2: string | null;
@@ -22,6 +22,12 @@ export type Etablissement = {
 	protection: boolean;
 	niveau_potentiel: NiveauPotentiel;
 };
+
+/**
+ * Type string for the type of an Etablissement.
+ */
+//TODO: type search view extra data type etablissement with this type
+export type TypeEtablissement = 'Lycée' | 'Collège' | 'Ecole';
 
 //TODO: remove later
 export type EtablissementWithLatLng = Etablissement & {
