@@ -1,25 +1,33 @@
 import { LayerProps } from 'react-map-gl/maplibre';
 
 import { DEPARTEMENT_GEOJSON_KEY_NOM } from '@/app/models/departements';
+import { FilterState } from '@/app/utils/providers/mapFilterProvider';
+import { ExpressionSpecification } from '@maplibre/maplibre-gl-style-spec';
 
 import { COLOR_THRESHOLDS } from '../constants';
+import { fillColorFromFilters } from './regionsLayers';
 import { zonesLayerPaint } from './zonesLayersPaint';
 
 export const DEPARTEMENTS_SOURCE_ID = 'departements';
 export const DEPARTEMENTS_LABELS_SOURCE_ID = 'departements-labels';
 
-function getDepartementsLayer(isBackground = false) {
+function getDepartementsLayer(filterState: FilterState, isBackground = false) {
 	return {
 		id: 'departements',
 		type: 'fill',
 		source: DEPARTEMENTS_SOURCE_ID,
-		paint: zonesLayerPaint(COLOR_THRESHOLDS.region, isBackground),
+		paint: zonesLayerPaint(
+			COLOR_THRESHOLDS.region,
+			isBackground,
+			fillColorFromFilters(filterState) as ExpressionSpecification,
+		),
 		maxzoom: 11,
 	} satisfies LayerProps;
 }
 
-export const departementsLayer = getDepartementsLayer();
-export const departementsBackgroundLayer = getDepartementsLayer(true);
+export const departementsLayer = (filterState: FilterState) => getDepartementsLayer(filterState);
+export const departementsBackgroundLayer = (filterState: FilterState) =>
+	getDepartementsLayer(filterState, true);
 
 export const departementsLabelsLayer = {
 	id: 'departements-labels',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	LayerProps,
 	Layer as LayerReactMapLibre,
@@ -346,25 +346,42 @@ export default function FranceMap({ filters }: FranceMapProps) {
 		toggleInteractions(true);
 	}
 
+	// Memoize all layers that depend on filters
+	const memoizedRegionsLayer = useMemo(() => regionsLayer(filters), [filters]);
+	const memoizedRegionsBackgroundLayer = useMemo(
+		() => regionsBackgroundLayer(filters),
+		[filters],
+	);
+	const memoizedDepartementsLayer = useMemo(() => departementsLayer(filters), [filters]);
+	const memoizedDepartementsBackgroundLayer = useMemo(
+		() => departementsBackgroundLayer(filters),
+		[filters],
+	);
+	const memoizedCommunesLayer = useMemo(() => communesLayer(filters), [filters]);
+	const memoizedEtablissementsUnclusteredPointLayer = useMemo(
+		() => unclusteredPointLayer(filters),
+		[filters],
+	);
+
 	async function onClick(event: MapMouseEvent) {
 		if (!mapRef.current || !event.features) return;
 
 		const feature = event.features[0] as unknown as EventFeature;
 
-		if (isFeatureFrom<EventRegionFeature>(feature, regionsLayer)) {
+		if (isFeatureFrom<EventRegionFeature>(feature, memoizedRegionsLayer)) {
 			handleClickOnRegion(feature);
 
 			return;
 		}
 
-		if (isFeatureFrom<EventDepartementFeature>(feature, departementsLayer)) {
+		if (isFeatureFrom<EventDepartementFeature>(feature, memoizedDepartementsLayer)) {
 			handleClickOnDepartement(feature);
 
 			return;
 		}
 
 		if (
-			isFeatureFrom<EventCommuneFeature>(feature, communesLayer) ||
+			isFeatureFrom<EventCommuneFeature>(feature, memoizedCommunesLayer) ||
 			isFeatureFrom<EventCommuneFeature>(feature, communesTransparentLayer)
 		) {
 			handleClickOnCommune(feature);
@@ -379,7 +396,10 @@ export default function FranceMap({ filters }: FranceMapProps) {
 		}
 
 		if (
-			isFeatureFrom<EventEtablissementFeature>(feature, unclusteredPointLayer) ||
+			isFeatureFrom<EventEtablissementFeature>(
+				feature,
+				memoizedEtablissementsUnclusteredPointLayer,
+			) ||
 			isFeatureFrom<EventEtablissementFeature>(feature, unclusteredPointProtegeLayer)
 		) {
 			handleClickOnEtablissement(feature);
@@ -403,12 +423,12 @@ export default function FranceMap({ filters }: FranceMapProps) {
 				initialViewState={initialViewState}
 				mapStyle={MAP_STYLE_URL}
 				interactiveLayerIds={[
-					regionsLayer.id,
-					departementsLayer.id,
-					communesLayer.id,
+					memoizedRegionsLayer.id,
+					memoizedDepartementsLayer.id,
+					memoizedCommunesLayer.id,
 					communesTransparentLayer.id,
 					clusterLayer.id,
-					unclusteredPointLayer.id,
+					memoizedEtablissementsUnclusteredPointLayer.id,
 					unclusteredPointProtegeLayer.id,
 				]}
 				onClick={onClick}
@@ -426,9 +446,9 @@ export default function FranceMap({ filters }: FranceMapProps) {
 						data={regionsGeoJSON}
 					>
 						{isNationLevel ? (
-							<LayerReactMapLibre {...regionsLayer(filters)} />
+							<LayerReactMapLibre {...memoizedRegionsLayer} />
 						) : (
-							<LayerReactMapLibre {...regionsBackgroundLayer(filters)} />
+							<LayerReactMapLibre {...memoizedRegionsBackgroundLayer} />
 						)}
 					</Source>
 				)}
@@ -449,9 +469,9 @@ export default function FranceMap({ filters }: FranceMapProps) {
 						type='geojson'
 						data={departementsGeoJSON}
 					>
-						{isRegionLevel && <LayerReactMapLibre {...departementsLayer} />}
+						{isRegionLevel && <LayerReactMapLibre {...memoizedDepartementsLayer} />}
 						{isDepartementLevel && (
-							<LayerReactMapLibre {...departementsBackgroundLayer} />
+							<LayerReactMapLibre {...memoizedDepartementsBackgroundLayer} />
 						)}
 					</Source>
 				)}
@@ -478,7 +498,7 @@ export default function FranceMap({ filters }: FranceMapProps) {
 						{isEtablissementsLayerVisible && (
 							<LayerReactMapLibre {...communesLineLayer} />
 						)}
-						{isDepartementLevel && <LayerReactMapLibre {...communesLayer} />}
+						{isDepartementLevel && <LayerReactMapLibre {...memoizedCommunesLayer} />}
 					</Source>
 				)}
 				{communeLabelPoints && (
@@ -512,7 +532,7 @@ export default function FranceMap({ filters }: FranceMapProps) {
 							<LayerReactMapLibre {...clusterCountLayer} />
 						)}
 						{isEtablissementsLayerVisible && (
-							<LayerReactMapLibre {...unclusteredPointLayer} />
+							<LayerReactMapLibre {...memoizedEtablissementsUnclusteredPointLayer} />
 						)}
 						{isEtablissementsLayerVisible && (
 							<LayerReactMapLibre {...unclusteredPointProtegeLayer} />

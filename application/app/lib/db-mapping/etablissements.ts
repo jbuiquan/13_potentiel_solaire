@@ -66,6 +66,7 @@ export const ETABLISSEMENTS_MAPPING = {
 export const ETABLISSEMENTS_GEOJSON_MAPPING = {
 	[ETABLISSEMENTS_COLUMNS.Id]: 'identifiant_de_l_etablissement',
 	[ETABLISSEMENTS_COLUMNS.Nom]: 'nom_etablissement',
+	[ETABLISSEMENTS_COLUMNS.Type]: 'type_etablissement',
 	[ETABLISSEMENTS_COLUMNS.CodeCommune]: 'code_commune',
 	[ETABLISSEMENTS_COLUMNS.CodeDepartement]: 'code_departement',
 	[ETABLISSEMENTS_COLUMNS.CodeRegion]: 'code_region',

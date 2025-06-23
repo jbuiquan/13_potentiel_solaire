@@ -2,6 +2,8 @@ import {
 	ETABLISSEMENT_GEOJSON_KEY_POTENTIEL_SOLAIRE,
 	ETABLISSEMENT_GEOJSON_KEY_PROTECTION,
 } from '@/app/models/etablissements';
+import { FilterState } from '@/app/utils/providers/mapFilterProvider';
+import { ExpressionSpecification } from '@maplibre/maplibre-gl-style-spec';
 import type { LayerProps } from '@vis.gl/react-maplibre';
 
 import { COLOR_THRESHOLDS } from '../constants';
@@ -31,24 +33,28 @@ export const clusterCountLayer = {
 	},
 } satisfies LayerProps;
 
-export const unclusteredPointLayer = {
-	id: 'unclustered-point',
-	type: 'circle',
-	source: ETABLISSEMENTS_SOURCE_ID,
-	filter: [
-		'all',
-		['!', ['has', 'point_count']],
-		['==', ['get', ETABLISSEMENT_GEOJSON_KEY_PROTECTION], false],
-	],
-	paint: {
-		'circle-color': [
-			'step',
-			['get', ETABLISSEMENT_GEOJSON_KEY_POTENTIEL_SOLAIRE],
-			...thresholdsToStepColorsParams(COLOR_THRESHOLDS.commune),
+export const unclusteredPointLayer = (filterState: FilterState) => {
+	return {
+		id: 'unclustered-point',
+		type: 'circle',
+		source: ETABLISSEMENTS_SOURCE_ID,
+		filter: [
+			'all',
+			['!', ['has', 'point_count']],
+			['==', ['get', ETABLISSEMENT_GEOJSON_KEY_PROTECTION], false],
+			// Add your additional AND condition below, for example:
+			filterByTypeFromFilters(filterState) as ExpressionSpecification,
 		],
-		'circle-radius': 15,
-	},
-} satisfies LayerProps;
+		paint: {
+			'circle-color': [
+				'step',
+				['get', ETABLISSEMENT_GEOJSON_KEY_POTENTIEL_SOLAIRE],
+				...thresholdsToStepColorsParams(COLOR_THRESHOLDS.commune),
+			],
+			'circle-radius': 15,
+		},
+	} satisfies LayerProps;
+};
 
 export const unclusteredPointProtegeLayer = {
 	id: 'unclustered-point-protege',
@@ -90,9 +96,9 @@ export const unclusteredPointProtegeIconLayer = {
 } satisfies LayerProps;
 
 //TODO: filter by etablissement type
-// export function filterByTypeFromFilters(filters: FilterState) {
-// 	const potentielKeys = Object.entries(filters)
-// 		.filter(([key, value]) => key !== 'All' && value === true)
-// 		.map(([key]) => ['get', POTENTIEL_KEY_BY_LEVEL_MAPPING[key as TypeEtablissement]]);
-// 	return ['+', ...potentielKeys];
-// }
+export function filterByTypeFromFilters(filters: FilterState) {
+	const typeFilters = Object.entries(filters)
+		.filter(([key, value]) => key.toLowerCase() !== 'All' && value === true)
+		.map(([key]) => ['==', ['get', 'type_etablissement'], key]);
+	return ['any', ...typeFilters];
+}

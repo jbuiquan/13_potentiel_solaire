@@ -1,20 +1,29 @@
 import { LayerProps } from 'react-map-gl/maplibre';
 
 import { COMMUNE_GEOJSON_KEY_NOM } from '@/app/models/communes';
+import { FilterState } from '@/app/utils/providers/mapFilterProvider';
+import { ExpressionSpecification } from '@maplibre/maplibre-gl-style-spec';
 
 import { COLOR_THRESHOLDS } from '../constants';
+import { fillColorFromFilters } from './regionsLayers';
 import { zonesLayerPaint } from './zonesLayersPaint';
 
 export const COMMUNES_SOURCE_ID = 'communes';
 export const COMMUNES_LABELS_SOURCE_ID = 'communes-labels';
 
-export const communesLayer = {
-	id: 'communes',
-	type: 'fill',
-	source: COMMUNES_SOURCE_ID,
-	paint: zonesLayerPaint(COLOR_THRESHOLDS.departement, false),
-	maxzoom: 11,
-} satisfies LayerProps;
+export const communesLayer = (filterState: FilterState) => {
+	return {
+		id: 'communes',
+		type: 'fill',
+		source: COMMUNES_SOURCE_ID,
+		paint: zonesLayerPaint(
+			COLOR_THRESHOLDS.departement,
+			false,
+			fillColorFromFilters(filterState) as ExpressionSpecification,
+		),
+		maxzoom: 11,
+	} satisfies LayerProps;
+};
 
 // Used to be able to click
 export const communesTransparentLayer = {

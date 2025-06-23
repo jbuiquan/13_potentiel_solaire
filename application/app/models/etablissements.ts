@@ -52,6 +52,7 @@ export interface EtablissementFeatureProperties {
 	code_region: string;
 	potentiel_solaire: number;
 	protection: boolean;
+	type_etablissement: TypeEtablissement;
 }
 
 export type EtablissementsGeoJSON = GeoJSON.FeatureCollection<
@@ -66,3 +67,6 @@ export const ETABLISSEMENT_GEOJSON_KEY_PROTECTION: keyof EtablissementFeaturePro
 	'protection';
 export const ETABLISSEMENT_GEOJSON_KEY_POTENTIEL_SOLAIRE: keyof EtablissementFeatureProperties =
 	'potentiel_solaire';
+
+export const ETABLISSEMENT_GEOJSON_KEY_TYPE: keyof EtablissementFeatureProperties =
+	'type_etablissement';
