@@ -1,4 +1,5 @@
 import Link from 'next/link';
+
 import { Sun } from 'lucide-react';
 
 const UNKNOWN_TEXTS = {
@@ -23,26 +24,26 @@ const TopCard = ({ topEtablissements }: Props) => {
 	}
 
 	return (
-		<div aria-labelledby="top-solar-title">
-			<div className="flex items-center gap-2 text-grey">
-				<Sun aria-hidden="true" />
-				<h2 id="top-solar-title" className="text-base font-semibold text-grey">
+		<div aria-labelledby='top-solar-title'>
+			<div className='flex items-center gap-2 text-grey'>
+				<Sun aria-hidden='true' />
+				<h2 id='top-solar-title' className='text-base font-semibold text-grey'>
 					Top 3 potentiel solaire :
 				</h2>
 			</div>
 
 			<ol
-				className="list-none space-y-1 font-bold text-darkgreen"
-				aria-label="Établissements classés par potentiel solaire décroissant"
+				className='list-none space-y-1 font-bold text-darkgreen'
+				aria-label='Établissements classés par potentiel solaire décroissant'
 			>
 				{topEtablissements.slice(0, 3).map((etab, index) => (
 					<li key={etab.id}>
-						<span aria-label={`Rang ${index + 1}`} role="img">
+						<span aria-label={`Rang ${index + 1}`} role='img'>
 							{medals[index]}
 						</span>{' '}
 						<Link
 							href={`/etablissement/${etab.id}`}
-							className="underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue"
+							className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue'
 						>
 							{etab.libelle}
 						</Link>
