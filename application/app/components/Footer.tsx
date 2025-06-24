@@ -83,7 +83,7 @@ export default function Footer() {
 										)}
 									</div>
 
-									<div className='flex h-8 w-8 items-center justify-center rounded-full bg-white text-lg italic text-blue lg:me-16 lg:ms-16'>
+									<div className='flex h-8 w-8 items-center justify-center rounded-full bg-white text-base italic text-blue lg:me-16 lg:ms-16'>
 										ft.
 									</div>
 

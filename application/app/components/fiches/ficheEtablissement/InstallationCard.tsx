@@ -18,7 +18,7 @@ const InstallationCard = ({ surfaceExploitableMax }: installationCardProps) => {
 				<p className='font-bold'>Superficie exploitable maximale : </p>
 			</div>
 			<p className='text-center font-bold text-blue'>
-				<span className='text-xl'>
+				<span className='text-lg'>
 					{hasSurface ? `≈${surfaceExploitableMax}` : UNKNOWN_TEXTS.surfaceExploitableMax}
 				</span>{' '}
 				{hasSurface && 'M²'}
