@@ -98,6 +98,7 @@ export default {
 			},
 			rotate: {
 				'-12': '-12deg',
+        '-30': '-30deg',
 			},
 			keyframes: {
 				'slide-in-right': {

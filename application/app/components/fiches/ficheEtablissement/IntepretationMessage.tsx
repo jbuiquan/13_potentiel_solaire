@@ -16,9 +16,9 @@ const SOLAR_INTERPRETATION_CSS_CLASS: Record<NiveauPotentiel, string> = {
 };
 
 const ICON_SRC: Record<NiveauPotentiel, string> = {
-	'1_HIGH': '/images/1_HIGH.svg',
-	'2_GOOD': '/images/2_GOOD.svg',
-	'3_LIMITED': '/images/3_LIMITED.svg',
+	'1_HIGH': '/images/HIGH.svg',
+	'2_GOOD': '/images/GOOD.svg',
+	'3_LIMITED': '/images/LIMITED.svg',
 };
 
 interface InterpretationMessageProps {
