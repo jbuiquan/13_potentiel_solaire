@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { TopEtablissement } from '@/app/models/etablissements';
 import { Sun } from 'lucide-react';
 
 const UNKNOWN_TEXTS = {
@@ -8,14 +9,8 @@ const UNKNOWN_TEXTS = {
 
 const medals = ['🥇', '🥈', '🥉'];
 
-type Etablissement = {
-	id: string;
-	libelle: string;
-	potentiel_solaire: number;
-};
-
 type Props = {
-	topEtablissements: Etablissement[] | null;
+	topEtablissements: TopEtablissement[] | null;
 };
 
 const TopCard = ({ topEtablissements }: Props) => {
@@ -44,6 +39,9 @@ const TopCard = ({ topEtablissements }: Props) => {
 						<Link
 							href={`/etablissement/${etab.id}`}
 							className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue'
+							target='_blank'
+							rel='noopener noreferrer'
+							className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary'
 						>
 							{etab.libelle}
 						</Link>
