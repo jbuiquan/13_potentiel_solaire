@@ -136,7 +136,7 @@ export default function NavBar() {
 						))}
 						<Image
 							src={GOOD}
-							alt='Potentiel bon'
+							alt='Mascotte du projet : un tournesol souriant'
 							width={160}
 							height={160}
 							className='absolute -bottom-9 -right-9 h-auto w-32 -rotate-30 overflow-hidden'

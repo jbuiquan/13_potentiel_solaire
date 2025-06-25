@@ -24,7 +24,7 @@ export default function RepartitionPotentielSolaire({
 					<div className='border-1 h-4 w-4 rounded-full border border-slate-400 bg-sol_top' />
 					<span>{niveau} au potentiel solaire élevé</span>
 				</div>
-				<p className='text-center text-lg font-bold text-blue'>
+				<p className='text-center text-base font-bold text-blue'>
 					{renderValeur(repartition['1_HIGH'])}
 				</p>
 			</div>
@@ -34,7 +34,7 @@ export default function RepartitionPotentielSolaire({
 					<div className='border-1 h-4 w-4 rounded-full border border-slate-400 bg-sol_ok' />
 					<span>{niveau} au potentiel solaire bon</span>
 				</div>
-				<p className='text-center text-lg font-bold text-blue'>
+				<p className='text-center text-base font-bold text-blue'>
 					{renderValeur(repartition['2_GOOD'])}
 				</p>
 			</div>
@@ -45,7 +45,7 @@ export default function RepartitionPotentielSolaire({
 					<div className='border-1 h-4 w-4 rounded-full border border-slate-400 bg-sol_ko' />
 					<span>{niveau} au potentiel solaire bas</span>
 				</div>
-				<p className='text-center text-lg font-bold text-blue'>
+				<p className='text-center text-base font-bold text-blue'>
 					{renderValeur(repartition['3_LIMITED'])}
 				</p>
 			</div>

@@ -21,6 +21,12 @@ const ICON_SRC: Record<NiveauPotentiel, string> = {
 	'3_LIMITED': '/images/LIMITED.svg',
 };
 
+const ALT_LABELS: Record<NiveauPotentiel, string> = {
+	'1_HIGH': 'élevé',
+	'2_GOOD': 'bon',
+	'3_LIMITED': 'limité',
+};
+
 interface InterpretationMessageProps {
 	niveau_potentiel: NiveauPotentiel;
 }
@@ -34,7 +40,7 @@ const InterpretationMessage = ({ niveau_potentiel }: InterpretationMessageProps)
 				<div className='relative w-1/3 -rotate-12'>
 					<Image
 						src={ICON_SRC[niveau_potentiel]}
-						alt={`Potentiel ${niveau_potentiel}`}
+						alt={`Potentiel ${ALT_LABELS[niveau_potentiel]}`}
 						width={143}
 						height={130}
 						className='animate-slide-in absolute -bottom-16 -left-8 motion-reduce:animate-none'
