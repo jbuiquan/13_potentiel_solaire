@@ -47,7 +47,7 @@ export default function PotentielSolaireCard({
 				{nbEleves !== undefined ? (
 					<>
 						<p className='font-bold'>
-							<span className='text-xl'>{nbEleves.toLocaleString('fr-FR')}</span>{' '}
+							<span className='text-base'>{nbEleves.toLocaleString('fr-FR')}</span>{' '}
 							élèves concernés
 						</p>
 					</>

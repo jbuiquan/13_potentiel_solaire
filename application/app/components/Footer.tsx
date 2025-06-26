@@ -51,7 +51,7 @@ export default function Footer() {
 						{/* Open view */}
 						<div className='flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between'>
 							<div className='text-center lg:max-w-xl lg:text-left'>
-								<h2 className='text-lg font-bold'>{footerDescription.title}</h2>
+								<h2 className='text-base font-bold'>{footerDescription.title}</h2>
 								<div className='mx-auto my-2 h-[1px] w-5 bg-green lg:mx-0'></div>
 								<br />
 								<p className='text-left text-sm leading-relaxed'>
@@ -83,7 +83,7 @@ export default function Footer() {
 										)}
 									</div>
 
-									<div className='flex h-8 w-8 items-center justify-center rounded-full bg-white text-lg italic text-blue lg:me-16 lg:ms-16'>
+									<div className='flex h-8 w-8 items-center justify-center rounded-full bg-white text-base italic text-blue lg:me-16 lg:ms-16'>
 										ft.
 									</div>
 
