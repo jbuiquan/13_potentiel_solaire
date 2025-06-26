@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: 13_potentiel_solaire_app
+    # image: ghcr.io/dataforgoodfr/13_potentiel_solaire_app:latest
+    # image: 13_potentiel_solaire_app:latest  #local for now
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DATABASE_PATH: /app/database/data.duckdb
+        NEXT_PUBLIC_BASE_URL: http://localhost:3000
+    # Set environment variables based on the .env file
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
