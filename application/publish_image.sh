@@ -12,7 +12,6 @@ IMAGE_NAME="ghcr.io/dataforgoodfr/13_potentiel_solaire_app:$ALGORITHME_VERSION.$
 docker build \
 	-t $IMAGE_NAME \
 	--build-arg DATABASE_PATH=/app/database/data.duckdb \
-	--build-arg NEXT_PUBLIC_BASE_URL=http://163.172.180.58:3000 \
 	-f $APPLICATION_DIR/Dockerfile .
 
 # Check if the previous command was successful

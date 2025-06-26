@@ -1,14 +1,10 @@
 import { RegionsGeoJSON } from '@/app/models/regions';
 
-import getBaseURL from './getBaseURL';
-
 const FILE_PATH = '/data/regions.geojson';
 
 export async function fetchRegionsGeoJSON() {
 	try {
-		const url = new URL(FILE_PATH, getBaseURL());
-
-		const res = await fetch(url.toString());
+		const res = await fetch(FILE_PATH);
 		if (!res.ok) throw new Error('Failed to load regions from API');
 
 		const data = (await res.json()) as RegionsGeoJSON;

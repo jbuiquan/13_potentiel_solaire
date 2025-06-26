@@ -191,10 +191,6 @@ La commande utilisée pour [Installer la base de test](#installer-la-base-de-tes
 
 Ex: `DATABASE_PATH=/path/to/data-test.duckdb`
 
-`NEXT_PUBLIC_BASE_URL` => l'url de déploiement
-
-Ex pour le serveur de dev local : `http://localhost:3000`
-
 ### Lancer le serveur
 
 Pour lancer le serveur de dev
@@ -237,7 +233,6 @@ npm run start
 
 ```
 DATABASE_PATH=/app/database/data.duckdb
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
 
 2. Lancer le build docker
