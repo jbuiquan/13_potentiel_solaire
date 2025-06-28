@@ -3,8 +3,7 @@ version: '3.8'
 services:
   app:
     container_name: 13_potentiel_solaire_app
-    # image: ghcr.io/dataforgoodfr/13_potentiel_solaire_app:latest
-    # image: 13_potentiel_solaire_app:latest  #local for now
+    image: ghcr.io/dataforgoodfr/13_potentiel_solaire_app:latest
     build:
       context: .
       dockerfile: Dockerfile
