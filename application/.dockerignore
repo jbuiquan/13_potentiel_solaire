@@ -6,4 +6,5 @@ README.md
 .next
 .git
 database
+.env
 .env.*

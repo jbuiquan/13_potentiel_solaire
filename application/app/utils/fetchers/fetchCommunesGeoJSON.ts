@@ -1,16 +1,15 @@
 import { CommunesGeoJSON } from '@/app/models/communes';
 
-import getBaseURL from './getBaseURL';
-
 const API_ROUTE = '/api/communes';
 
 export async function fetchCommunesGeoJSON(codeDepartement: string | null) {
 	try {
-		const url = new URL(API_ROUTE, getBaseURL());
+		const params = new URLSearchParams();
+		if (codeDepartement) params.append('codeDepartement', codeDepartement);
+		const queryString = params.toString();
+		const url = queryString ? `${API_ROUTE}?${queryString}` : API_ROUTE;
 
-		if (codeDepartement) url.searchParams.append('codeDepartement', codeDepartement);
-
-		const res = await fetch(url.toString());
+		const res = await fetch(url);
 		if (!res.ok) throw new Error('Failed to load communes from API');
 
 		const data = (await res.json()) as CommunesGeoJSON;
