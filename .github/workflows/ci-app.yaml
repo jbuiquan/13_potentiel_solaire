@@ -1,7 +1,6 @@
 name: build docker for application
 
 on:
-  pull_request:
   push:
     branches: [main]
 
