@@ -206,7 +206,7 @@ def recuperation_mnh(
     return mns - mnt
 
 
-def segmentation_toits(data):
+def segmentation_toits(data, min_surface: float = 2):
     """Calcule la pente, l'azimut et la surface des segments de toits.
 
     Voir notebook example_utilisation_segmentation_des_toits.ipynb pour illustrer
@@ -215,6 +215,8 @@ def segmentation_toits(data):
     Parameters
     data : numpy.ndarray
         Masked elevation raster data corresponding to the building geometry.
+    min_surface : float
+        Minimum surface area in square meters for a segment to be considered valid.
 
     Return
       Dataframe with one mine equivalent to a utile segment with a slope and an azimut.
@@ -259,7 +261,7 @@ def segmentation_toits(data):
 
     # Creating clusters
     labeled_bounds, num_features = label(final_bounds == 0)
-    mask = data == 0
+    mask = data[0] <= 0 # Mask to remove areas outside the building
     labeled_bounds = np.where(mask, None, labeled_bounds)
 
     # Final dataframe
@@ -276,7 +278,6 @@ def segmentation_toits(data):
         df_segment_toiture = pd.concat([df_segment_toiture,new_row])
 
     # Filter on Minimum surfact
-    min_surface = 50
     final_segment_toiture = df_segment_toiture[df_segment_toiture["surface"]>min_surface].sort_values("surface")
 
     return final_segment_toiture
