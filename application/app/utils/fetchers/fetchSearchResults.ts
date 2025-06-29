@@ -1,14 +1,14 @@
 import { SearchResult } from '@/app/models/search';
 
-const API_ROUTE = 'api/search';
-const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+const API_ROUTE = '/api/search';
 
 export async function fetchSearchResults(query: string): Promise<SearchResult[]> {
 	try {
-		const url = new URL(API_ROUTE, baseURL);
-		url.searchParams.append('query', query);
+		const params = new URLSearchParams();
+		params.append('query', query);
+		const url = `${API_ROUTE}?${params.toString()}`;
 
-		const res = await fetch(url.toString());
+		const res = await fetch(url);
 		if (!res.ok) throw new Error('Failed to fetch results from search with query ' + query);
 
 		const data = (await res.json()) as SearchResult[];

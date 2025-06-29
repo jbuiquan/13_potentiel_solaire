@@ -1,12 +1,11 @@
 # syntax=docker.io/docker/dockerfile:1
 
 # Generate database and export geojson
-# FROM 13_potentiel_solaire_mock_data AS generator
-FROM ghcr.io/dataforgoodfr/13_potentiel_solaire_db:0.1.0.20250420 AS generator
+# ARG GENERATOR_IMAGE=13_potentiel_solaire_mock_data
+ARG GENERATOR_IMAGE=ghcr.io/dataforgoodfr/13_potentiel_solaire_db:0.1.0.20250420
+FROM ${GENERATOR_IMAGE} AS generator
 
-# TODO: use lighter image
-# FROM node:18-alpine AS base
-FROM node:18 AS base
+FROM node:18-slim AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -38,6 +37,9 @@ COPY --from=generator /app/output/geojson /app/public/data
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
+ARG DATABASE_PATH=/app/database/data.duckdb
+ENV DATABASE_PATH=${DATABASE_PATH}
+
 # ERROR
 RUN \
 	if [ -f yarn.lock ]; then yarn run build; \
@@ -47,7 +49,7 @@ RUN \
 	fi
 
 # Production image, copy all the files and run next
-FROM base AS runner
+FROM node:18-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -73,9 +75,8 @@ USER nextjs
 
 EXPOSE 3000
 
+ENV DATABASE_PATH=/app/database/data.duckdb
 ENV PORT=3000
-# TODO: fix env copy and usage
-#ENV DATABASE_PATH=/app/database/data.duckdb
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output

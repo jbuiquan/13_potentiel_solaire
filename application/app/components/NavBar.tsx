@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 import { ListFilter, Menu, X } from 'lucide-react';
 
+import GOOD from '../../public/images/GOOD.svg';
 import imgLogo from '../../public/images/logo.svg';
 import { useInitialView } from '../utils/providers/initialViewProvider';
 import SearchBar from './SearchBar/SearchBar';
@@ -119,7 +120,7 @@ export default function NavBar() {
 					</div>
 
 					{/* Liens verticaux */}
-					<div className='w-full space-y-4 bg-green px-6 py-4 text-xl font-bold text-darkgreen'>
+					<div className='relative w-full space-y-4 bg-green px-6 pb-20 pt-4 text-base font-bold text-darkgreen overflow-hidden '>
 						{links.map((link) => (
 							<Link
 								key={link.href}
@@ -133,6 +134,13 @@ export default function NavBar() {
 								<span className='text-2xl'>→</span>
 							</Link>
 						))}
+						<Image
+							src={GOOD}
+							alt='Mascotte du projet : un tournesol souriant'
+							width={160}
+							height={160}
+							className='absolute -bottom-9 -right-9 h-auto w-32 -rotate-30 overflow-hidden'
+						/>
 					</div>
 				</div>
 			)}

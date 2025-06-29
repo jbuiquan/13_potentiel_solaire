@@ -24,8 +24,8 @@ import { EaseToOptions, GeoJSONSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import {
+	ETABLISSEMENT_GEOJSON_KEY_POTENTIEL_SOLAIRE,
 	EtablissementFeature,
-	EtablissementFeaturePropertiesKeys,
 } from '../../models/etablissements';
 import Loading from '../Loading';
 import BackButton from './BackButton';
@@ -65,7 +65,7 @@ import {
 	regionsLayer,
 } from './layers/regionsLayers';
 
-const MAP_STYLE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/map-styles/map-style.json`;
+const MAP_STYLE_URL = `/map-styles/map-style.json`;
 
 // TODO: Respecter les conditions de réutilisation des données Etalab
 // - Mentionner la source des données (Etalab)
@@ -498,7 +498,7 @@ export default function FranceMap() {
 						clusterProperties={{
 							potentiel_solaire: [
 								'number',
-								['get', EtablissementFeaturePropertiesKeys.PotentielSolaire],
+								['get', ETABLISSEMENT_GEOJSON_KEY_POTENTIEL_SOLAIRE],
 							],
 						}}
 					>

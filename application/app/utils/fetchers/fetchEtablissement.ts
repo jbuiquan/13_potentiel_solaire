@@ -1,14 +1,12 @@
 import { Etablissement } from '@/app/models/etablissements';
 
-import getBaseURL from './getBaseURL';
-
 const API_ROUTE = '/api/etablissements';
 
 export async function fetchEtablissement(id: string) {
 	try {
-		const url = new URL(`${API_ROUTE}/${id}`, getBaseURL());
+		const url = `${API_ROUTE}/${id}`;
 
-		const res = await fetch(url.toString());
+		const res = await fetch(url);
 		if (!res.ok) throw new Error('Failed to load etablissement from API');
 
 		const data = (await res.json()) as Etablissement | undefined;
