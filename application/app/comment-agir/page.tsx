@@ -1,13 +1,41 @@
-import { commentAgirTexts } from '../components/content/commentAgir';
+'use client';
 
-export default function Home() {
+import StaticPage from '../components/StaticPage';
+import {
+	ELU_BODY,
+	ELU_INTRO_LONG,
+	PARTICULIER_BODY,
+	PARTICULIER_INTRO_LONG,
+} from '../components/content/accordion-actions';
+import commentAgirContent from '../components/content/comment-agir';
+import AccordionCard from '../components/fiches/shared/AccordionCard';
+
+const actionsLong = [
+	{
+		title: 'Je suis un élu et je veux agir',
+		content: (
+			<>
+				{ELU_INTRO_LONG}
+				{ELU_BODY}
+			</>
+		),
+	},
+	{
+		title: 'Je suis un particulier et je veux agir',
+		content: (
+			<>
+				{PARTICULIER_INTRO_LONG}
+				{PARTICULIER_BODY}
+			</>
+		),
+	},
+];
+
+export default function CommentAgirPage() {
 	return (
-		<div className='container mx-auto text-white'>
-			<div className='px-5'>
-				<h1 className='text-2xl font-bold'>{commentAgirTexts.mainTitle}</h1>
-				<h2 className='text-lg font-bold'>{commentAgirTexts.subtitle}</h2>
-				<p className='text-sm'>{commentAgirTexts.text}</p>
-			</div>
-		</div>
+		<>
+			<StaticPage {...commentAgirContent} />
+			<AccordionCard actions={actionsLong} />
+		</>
 	);
 }
