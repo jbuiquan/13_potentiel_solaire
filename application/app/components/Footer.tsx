@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 import { ArrowUpCircle } from 'lucide-react';
 
-import { footerDescription, footerLinks, footerText, partners } from './content/footerContent';
+import { footerDescription, footerLinks, footerText, partners } from './content/footer';
 
 export default function Footer() {
 	const [isOpen, setIsOpen] = useState(false);
