@@ -34,9 +34,10 @@ const actionsLong = [
 export default function CommentAgirPage() {
 	return (
 		<>
-			<StaticPage {...commentAgirContent} />
-			<AccordionCard actions={actionsLong} />
-      <div className="h-32" />
+			<main className='pb-40 mx-auto max-w-3xl px-4 py-8'>
+				<StaticPage {...commentAgirContent} />
+				<AccordionCard actions={actionsLong} />
+			</main>
 		</>
 	);
 }
