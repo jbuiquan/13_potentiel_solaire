@@ -36,6 +36,7 @@ export default function CommentAgirPage() {
 		<>
 			<StaticPage {...commentAgirContent} />
 			<AccordionCard actions={actionsLong} />
+      <div className="h-32" />
 		</>
 	);
 }
