@@ -1,9 +1,6 @@
 import traceback
 
-import papermill as pm
 import click
-
-from papermill.exceptions import PapermillExecutionError
 
 from potentiel_solaire.constants import ALGORITHME_FOLDER, RESULTS_FOLDER
 from potentiel_solaire.database.queries import (
@@ -65,9 +62,7 @@ def extract_data(
         all_departements=all_departements,
     )
     
-    extract_data_for_departements(
-        codes_departement=run_on_departements
-    )
+    extract_data_for_departements(codes_departement=run_on_departements)
 
 
 @cli.command()
@@ -179,13 +174,6 @@ def calculate_for_schools(
     all_departements: bool = False,
 ):
     """Script principal pour realiser les calculs de potentiel solaire"""
-    notebooks_folder = ALGORITHME_FOLDER / "notebooks"
-
-    exports_folder = notebooks_folder / "exports"
-    exports_folder.mkdir(exist_ok=True)
-
-    RESULTS_FOLDER.mkdir(exist_ok=True)
-
     # selection des departements sur lesquels les calculs vont se faire
     run_on_departements = departements_to_run(
         code_departement=code_departement,  
@@ -193,30 +181,20 @@ def calculate_for_schools(
         all_departements=all_departements,
     )
 
-    # calcul du potentiel solaire de chaque departement
-    notebook_pipeline_algorithm_path = notebooks_folder / "pipeline_algorithme.ipynb"
-    for departement in run_on_departements:
-        notebook_result_pipeline_algorithm_path = exports_folder / f"D{departement}_pipeline_algorithme.ipynb"
-        error_file_path = RESULTS_FOLDER / f"D{departement}.err"
-        error_file_path.unlink(missing_ok=True)
-        try:
-            # on execute le notebook pipeline_algorithme.ipynb pour chaque departement
-            # un notebook resultat sera cree dans le dossier d export pour chaque departement
-            pm.execute_notebook(
-                notebook_pipeline_algorithm_path,
-                notebook_result_pipeline_algorithm_path,
-                parameters={"code_departement": departement},
-            )
-        except PapermillExecutionError as e:
-            logger.exception(e)
-            logger.error(
-                "Exception %s, go check notebook %s for more details.",
-                str(e),
-                f"D{departement}_pipeline_algorithme.ipynb"
-                )
-            # en cas d erreur un fichier d erreur est cree dans le dossier result avec la trace de l exception
-            with open(error_file_path, "w") as error_file:
-                error_file.write(traceback.format_exc())
+    # pipeline de calcul pour les ecoles
+    
+    # extract
+    extract_data_for_departements(codes_departement=run_on_departements)
+
+    # transform
+    calculate_attach_buildings_to_schools(codes_departement=run_on_departements)
+    calculate_protection_for_buildings(codes_departement=run_on_departements)
+    calculate_solar_potential_for_buildings(codes_departement=run_on_departements)
+
+    # load
+    load_buildings_attachment_results_to_db(codes_departement=run_on_departements)
+    load_protection_results_to_db(codes_departement=run_on_departements)
+    load_solar_potential_results_to_db(codes_departement=run_on_departements)
 
 
 @cli.command()

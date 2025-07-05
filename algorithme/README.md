@@ -89,7 +89,6 @@ Note : pour executer la pipeline sur toute la France, il faut avoir à minima 18
 
 ## 2.2 Récupérer les resultats
 * un fichier .gpkg dans le dossier [results](data/results) pour les resultats pour chaque departement (ex: [D093_pipeline_results.gpkg](data/results/D093_pipeline_results.gpkg))
-* un notebook resultats est aussi genere pour chaque departement dans le dossier [exports](notebooks/exports) (ex: [D093_pipeline_algorithme.ipynb](notebooks/exports/D093_pipeline_algorithme.ipynb))
 * dans la [database duckdb](database/potentiel_solaire.duckdb)
 * un fichier .csv dans le dossier [results](data/results) avec les etablissements prioritaires selon les criteres de Greenpeace
 
