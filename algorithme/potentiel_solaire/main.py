@@ -1,8 +1,6 @@
-import traceback
-
 import click
 
-from potentiel_solaire.constants import ALGORITHME_FOLDER, RESULTS_FOLDER
+from potentiel_solaire.constants import RESULTS_FOLDER
 from potentiel_solaire.database.queries import (
     check_if_results_for_schools_are_exhaustive,
     get_departements, 
