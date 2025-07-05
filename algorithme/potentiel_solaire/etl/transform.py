@@ -5,7 +5,7 @@ from potentiel_solaire.classes.results import DepartementResults
 from potentiel_solaire.classes.source import load_sources
 from potentiel_solaire.constants import DEFAULT_CRS
 from potentiel_solaire.features.attach_buildings_to_schools import attach_buildings_to_schools
-from potentiel_solaire.features.protected_tag import add_protected_tag_for_buildings, link_protected_buildings
+from potentiel_solaire.features.protected_tag import add_protected_tag_for_buildings
 from potentiel_solaire.sources.bd_topo import find_gpkg_file_bd_topo, get_topo_buildings_of_interest, get_topo_zones_of_interest
 from potentiel_solaire.sources.protected_buildings import get_areas_with_protected_buildings
 from potentiel_solaire.logger import get_logger
@@ -108,7 +108,7 @@ def calculate_protection_for_buildings(codes_departement: list[str]):
             schools_buildings=schools_buildings,
             areas_with_protected_buildings=areas_with_protected_buildings
         )
-        
+
         nb_buildings_protected = schools_buildings[schools_buildings["protection"]].shape[0]
         nb_schools_buildings = schools_buildings.shape[0]
         ratio_protected = round(100 * nb_buildings_protected / nb_schools_buildings)
