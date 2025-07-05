@@ -18,6 +18,7 @@ from potentiel_solaire.database.queries import (
     get_high_priority_schools,
 )
 from potentiel_solaire.etl.extract import extract_data_for_departements
+from potentiel_solaire.etl.load import load_buildings_attachment_results_to_db, load_protection_results_to_db, load_solar_potential_results_to_db
 from potentiel_solaire.etl.transform import calculate_attach_buildings_to_schools, calculate_protection_for_buildings, calculate_solar_potential_for_buildings
 from potentiel_solaire.logger import get_logger
 
@@ -86,7 +87,11 @@ def attach_buildings_to_schools(
         all_departements=all_departements,
     )
 
+    # calcule des rattachements des batiments aux ecoles
     calculate_attach_buildings_to_schools(codes_departement=run_on_departements)
+
+    # charge des resultats de rattachement des batiments aux ecoles dans la base de donnees
+    load_buildings_attachment_results_to_db(codes_departement=run_on_departements)
 
 
 @cli.command()
@@ -106,7 +111,11 @@ def calculate_protection_for_schools(
         all_departements=all_departements,
     )
 
+    # calcul du tag protection des batiments scolaires
     calculate_protection_for_buildings(codes_departement=run_on_departements)
+
+    # charge des resultats de protection des ecoles dans la base de donnees
+    load_protection_results_to_db(codes_departement=run_on_departements)
 
 
 @cli.command()
@@ -126,7 +135,11 @@ def calculate_solar_potential_for_schools(
         all_departements=all_departements,
     )
 
+    # calcul du potentiel solaire des batiments scolaires
     calculate_solar_potential_for_buildings(codes_departement=run_on_departements)
+
+    # charge des resultats de potentiel solaire des ecoles dans la base de donnees
+    load_solar_potential_results_to_db(codes_departement=run_on_departements)
 
 
 @cli.command()
