@@ -12,9 +12,18 @@ def link_protected_buildings(
     :param areas_with_protected_buildings: gdf des zones avec des batiments proteges
     :return: si le batiment est dans une zone protegee
     """
-    in_protected_area = building.intersects(
-        areas_with_protected_buildings.union_all()
+    building_gdf = gpd.GeoDataFrame(
+        {"geometry": [building]},  
+        crs=areas_with_protected_buildings.crs
     )
+
+    overlay = gpd.overlay(
+        building_gdf,
+        areas_with_protected_buildings,
+        how="intersection"
+    )
+
+    in_protected_area = not overlay.empty
 
     return in_protected_area
 
@@ -24,7 +33,7 @@ def add_protected_tag_for_buildings(
     areas_with_protected_buildings: gpd.GeoDataFrame,
 ):
     """Ajoute le tag de protection aux batiments scolaires.
-    
+
     :param schools_buildings: gdf des batiments scolaires
     :param areas_with_protected_buildings: gdf des zones avec des batiments proteges
     :return: gdf des batiments scolaires avec le tag de protection
