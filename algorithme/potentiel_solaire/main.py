@@ -17,15 +17,55 @@ from potentiel_solaire.database.queries import (
     update_indicators_for_schools,
     get_high_priority_schools,
 )
+from potentiel_solaire.etl.extract import extract_pipeline
 from potentiel_solaire.logger import get_logger
 
 logger = get_logger()
+
+
+def departements_to_run(
+    code_departement: str = None,
+    code_region: str = None,
+    all_departements: bool = False,
+) -> list[str]:
+    """Function to get the list of departements to run the pipeline on."""
+    if all_departements:
+        return get_departements()
+    elif code_departement:
+        return [code_departement]
+    elif code_region:
+        departements_of_region = get_departements_for_region(code_region=code_region)
+        return departements_of_region
+    else:
+        raise ValueError("No arguments provided")
 
 
 @click.group()
 def cli():
     """Main entry point for CLI."""
     pass
+
+
+@cli.command()
+@click.option("--code_departement", "-d", default=None, help="Code departement", type=click.Choice(get_departements()))
+@click.option("--code_region", "-r", default=None, help="Code region", type=click.Choice(get_regions()))
+@click.option("--all_departements", "-a", is_flag=True, help="Run pipeline on all departements")
+def extract_data(
+    code_departement: str = None,
+    code_region: str = None,
+    all_departements: bool = False,
+):
+    """Script principal pour extraire les donnees necessaires au calcul du potentiel solaire"""
+    # selection des departements sur lesquels les calculs vont se faire
+    run_on_departements = departements_to_run(
+        code_departement=code_departement,  
+        code_region=code_region,
+        all_departements=all_departements,
+    )
+    
+    extract_pipeline(
+        codes_departement=run_on_departements
+    )
 
 
 @cli.command()
@@ -46,15 +86,11 @@ def calculate_for_schools(
     RESULTS_FOLDER.mkdir(exist_ok=True)
 
     # selection des departements sur lesquels les calculs vont se faire
-    if all_departements:
-        run_on_departements = get_departements()
-    elif code_departement:
-        run_on_departements = [code_departement]
-    elif code_region:
-        departements_of_region = get_departements_for_region(code_region=code_region)
-        run_on_departements = departements_of_region
-    else:
-        raise ValueError("No arguments provided")
+    run_on_departements = departements_to_run(
+        code_departement=code_departement,  
+        code_region=code_region,
+        all_departements=all_departements,
+    )
 
     # calcul du potentiel solaire de chaque departement
     notebook_pipeline_algorithm_path = notebooks_folder / "pipeline_algorithme.ipynb"
