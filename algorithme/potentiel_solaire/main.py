@@ -146,6 +146,33 @@ def calculate_solar_potential_for_schools(
 @click.option("--code_departement", "-d", default=None, help="Code departement", type=click.Choice(get_departements()))
 @click.option("--code_region", "-r", default=None, help="Code region", type=click.Choice(get_regions()))
 @click.option("--all_departements", "-a", is_flag=True, help="Run pipeline on all departements")
+def load_results_to_db(
+    code_departement: str = None,
+    code_region: str = None,
+    all_departements: bool = False,
+):
+    """Script pour charger les resultats dans la base de donnees"""
+    # selection des departements sur lesquels les calculs vont se faire
+    run_on_departements = departements_to_run(
+        code_departement=code_departement,  
+        code_region=code_region,
+        all_departements=all_departements,
+    )
+
+    # charge des resultats de rattachement des batiments aux ecoles dans la base de donnees
+    load_buildings_attachment_results_to_db(codes_departement=run_on_departements)
+
+    # charge des resultats de protection des ecoles dans la base de donnees
+    load_protection_results_to_db(codes_departement=run_on_departements)
+
+    # charge des resultats de potentiel solaire des ecoles dans la base de donnees
+    load_solar_potential_results_to_db(codes_departement=run_on_departements)
+
+
+@cli.command()
+@click.option("--code_departement", "-d", default=None, help="Code departement", type=click.Choice(get_departements()))
+@click.option("--code_region", "-r", default=None, help="Code region", type=click.Choice(get_regions()))
+@click.option("--all_departements", "-a", is_flag=True, help="Run pipeline on all departements")
 def calculate_for_schools(
     code_departement: str = None,
     code_region: str = None,
