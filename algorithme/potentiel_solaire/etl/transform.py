@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 from potentiel_solaire.classes.results import DepartementResults
 from potentiel_solaire.classes.source import load_sources
 from potentiel_solaire.constants import DEFAULT_CRS
@@ -16,7 +18,7 @@ def attach_buildings_to_schools_pipeline(codes_departement: list[str]):
     Args:
         codes_departement (list[str]): Codes des departements pour lesquels les donnees doivent etre transformees.
     """
-    for code_departement in codes_departement:
+    for code_departement in tqdm(codes_departement):
         # Lecture des donnees extraites pour le departement
         results = DepartementResults(code_departement=code_departement)
         bd_topo_path = find_gpkg_file_bd_topo(code_departement=code_departement)
@@ -71,7 +73,7 @@ def protection_pipeline(codes_departement: list[str]):
     """
     sources = load_sources()
 
-    for code_departement in codes_departement:
+    for code_departement in tqdm(codes_departement):
         logger.info(f"Traitement du departement {code_departement} pour le calcul du tag de protection")
 
         # Lecture des donnees extraites pour le departement

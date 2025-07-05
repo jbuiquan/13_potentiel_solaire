@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 import geopandas as gpd
 
 from potentiel_solaire.classes.results import DepartementResults
@@ -23,7 +25,7 @@ def extract_pipeline(
     for name, source in sources.items():
         logger.info(f"source {name} extracted at {source.filepath}")
 
-    for code_departement in codes_departement:
+    for code_departement in tqdm(codes_departement):
         # Extraction des donnees pour le departement
         logger.info(f"Extraction des donnees pour le departement {code_departement}")
 
