@@ -32,7 +32,7 @@ def attach_buildings_to_schools_pipeline(codes_departement: list[str]):
             crs=DEFAULT_CRS
         )
         nb_educational_zones = educational_zones.shape[0]
-        logger.info("Nb de zones d'éducations: %s", nb_educational_zones)
+        logger.info("Nb de zones d'éducations (D%s): %s", code_departement, nb_educational_zones)
 
         # Determination des batiments sur la geometrie d'interet
         buildings = get_topo_buildings_of_interest(
@@ -41,7 +41,7 @@ def attach_buildings_to_schools_pipeline(codes_departement: list[str]):
             crs=DEFAULT_CRS
         )
         nb_buildings = buildings.shape[0]
-        logger.info("Nb de batiments: %s", nb_buildings)
+        logger.info("Nb de batiments (D%s): %s", code_departement, nb_buildings)
 
         # Attachement des batiments et zones scolaires aux etablissements scolaires
         schools_buildings = attach_buildings_to_schools(
@@ -50,7 +50,7 @@ def attach_buildings_to_schools_pipeline(codes_departement: list[str]):
             buildings=buildings
         )
         nb_schools_buildings = schools_buildings.shape[0]
-        logger.info("Nb de batiments scolaires: %s", nb_schools_buildings)
+        logger.info("Nb de batiments scolaires (D%s): %s", code_departement, nb_schools_buildings)
 
         # Sauvegarde des resultats
         results.save_gdf(
@@ -72,6 +72,8 @@ def protection_pipeline(codes_departement: list[str]):
     sources = load_sources()
 
     for code_departement in codes_departement:
+        logger.info(f"Traitement du departement {code_departement} pour le calcul du tag de protection")
+
         # Lecture des donnees extraites pour le departement
         results = DepartementResults(code_departement=code_departement)
         geom_of_interest = results.load_gdf(layer="geom_of_interest")
@@ -83,6 +85,12 @@ def protection_pipeline(codes_departement: list[str]):
             geom_of_interest=geom_of_interest,
             crs=DEFAULT_CRS
         )
+        nb_areas_with_protected_buildings = areas_with_protected_buildings.shape[0]
+        logger.info(
+            "Nb de zones avec des batiments proteges (D%s): %s", 
+            code_departement, 
+            nb_areas_with_protected_buildings
+        )
 
         # Ajout du tag batiments proteges ou en zone protegee
         schools_buildings["protection"] = schools_buildings.apply(
@@ -90,6 +98,16 @@ def protection_pipeline(codes_departement: list[str]):
                 building=building["geometry"],
                 areas_with_protected_buildings=areas_with_protected_buildings
             ), axis=1
+        )
+        nb_buildings_protected = schools_buildings[schools_buildings["protection"]].shape[0]
+        nb_schools_buildings = schools_buildings.shape[0]
+        ratio_protected = round(100 * nb_buildings_protected / nb_schools_buildings)
+        logger.info(
+            "Nb de batiments protégés (D{}): {} ({})%)".format(
+                code_departement, 
+                nb_buildings_protected,
+                ratio_protected
+            )
         )
 
         # Sauvegarde des resultats
@@ -101,4 +119,3 @@ def protection_pipeline(codes_departement: list[str]):
             gdf=schools_buildings,
             layer="schools_buildings_with_protection"
         )
-        
