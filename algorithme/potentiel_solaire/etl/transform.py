@@ -1,3 +1,4 @@
+from potentiel_solaire.features.solar_potential import calculate_solar_potential
 from tqdm import tqdm
 
 from potentiel_solaire.classes.results import DepartementResults
@@ -128,4 +129,41 @@ def protection_pipeline(codes_departement: list[str]):
         results.save_gdf(
             gdf=schools_buildings,
             layer="schools_buildings_with_protection"
+        )
+
+
+def solar_potential_pipeline(codes_departement: list[str]):
+    """Transformation des donnees pour plusieurs departements.
+
+    Args:
+        codes_departement (list[str]): Codes des departements pour lesquels les donnees doivent etre transformees.
+    """
+    for code_departement in tqdm(codes_departement):
+        logger.info(f"Traitement du departement {code_departement} pour le calcul du potentiel solaire")
+
+        # Lecture des donnees extraites pour le departement
+        results = DepartementResults(code_departement=code_departement)
+        schools_buildings = results.load_gdf(layer="schools_buildings")
+        geom_of_interest = results.load_gdf(layer="geom_of_interest")
+
+        # Calcul du potentiel solaire
+        solar_potential_of_schools_buildings = calculate_solar_potential(
+            schools_buildings=schools_buildings,
+            geom_of_interest=geom_of_interest
+        )
+        total_surface_au_sol = solar_potential_of_schools_buildings["surface_totale_au_sol"].sum()
+        total_surface_utile = solar_potential_of_schools_buildings["surface_utile"].sum()
+        total_potentiel_solaire = solar_potential_of_schools_buildings["potentiel_solaire"].sum()
+        logger.info(
+            "Pour le departement D%s : surface totale au sol: %s m², surface utile: %s m², potentiel solaire: %s kWh/an",
+            code_departement,
+            round(total_surface_au_sol),
+            round(total_surface_utile),
+            round(total_potentiel_solaire)
+        )
+
+        # Sauvegarde des resultats
+        results.save_gdf(
+            gdf=solar_potential_of_schools_buildings,
+            layer="solar_potential_of_schools_buildings"
         )

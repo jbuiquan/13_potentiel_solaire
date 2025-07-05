@@ -18,7 +18,7 @@ from potentiel_solaire.database.queries import (
     get_high_priority_schools,
 )
 from potentiel_solaire.etl.extract import extract_pipeline
-from potentiel_solaire.etl.transform import attach_buildings_to_schools_pipeline, protection_pipeline
+from potentiel_solaire.etl.transform import attach_buildings_to_schools_pipeline, protection_pipeline, solar_potential_pipeline
 from potentiel_solaire.logger import get_logger
 
 logger = get_logger()
@@ -56,7 +56,7 @@ def extract_data(
     code_region: str = None,
     all_departements: bool = False,
 ):
-    """Script principal pour extraire les donnees necessaires au calcul du potentiel solaire"""
+    """Script pour extraire les donnees necessaires au calcul du potentiel solaire"""
     # selection des departements sur lesquels les calculs vont se faire
     run_on_departements = departements_to_run(
         code_departement=code_departement,  
@@ -78,7 +78,7 @@ def attach_buildings_to_schools(
     code_region: str = None,
     all_departements: bool = False,
 ):
-    """Script principal pour attacher les batiments aux ecoles"""
+    """Script pour attacher les batiments aux ecoles"""
     # selection des departements sur lesquels les calculs vont se faire
     run_on_departements = departements_to_run(
         code_departement=code_departement,  
@@ -98,7 +98,7 @@ def calculate_protection_for_schools(
     code_region: str = None,
     all_departements: bool = False,
 ):
-    """Script principal pour determiner les ecoles en zone protegee"""
+    """Script pour determiner les ecoles en zone protegee"""
     # selection des departements sur lesquels les calculs vont se faire
     run_on_departements = departements_to_run(
         code_departement=code_departement,  
@@ -107,6 +107,26 @@ def calculate_protection_for_schools(
     )
 
     protection_pipeline(codes_departement=run_on_departements)
+
+
+@cli.command()
+@click.option("--code_departement", "-d", default=None, help="Code departement", type=click.Choice(get_departements()))
+@click.option("--code_region", "-r", default=None, help="Code region", type=click.Choice(get_regions()))
+@click.option("--all_departements", "-a", is_flag=True, help="Run pipeline on all departements")
+def calculate_solar_potential_for_schools(
+    code_departement: str = None,
+    code_region: str = None,
+    all_departements: bool = False,
+):
+    """Script pour calculer le potentiel solaire des ecoles"""
+    # selection des departements sur lesquels les calculs vont se faire
+    run_on_departements = departements_to_run(
+        code_departement=code_departement,  
+        code_region=code_region,
+        all_departements=all_departements,
+    )
+
+    solar_potential_pipeline(codes_departement=run_on_departements)
 
 
 @cli.command()
