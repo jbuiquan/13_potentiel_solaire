@@ -24,6 +24,7 @@ def attach_buildings_to_schools_pipeline(codes_departement: list[str]):
         bd_topo_path = find_gpkg_file_bd_topo(code_departement=code_departement)
         geom_of_interest = results.load_gdf(layer="geom_of_interest")
         schools_establishments = results.load_gdf(layer="schools_establishments")
+        nb_schools = schools_establishments.shape[0]
 
         # Determination des zone scolaires associees
         educational_zones = get_topo_zones_of_interest(
@@ -53,6 +54,13 @@ def attach_buildings_to_schools_pipeline(codes_departement: list[str]):
         )
         nb_schools_buildings = schools_buildings.shape[0]
         logger.info("Nb de batiments scolaires (D%s): %s", code_departement, nb_schools_buildings)
+
+        nb_schools_with_buildings = len(schools_buildings.identifiant_de_l_etablissement.unique())
+        logger.info("Nb d'établissements scolaires avec des batiments (D{}): {} ({}%)".format(
+            code_departement,
+            nb_schools_with_buildings,
+            round(100 * nb_schools_with_buildings / nb_schools)
+        ))
 
         # Sauvegarde des resultats
         results.save_gdf(
