@@ -61,3 +61,44 @@ def attach_buildings_to_schools_pipeline(codes_departement: list[str]):
             gdf=schools_buildings,
             layer="schools_buildings"
         )
+
+
+def protection_pipeline(codes_departement: list[str]):
+    """Transformation des donnees pour plusieurs departements.
+
+    Args:
+        codes_departement (list[str]): Codes des departements pour lesquels les donnees doivent etre transformees.
+    """
+    sources = load_sources()
+
+    for code_departement in codes_departement:
+        # Lecture des donnees extraites pour le departement
+        results = DepartementResults(code_departement=code_departement)
+        geom_of_interest = results.load_gdf(layer="geom_of_interest")
+        schools_buildings = results.load_gdf(layer="schools_buildings")
+
+        # Determination des zones avec des batiments proteges
+        areas_with_protected_buildings = get_areas_with_protected_buildings(
+            bd_protected_buildings_path=sources["immeubles_proteges"].filepath,
+            geom_of_interest=geom_of_interest,
+            crs=DEFAULT_CRS
+        )
+
+        # Ajout du tag batiments proteges ou en zone protegee
+        schools_buildings["protection"] = schools_buildings.apply(
+            lambda building: link_protected_buildings(
+                building=building["geometry"],
+                areas_with_protected_buildings=areas_with_protected_buildings
+            ), axis=1
+        )
+
+        # Sauvegarde des resultats
+        results.save_gdf(
+            gdf=areas_with_protected_buildings,
+            layer="areas_with_protected_buildings"
+        )
+        results.save_gdf(
+            gdf=schools_buildings,
+            layer="schools_buildings_with_protection"
+        )
+        
