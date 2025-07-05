@@ -3,7 +3,7 @@ import geopandas as gpd
 
 from shapely import from_wkt 
 
-from potentiel_solaire.attach_buildings_to_schools import attach_buildings_to_schools
+from potentiel_solaire.features.attach_buildings_to_schools import attach_buildings_to_schools
 
 
 TEST_CRS = "EPSG:4326"
