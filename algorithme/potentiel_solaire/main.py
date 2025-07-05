@@ -17,8 +17,8 @@ from potentiel_solaire.database.queries import (
     update_indicators_for_schools,
     get_high_priority_schools,
 )
-from potentiel_solaire.etl.extract import extract_pipeline
-from potentiel_solaire.etl.transform import attach_buildings_to_schools_pipeline, protection_pipeline, solar_potential_pipeline
+from potentiel_solaire.etl.extract import extract_data_for_departements
+from potentiel_solaire.etl.transform import calculate_attach_buildings_to_schools, calculate_protection_for_buildings, calculate_solar_potential_for_buildings
 from potentiel_solaire.logger import get_logger
 
 logger = get_logger()
@@ -64,7 +64,7 @@ def extract_data(
         all_departements=all_departements,
     )
     
-    extract_pipeline(
+    extract_data_for_departements(
         codes_departement=run_on_departements
     )
 
@@ -86,7 +86,7 @@ def attach_buildings_to_schools(
         all_departements=all_departements,
     )
 
-    attach_buildings_to_schools_pipeline(codes_departement=run_on_departements)
+    calculate_attach_buildings_to_schools(codes_departement=run_on_departements)
 
 
 @cli.command()
@@ -106,7 +106,7 @@ def calculate_protection_for_schools(
         all_departements=all_departements,
     )
 
-    protection_pipeline(codes_departement=run_on_departements)
+    calculate_protection_for_buildings(codes_departement=run_on_departements)
 
 
 @cli.command()
@@ -126,7 +126,7 @@ def calculate_solar_potential_for_schools(
         all_departements=all_departements,
     )
 
-    solar_potential_pipeline(codes_departement=run_on_departements)
+    calculate_solar_potential_for_buildings(codes_departement=run_on_departements)
 
 
 @cli.command()

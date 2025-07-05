@@ -13,11 +13,11 @@ from potentiel_solaire.logger import get_logger
 logger = get_logger()
 
 
-def attach_buildings_to_schools_pipeline(codes_departement: list[str]):
-    """Transformation des donnees pour plusieurs departements.
+def calculate_attach_buildings_to_schools(codes_departement: list[str]):
+    """Attache les batiments et zones scolaires aux etablissements scolaires pour plusieurs departements.
 
     Args:
-        codes_departement (list[str]): Codes des departements pour lesquels les donnees doivent etre transformees.
+        codes_departement (list[str]): Liste des codes des départements à traiter.
     """
     for code_departement in tqdm(codes_departement):
         # Lecture des donnees extraites pour le departement
@@ -74,8 +74,8 @@ def attach_buildings_to_schools_pipeline(codes_departement: list[str]):
         )
 
 
-def protection_pipeline(codes_departement: list[str]):
-    """Transformation des donnees pour plusieurs departements.
+def calculate_protection_for_buildings(codes_departement: list[str]):
+    """Determination des batiments scolaires en zone protegee pour plusieurs departements.
 
     Args:
         codes_departement (list[str]): Codes des departements pour lesquels les donnees doivent etre transformees.
@@ -132,8 +132,8 @@ def protection_pipeline(codes_departement: list[str]):
         )
 
 
-def solar_potential_pipeline(codes_departement: list[str]):
-    """Transformation des donnees pour plusieurs departements.
+def calculate_solar_potential_for_buildings(codes_departement: list[str]):
+    """Calcul du potentiel solaire pour les batiments scolaires dans plusieurs departements.
 
     Args:
         codes_departement (list[str]): Codes des departements pour lesquels les donnees doivent etre transformees.

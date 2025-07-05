@@ -12,7 +12,7 @@ from potentiel_solaire.sources.schools_establishments import get_schools_establi
 logger = get_logger()
 
 
-def extract_pipeline(
+def extract_data_for_departements(
     codes_departement: list[str],
 ):
     """Extraction des donnees pour plusieurs departements.
