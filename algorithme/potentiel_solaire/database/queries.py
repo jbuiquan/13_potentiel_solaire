@@ -66,7 +66,45 @@ def get_regions():
         return list(conn.query(query).df()["code_region"].unique())
 
 
-def update_results_for_schools(
+def update_buildings_attachment_for_schools(
+    results_by_school: pd.DataFrame,
+):
+    with get_connection() as conn:
+        conn.register("results_by_school", results_by_school)
+
+        update_query = f"""
+            UPDATE {etablissements_table.name}
+            SET 
+                nb_batiments_associes = results_by_school.nb_batiments_associes
+            FROM
+                results_by_school
+            WHERE
+                {etablissements_table.name}.{etablissements_table.pkey} = results_by_school.identifiant_de_l_etablissement
+        """
+
+        conn.execute(update_query)
+
+
+def update_protection_for_schools(
+    results_by_school: pd.DataFrame,
+):
+    with get_connection() as conn:
+        conn.register("results_by_school", results_by_school)
+
+        update_query = f"""
+            UPDATE {etablissements_table.name}
+            SET 
+                protection = results_by_school.protection,
+            FROM
+                results_by_school
+            WHERE
+                {etablissements_table.name}.{etablissements_table.pkey} = results_by_school.identifiant_de_l_etablissement
+        """
+
+        conn.execute(update_query)
+
+    
+def update_solar_potential_for_schools(
     results_by_school: pd.DataFrame,
 ):
     with get_connection() as conn:
@@ -79,10 +117,8 @@ def update_results_for_schools(
             SET 
                 surface_exploitable_max = results_by_school.surface_utile,
                 potentiel_solaire = results_by_school.potentiel_solaire,
-                protection = results_by_school.protection,
                 date_calcul = CURRENT_TIMESTAMP,
                 version = '{code_version}',
-                nb_batiments_associes = results_by_school.nb_batiments_associes
             FROM
                 results_by_school
             WHERE
