@@ -75,7 +75,8 @@ def update_buildings_attachment_for_schools(
         update_query = f"""
             UPDATE {etablissements_table.name}
             SET 
-                nb_batiments_associes = results_by_school.nb_batiments_associes
+                nb_batiments_associes = results_by_school.nb_batiments_associes,
+                identifiant_topo_zone_rattachee = results_by_school.cleabs_grande_zone,
             FROM
                 results_by_school
             WHERE
