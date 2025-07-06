@@ -12,7 +12,7 @@ const labels: Record<CollectiviteHeaderCardProps['type'], string> = {
 export default function CollectiviteHeaderCard({ type, nom }: CollectiviteHeaderCardProps) {
 	return (
 		<div className='space-y-1'>
-			<h1 className='text-xl font-bold text-blue'>{nom}</h1>
+			<h1 className='text-2xl font-bold text-blue'>{nom}</h1>
 			<p className='text-grey'>{labels[type]}</p>
 		</div>
 	);

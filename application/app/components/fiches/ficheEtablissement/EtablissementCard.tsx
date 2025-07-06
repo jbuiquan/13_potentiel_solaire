@@ -2,7 +2,7 @@ import { Etablissement } from '@/app/models/etablissements';
 
 type EtablissementCardProps = Pick<
 	Etablissement,
-	'nom_etablissement' | 'adresse_1' | 'adresse_2' | 'adresse_3' | 'code_postal' | 'nom_commune'
+	'nom_etablissement' | 'adresse_1' | 'adresse_2' | 'adresse_3'
 >;
 
 const UNKNOWN_TEXTS = {
@@ -15,8 +15,6 @@ const EtablissementCard = ({
 	adresse_1,
 	adresse_2,
 	adresse_3,
-	code_postal,
-	nom_commune,
 }: EtablissementCardProps) => {
 	return (
 		<article className='text-blue'>
@@ -24,11 +22,7 @@ const EtablissementCard = ({
 			<address className='not-italic'>
 				<p>{adresse_1 || UNKNOWN_TEXTS.adresse}</p>
 				{adresse_2 && <p>{adresse_2}</p>}
-				{adresse_3 ? (
-					<p>{adresse_3}</p>
-				) : (
-					code_postal && nom_commune && <p>{`${code_postal} ${nom_commune}`}</p>
-				)}
+				{adresse_3 && <p>{adresse_3}</p>}
 			</address>
 		</article>
 	);

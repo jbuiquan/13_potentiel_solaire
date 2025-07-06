@@ -395,7 +395,7 @@ export default function FranceMap() {
 		<div
 			role='application'
 			aria-label='Carte interactive de la France présentant les régions, départements, communes et établissements'
-      aria-describedby='map-description'
+			aria-describedby='map-description'
 			className='relative flex h-full w-full flex-col'
 		>
 			<div id='map-description' className='sr-only'>

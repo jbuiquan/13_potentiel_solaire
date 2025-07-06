@@ -19,10 +19,7 @@ interface InterpretationMessageProps {
 
 const InterpretationMessage = ({ niveau_potentiel }: InterpretationMessageProps) => {
 	return (
-		<div
-			className={`rounded-xl p-5 ${SOLAR_INTERPRETATION_CSS_CLASS[niveau_potentiel]}`}
-			role='status'
-		>
+		<div className={`rounded-xl p-5 ${SOLAR_INTERPRETATION_CSS_CLASS[niveau_potentiel]}`}>
 			<p className='font-normal'>
 				<span className='sr-only'>Niveau de potentiel solaire : </span>
 				{SOLAR_TEXT[niveau_potentiel]}

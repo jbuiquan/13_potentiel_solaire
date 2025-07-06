@@ -33,10 +33,10 @@ const NbEtablissements: React.FC<NbEtablissementsProps> = ({ niveau, nbEtablisse
 	return (
 		<>
 			<dl className='text-grey'>
-				<div className='flex gap-1'>
+				<dt className='flex items-center gap-1 text-sm font-bold'>
 					<University aria-hidden='true' />
-					<dt className='text-sm font-bold'>Nombre total {getNiveauLabel(niveau)} :</dt>
-				</div>
+					Nombre total {getNiveauLabel(niveau)} :
+				</dt>
 				<dd className='pl-6 text-3xl font-bold'>
 					{nbEtablissements !== undefined && nbEtablissements !== null
 						? nbEtablissements

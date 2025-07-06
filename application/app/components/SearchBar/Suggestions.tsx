@@ -28,7 +28,7 @@ type ResultsListProps = {
 
 export default function Suggestions({ items, onSelect }: ResultsListProps) {
 	return (
-		<div role='listbox' aria-label='Suggestions'>
+		<div>
 			{items.map((item) => {
 				const { id, libelle, source } = item;
 				const icon = getIconFromResult(source);
@@ -38,8 +38,6 @@ export default function Suggestions({ items, onSelect }: ResultsListProps) {
 						key={id}
 						className='flex grow cursor-pointer'
 						onSelect={() => onSelect(item)}
-						role='option'
-						tabIndex={0}
 					>
 						<div className='flex items-center gap-2'>
 							{icon}

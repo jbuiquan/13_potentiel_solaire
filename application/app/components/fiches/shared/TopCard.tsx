@@ -19,7 +19,7 @@ const TopCard = ({ topEtablissements }: Props) => {
 	}
 
 	return (
-		<div aria-labelledby='top-solar-title'>
+		<div>
 			<div className='flex items-center gap-2 text-grey'>
 				<Sun aria-hidden='true' />
 				<h2 id='top-solar-title' className='text-base font-semibold text-grey'>
@@ -41,7 +41,6 @@ const TopCard = ({ topEtablissements }: Props) => {
 							className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue'
 							target='_blank'
 							rel='noopener noreferrer'
-							className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary'
 						>
 							{etab.libelle}
 						</Link>

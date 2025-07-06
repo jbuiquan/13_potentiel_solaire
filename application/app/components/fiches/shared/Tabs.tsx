@@ -25,7 +25,7 @@ export default function Tabs({ tabs, activeTab, onTabChange }: TabsProps) {
 	};
 
 	return (
-		<div role='tablist' aria-label='Navigation par onglets' className='mb-4 flex'>
+		<div role='tablist' aria-label="Sélection du type d'établissement" className='mb-4 flex'>
 			{tabs.map((tab, index) => {
 				const isActive = tab.id === activeTab;
 

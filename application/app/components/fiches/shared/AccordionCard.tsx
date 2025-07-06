@@ -153,7 +153,6 @@ const AccordionCard = () => {
 					>
 						<summary
 							id={summaryId}
-							role='button'
 							aria-controls={contentId}
 							className='cursor-pointer font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-white'
 						>

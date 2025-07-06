@@ -49,8 +49,16 @@ function LegendColorScale({ thresholds, unit }: LegendColorScale) {
 	const sliceWidth = (width - 2 * margin - 2 * BORDER_RADIUS) / slicesCount;
 	const sliceHeight = (height - 2 * margin) / 2;
 
+	const labels = ['Limité', 'Bon', 'Élevé'];
+
 	return (
-		<svg width={width} height={height} viewBox={`0 0 ${viewBoxWidth} ${viewBoxheight}`}>
+		<svg
+			width={width}
+			height={height}
+			viewBox={`0 0 ${viewBoxWidth} ${viewBoxheight}`}
+			role='img'
+			aria-label='Échelle des niveaux de potentiel solaire'
+		>
 			<g transform={`translate(${margin}, ${margin})`}>
 				<rect
 					width={2 * BORDER_RADIUS}
@@ -59,7 +67,9 @@ function LegendColorScale({ thresholds, unit }: LegendColorScale) {
 					fill={thresholdValues[0][1]}
 					fillOpacity={OPACITY}
 					rx={BORDER_RADIUS}
-				/>
+				>
+					<title>{labels[0]}</title>
+				</rect>
 				{thresholdValues.map(([thresholdValue, color], i) => (
 					<rect
 						key={thresholdValue}
@@ -68,7 +78,9 @@ function LegendColorScale({ thresholds, unit }: LegendColorScale) {
 						x={sliceWidth * i + BORDER_RADIUS}
 						fill={color}
 						fillOpacity={OPACITY}
-					/>
+					>
+						<title>{labels[i]}</title>
+					</rect>
 				))}
 				<rect
 					width={2 * BORDER_RADIUS}
@@ -77,7 +89,9 @@ function LegendColorScale({ thresholds, unit }: LegendColorScale) {
 					fill={thresholdValues.slice(-1)[0][1]}
 					fillOpacity={OPACITY}
 					rx={BORDER_RADIUS}
-				/>
+				>
+					<title>{labels[labels.length - 1]}</title>
+				</rect>
 				{thresholdValues.map(([thresholdValue], i) => (
 					<text
 						key={thresholdValue}

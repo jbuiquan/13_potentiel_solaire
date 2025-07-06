@@ -13,19 +13,18 @@ const InstallationCard = ({ surfaceExploitableMax }: installationCardProps) => {
 
 	return (
 		<div>
-			<article aria-labelledby='surface-heading' className='flex gap-1 text-sm text-grey'>
+			<article className='flex gap-1 text-sm text-grey'>
 				<Ruler aria-hidden='true' focusable='false' />
 				<p id='surface-heading' className='font-bold'>
 					Superficie exploitable maximale :{' '}
 				</p>
 			</article>
-			<p className='text-center font-bold text-blue'>
+			<p className='text-center font-bold text-blue' aria-label='Environ ...'>
 				<span aria-hidden='true' className='text-xl'>
 					{hasSurface ? `≈${surfaceExploitableMax}` : UNKNOWN_TEXTS.surfaceExploitableMax}
 				</span>{' '}
 				{hasSurface && 'M²'}
 			</p>
-			<span className='sr-only'>Environ {surfaceExploitableMax} mètres carrés</span>
 			<br />
 			<div className='flex gap-1 text-sm text-grey'>
 				<ChartPie aria-hidden='true' focusable='false' />

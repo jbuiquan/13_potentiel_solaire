@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { Commune } from '@/app/models/communes';
 import { Departement } from '@/app/models/departements';
@@ -50,6 +50,17 @@ export default function Fiches({ etablissement, commune, departement, region }: 
 
 	const filteredTabs = tabs.filter((tab) => tab.label !== undefined);
 
+	const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+		if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+			e.preventDefault();
+			const dir = e.key === 'ArrowRight' ? 1 : -1;
+			const nextIndex = (index + dir + filteredTabs.length) % filteredTabs.length;
+			tabRefs.current[nextIndex]?.focus();
+		}
+	};
+
 	return (
 		<div
 			role='region'
@@ -63,14 +74,18 @@ export default function Fiches({ etablissement, commune, departement, region }: 
 			>
 				<X aria-hidden='true' />
 			</button>
-			<div className='flex gap-1 pl-2'>
-				{filteredTabs.map((tab) => (
+			<div className='flex gap-1 pl-2' role='tablist'>
+				{filteredTabs.map((tab, index) => (
 					<button
 						key={tab.id}
 						role='tab'
 						id={`tab-${tab.id}`}
 						aria-selected={activeTab === tab.id}
 						aria-controls={`tabpanel-${tab.id}`}
+						ref={(el) => {
+							tabRefs.current[index] = el;
+						}}
+						onKeyDown={(e) => handleKeyDown(e, index)}
 						className={`truncate rounded-md px-4 py-2 text-xs font-bold md:text-sm ${activeTab === tab.id ? 'bg-blue font-bold text-green' : 'bg-green text-blue'}`}
 						style={{ flexBasis: `${(1 / filteredTabs.length) * 100}%` }}
 						onClick={() => setActiveTab(tab.id)}
