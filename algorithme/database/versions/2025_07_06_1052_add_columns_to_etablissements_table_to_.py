@@ -40,7 +40,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     # Suppression des colonnes pour les attributs supplémentaires
-    for column_name, column_type, column_default in new_columns:
+    for column_name, _, _ in new_columns:
         op.execute(f"""
             ALTER TABLE {etablissements_table}
             DROP COLUMN IF EXISTS {column_name}
