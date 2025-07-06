@@ -65,7 +65,7 @@ import {
 	regionsLayer,
 } from './layers/regionsLayers';
 
-const MAP_STYLE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/map-styles/map-style.json`;
+const MAP_STYLE_URL = `/map-styles/map-style.json`;
 
 // TODO: Respecter les conditions de réutilisation des données Etalab
 // - Mentionner la source des données (Etalab)

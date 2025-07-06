@@ -96,6 +96,10 @@ export default {
 			boxShadow: {
 				base: 'var(--boxShadow-base)',
 			},
+			rotate: {
+				'-12': '-12deg',
+        '-30': '-30deg',
+			},
 			keyframes: {
 				'slide-in-right': {
 					'0%': { transform: 'translateX(100%)', opacity: '0' },
@@ -105,10 +109,15 @@ export default {
 					'0%': { transform: 'translateY(100%)', opacity: '0' },
 					'100%': { transform: 'translateY(0)', opacity: '1' },
 				},
+				'slide-in': {
+					'0%': { transform: 'translate(-100%, 100%)', opacity: '0' },
+					'100%': { transform: 'translate(0, 0)', opacity: '1' },
+				},
 			},
 			animation: {
 				'slide-in-right': 'slide-in-right 0.4s ease-out',
 				'slide-in-bottom': 'slide-in-bottom 0.4s ease-out',
+				'slide-in': 'slide-in 1.5s ease-out forwards',
 			},
 		},
 	},

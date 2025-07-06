@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { FocusTrap } from 'focus-trap-react';
 import { ListFilter, Menu, X } from 'lucide-react';
 
+import GOOD from '../../public/images/GOOD.svg';
 import imgLogo from '../../public/images/logo.svg';
 import { useInitialView } from '../utils/providers/initialViewProvider';
 import SearchBar from './SearchBar/SearchBar';

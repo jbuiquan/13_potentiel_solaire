@@ -1,14 +1,12 @@
 import { Region } from '@/app/models/regions';
 
-import getBaseURL from './getBaseURL';
-
 const API_ROUTE = '/api/regions';
 
 export async function fetchRegion(id: string) {
 	try {
-		const url = new URL(`${API_ROUTE}/${id}`, getBaseURL());
+		const url = `${API_ROUTE}/${id}`;
 
-		const res = await fetch(url.toString());
+		const res = await fetch(url);
 		if (!res.ok) throw new Error('Failed to load region from API');
 
 		const data = (await res.json()) as Region | undefined;

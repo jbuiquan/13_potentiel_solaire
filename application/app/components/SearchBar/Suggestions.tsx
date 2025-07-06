@@ -21,17 +21,52 @@ function getIconFromResult(source: SearchResult['source']) {
 	}
 }
 
+function getExtraDataLibelle(result: SearchResult) {
+	const { source } = result;
+	switch (source) {
+		case 'etablissements':
+			return `(${result.extra_data.code_postal})`;
+		case 'communes': {
+			const codeDepartementWithoutLeadingZero = result.extra_data.code_departement.replace(
+				/^0+/,
+				'',
+			);
+			return `(${SOURCE_TO_LABEL[source]} - ${codeDepartementWithoutLeadingZero})`;
+		}
+		case 'departements':
+		case 'regions':
+			return `(${SOURCE_TO_LABEL[source]})`;
+		default:
+			throw new Error('Unexpected result - ' + result);
+	}
+}
+
 type ResultsListProps = {
 	items: SearchResult[];
 	onSelect: (selection: SearchResult) => void;
 };
 
 export default function Suggestions({ items, onSelect }: ResultsListProps) {
-	return (
-		<div>
-			{items.map((item) => {
-				const { id, libelle, source } = item;
-				const icon = getIconFromResult(source);
+	const commandItems = items.map((item) => {
+		const { id, libelle, source } = item;
+		const icon = getIconFromResult(source);
+		const extraDataLibelle = getExtraDataLibelle(item);
+
+		return (
+			<CommandItem
+				key={id}
+				className='flex grow cursor-pointer'
+				onSelect={() => onSelect(item)}
+			>
+				<div className='flex items-center gap-2'>
+					{icon}
+					<div>
+						{libelle} {extraDataLibelle}
+					</div>
+				</div>
+			</CommandItem>
+		);
+	});
 
 				return (
 					<CommandItem

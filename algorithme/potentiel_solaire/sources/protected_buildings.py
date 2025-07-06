@@ -37,9 +37,9 @@ def get_areas_with_protected_buildings(
     )[columns].to_crs(crs_for_buffers)
 
     # On cree un buffer autour de chaque batiment protege
-    areas_with_protected_buildings = protected_buildings.buffer(
+    protected_buildings["geometry"] = protected_buildings["geometry"].buffer(
         buffer_size_for_protected_buildings,
         cap_style="round"
     )
 
-    return areas_with_protected_buildings.to_crs(crs)
+    return protected_buildings.to_crs(crs)

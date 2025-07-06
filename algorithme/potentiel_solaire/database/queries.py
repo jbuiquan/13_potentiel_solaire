@@ -66,7 +66,45 @@ def get_regions():
         return list(conn.query(query).df()["code_region"].unique())
 
 
-def update_results_for_schools(
+def update_buildings_attachment_for_schools(
+    results_by_school: pd.DataFrame,
+):
+    with get_connection() as conn:
+        conn.register("results_by_school", results_by_school)
+
+        update_query = f"""
+            UPDATE {etablissements_table.name}
+            SET 
+                nb_batiments_associes = results_by_school.nb_batiments_associes
+            FROM
+                results_by_school
+            WHERE
+                {etablissements_table.name}.{etablissements_table.pkey} = results_by_school.identifiant_de_l_etablissement
+        """
+
+        conn.execute(update_query)
+
+
+def update_protection_for_schools(
+    results_by_school: pd.DataFrame,
+):
+    with get_connection() as conn:
+        conn.register("results_by_school", results_by_school)
+
+        update_query = f"""
+            UPDATE {etablissements_table.name}
+            SET 
+                protection = results_by_school.protection,
+            FROM
+                results_by_school
+            WHERE
+                {etablissements_table.name}.{etablissements_table.pkey} = results_by_school.identifiant_de_l_etablissement
+        """
+
+        conn.execute(update_query)
+
+    
+def update_solar_potential_for_schools(
     results_by_school: pd.DataFrame,
 ):
     with get_connection() as conn:
@@ -79,10 +117,8 @@ def update_results_for_schools(
             SET 
                 surface_exploitable_max = results_by_school.surface_utile,
                 potentiel_solaire = results_by_school.potentiel_solaire,
-                protection = results_by_school.protection,
                 date_calcul = CURRENT_TIMESTAMP,
                 version = '{code_version}',
-                nb_batiments_associes = results_by_school.nb_batiments_associes
             FROM
                 results_by_school
             WHERE
@@ -361,3 +397,104 @@ def update_indicators_for_regions():
 
     # Calcul des indicateurs utiles pour la carte par region
     update_additional_map_indicators_for_table(table=regions_table)
+
+
+def get_high_priority_schools() -> pd.DataFrame:
+    """Recupere la liste des ecoles prioritaires."""
+    with get_connection() as conn:
+        query = f"""
+        WITH
+            etablissements_avec_potentiel AS (
+                SELECT 
+                    e.identifiant_de_l_etablissement,
+                    e.type_etablissement,
+                    e.code_commune,
+                    e.code_departement,
+                    e.code_region,
+                    e.potentiel_solaire,
+                    e.protection
+                FROM {etablissements_table.name} e
+                WHERE NOT protection AND potentiel_solaire > 0
+            ),
+            
+            etablissements_des_villes_prioritaires AS (
+                SELECT 
+                    e.*,
+                    vp.ville,
+                FROM etablissements_avec_potentiel e
+                INNER JOIN potentiel_solaire.main.villes_prioritaires vp
+                    ON vp.code_commune = e.code_commune
+            ),
+            
+            etablissements_seuls_sur_leur_commune AS (
+                SELECT
+                    e.identifiant_de_l_etablissement,
+                    e.protection,
+                    e.potentiel_solaire
+                FROM {etablissements_table.name} e
+                QUALIFY COUNT(DISTINCT e.identifiant_de_l_etablissement) OVER (PARTITION BY e.code_commune) = 1
+            ),
+            
+            top_etablissements_regions AS (
+                SELECT
+                    e.identifiant_de_l_etablissement, 
+                FROM etablissements_avec_potentiel e
+                QUALIFY ROW_NUMBER() OVER (PARTITION BY e.code_region, e.type_etablissement ORDER BY e.potentiel_solaire DESC) <= 10
+            ),
+            
+            top_etablissements_departements AS (
+                SELECT
+                    e.identifiant_de_l_etablissement, 
+                FROM etablissements_avec_potentiel e
+                QUALIFY ROW_NUMBER() OVER (PARTITION BY e.code_departement, e.type_etablissement ORDER BY e.potentiel_solaire DESC) <= 10
+            ),
+            
+            top_etablissements_villes_prioritaires AS (
+                SELECT
+                    e.identifiant_de_l_etablissement, 
+                FROM etablissements_des_villes_prioritaires e
+                QUALIFY ROW_NUMBER() OVER (PARTITION BY e.ville, e.type_etablissement ORDER BY e.potentiel_solaire DESC) <= 10
+            ),
+            
+            top_etablissements_ruralite AS (
+                SELECT
+                    e.identifiant_de_l_etablissement, 
+                FROM etablissements_seuls_sur_leur_commune e
+                WHERE NOT protection AND potentiel_solaire > 0
+                QUALIFY ROW_NUMBER() OVER (ORDER BY e.potentiel_solaire DESC) <= 100
+            ),
+            
+            union_etablissements_prioritaires AS (
+                SELECT *
+                FROM top_etablissements_regions
+                
+                UNION ALL
+                
+                SELECT *
+                FROM top_etablissements_departements
+                
+                UNION ALL
+                
+                SELECT *
+                FROM top_etablissements_villes_prioritaires
+                
+                UNION ALL
+                
+                SELECT *
+                FROM top_etablissements_ruralite
+            ),
+            
+            etablissements_prioritaires AS (
+                SELECT DISTINCT identifiant_de_l_etablissement
+                FROM union_etablissements_prioritaires
+            )
+
+
+        SELECT 
+            e.*
+        FROM {etablissements_table.name} e
+        INNER JOIN etablissements_prioritaires p 
+            ON e.identifiant_de_l_etablissement = p.identifiant_de_l_etablissement
+        """
+
+        return conn.query(query).df()

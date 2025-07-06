@@ -1,16 +1,15 @@
 import { DepartementsGeoJSON } from '@/app/models/departements';
 
-import getBaseURL from './getBaseURL';
-
 const API_ROUTE = '/api/departements';
 
 export async function fetchDepartementsGeoJSON(codeRegion: string | null) {
 	try {
-		const url = new URL(API_ROUTE, getBaseURL());
+		const params = new URLSearchParams();
+		if (codeRegion) params.append('codeRegion', codeRegion);
+		const queryString = params.toString();
+		const url = queryString ? `${API_ROUTE}?${queryString}` : API_ROUTE;
 
-		if (codeRegion) url.searchParams.append('codeRegion', codeRegion);
-
-		const res = await fetch(url.toString());
+		const res = await fetch(url);
 		if (!res.ok) throw new Error('Failed to load departements from API');
 
 		const data = (await res.json()) as DepartementsGeoJSON;

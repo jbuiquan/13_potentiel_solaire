@@ -113,17 +113,40 @@ Visual studio code est recommandé pour le développement de l'application.
     - Suggestion de code pour Tailwind - [Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss)
     - Affichage amélioré des erreurs typescript - [Pretty TypeScript Errors](https://marketplace.visualstudio.com/items?itemName=yoavbls.pretty-ts-errors)
 
-### Installer la base de test
+### Mise en place des données
+
+#### Avec la dernière image publiée (recommandé)
+
+```sh
+# lancer la commande depuis le répertoire application
+docker create --name 13_potentiel_solaire_data_tmp ghcr.io/dataforgoodfr/13_potentiel_solaire_db:0.1.0.20250629 /bin/true && \
+docker cp 13_potentiel_solaire_data_tmp:/app/output/db/data.duckdb ./database && \
+docker cp 13_potentiel_solaire_data_tmp:/app/output/geojson/. ./public/data && \
+docker rm -f 13_potentiel_solaire_data_tmp
+```
+
+#### Base de test (mock)
+
+##### Base de donnée
 
 1. Avec docker (recommandé) :
 
-```sh
-cd database
-# build the docker image
-docker build -f Dockerfile -t 13_potentiel_solaire_mock_data .
-# création d'un volume docker qui contiendra les fichiers générés
-docker run --rm -v $(pwd)/output:/app/output 13_potentiel_solaire_mock_data #les fichiers seront disponibles dans database/output
-```
+    ```sh
+    cd database
+    # build the docker image
+    docker build -f Dockerfile -t 13_potentiel_solaire_mock_data .
+    ```
+
+    Copier les données aux emplacements attendus par l'application
+
+    ```sh
+	# revenir d'abord sur le répertoire application
+	# cd ../
+	docker create --name 13_potentiel_solaire_mock_data_tmp 13_potentiel_solaire_mock_data /bin/true && \
+	docker cp 13_potentiel_solaire_mock_data_tmp:/app/output/db/data.duckdb ./database && \
+	docker cp 13_potentiel_solaire_mock_data_tmp:/app/output/geojson/. ./public/data && \
+	docker rm -f 13_potentiel_solaire_mock_data_tmp
+	```
 
 2. Manuellement :
 
@@ -145,7 +168,7 @@ docker run --rm -v $(pwd)/output:/app/output 13_potentiel_solaire_mock_data #les
 
     3. Lancer la commande de création de la base
 
-        `duckdb < prepare-JDD-test.sql data-test.duckdb` ou `duckdb -init prepare-JDD-test.sql -no-stdin data-test.duckdb`
+        `duckdb < prepare-JDD-test.sql data.duckdb` ou `duckdb -init prepare-JDD-test.sql -no-stdin data.duckdb`
 
     En utilisant un éditeur SQL, par exemple DBeaver : https://dbeaver.io/
 
@@ -153,13 +176,13 @@ docker run --rm -v $(pwd)/output:/app/output 13_potentiel_solaire_mock_data #les
     2. Créer une connexion duckdb en choisissant l'option pour créer une base et lui fournir un chemin pour la base de données
     3. Ouvrir le script sql sur cette nouvelle base de données et l'executer
 
-### Exporter les fichiers geojson
+##### Exporter les fichiers geojson
 
 L'application se sert de la base de données mais aussi de fichiers geojson complets qui seront servis de façon statique.
 
 1. Avec docker (recommandé) :
 
-La commande utilisée pour [Installer la base de test](#installer-la-base-de-test) exporte également les geojson.
+La commande utilisée pour [Installer la base de test](#base-de-donnée) exporte également les geojson.
 
 2. Manuellement :
 
@@ -180,7 +203,7 @@ La commande utilisée pour [Installer la base de test](#installer-la-base-de-tes
 
     3. Lancer la fichier sql sur la base de données précédemment créée
 
-        `duckdb data-test.duckdb < export-geojson.sql`
+        `duckdb data.duckdb < export-geojson.sql`
 
 ### Configurer les variables d'environnement
 
@@ -189,11 +212,7 @@ La commande utilisée pour [Installer la base de test](#installer-la-base-de-tes
 
 `DATABASE_PATH` => le chemin absolu vers la base de donnée duckdb
 
-Ex: `DATABASE_PATH=/path/to/data-test.duckdb`
-
-`NEXT_PUBLIC_BASE_URL` => l'url de déploiement
-
-Ex pour le serveur de dev local : `http://localhost:3000`
+Ex: `DATABASE_PATH=/path/to/data.duckdb`
 
 ### Lancer le serveur
 
@@ -233,22 +252,16 @@ npm run start
 
 ### Docker
 
-1. S'assurer qu'un fichier `.env` est présent à la racine du dossier application. Il contient :
-
-```
-DATABASE_PATH=/app/database/data.duckdb
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
-```
-
-2. Lancer le build docker
+#### Lancer la version en local
 
 ```sh
-# on s'assure de générer une base de données de test tant que l'image data n'est pas disponible
-cd database
-docker build -f Dockerfile -t 13_potentiel_solaire_mock_data .
-# build de l'application
-cd ..
-docker build -f Dockerfile -t 13_potentiel_solaire_app .
-# lancement
-docker run -p 3000:3000 --rm 13_potentiel_solaire_app
+# on lance cette commande depuis le répertoire `application`
+docker compose up --build
+```
+
+#### Lancer la dernière version publiée
+
+```sh
+# on lance cette commande depuis le répertoire `application`
+docker compose up
 ```
