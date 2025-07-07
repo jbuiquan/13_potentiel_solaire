@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Commune } from '@/app/models/communes';
 import { Departement } from '@/app/models/departements';
@@ -36,6 +36,11 @@ export default function Fiches({ etablissement, commune, departement, region }: 
 	const { values } = useURLParams();
 	const [activeTab, setActiveTab] = useState<TabId>(getInitialTab(values));
 	const [, setIsFicheOpen] = useIsFicheOpen();
+	// Update activeTab when values change
+	//FIXME: when clicking from a topcard and the url does not change, the active tab can't be updated -> use activeTab queryParam instead of isOpen
+	useEffect(() => {
+		setActiveTab(getInitialTab(values));
+	}, [values]);
 
 	function handleClose() {
 		setIsFicheOpen(false);
@@ -52,7 +57,7 @@ export default function Fiches({ etablissement, commune, departement, region }: 
 
 	return (
 		<div
-			className={`animate-slide-in-bottom md:animate-slide-in-right fixed right-0 top-0 z-50 h-full w-full overflow-y-auto bg-white pl-5 pt-1 shadow-lg md:m-4 md:h-[calc(100%-2rem)] md:w-2/5 md:max-w-[450px] md:rounded-md`}
+			className={`fixed right-0 top-0 z-50 h-full w-full animate-slide-in-bottom overflow-y-auto bg-white pl-5 pt-1 shadow-lg md:m-4 md:h-[calc(100%-2rem)] md:w-2/5 md:max-w-[450px] md:animate-slide-in-right md:rounded-md`}
 		>
 			<button
 				onClick={handleClose}

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
@@ -80,12 +80,21 @@ export default function useURLParams(): ReturnType {
 		router.push(pathname);
 	}, [pathname, router]);
 
-	const values = {
-		codeRegion: searchParams.get('codeRegion'),
-		codeDepartement: searchParams.get('codeDepartement'),
-		codeCommune: searchParams.get('codeCommune'),
-		codeEtablissement: searchParams.get('codeEtablissement'),
-	};
+	const codeRegion = searchParams.get('codeRegion');
+	const codeDepartement = searchParams.get('codeDepartement');
+	const codeCommune = searchParams.get('codeCommune');
+	const codeEtablissement = searchParams.get('codeEtablissement');
+
+	// avoid creation of new object reference if values do not change (causing re-run of an effect if used as dependency)
+	const values = useMemo(
+		() => ({
+			codeRegion,
+			codeDepartement,
+			codeCommune,
+			codeEtablissement,
+		}),
+		[codeRegion, codeDepartement, codeCommune, codeEtablissement],
+	);
 
 	return { values, setCode, setCodes, reset };
 }
