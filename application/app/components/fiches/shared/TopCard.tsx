@@ -29,7 +29,7 @@ const TopCard = ({ topEtablissements }: Props) => {
 					<li key={etab.id}>
 						{medals[index]}{' '}
 						<Link
-							href={`/etablissement/${etab.id}`}
+							href={`/etablissements/${etab.id}`}
 							className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary'
 						>
 							{etab.libelle}
