@@ -1,8 +1,12 @@
-import { useCallback } from 'react';
+'use client';
+
+import { useCallback, useMemo } from 'react';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-import { IS_FICHE_OPEN_KEY } from './useIsFicheOpen';
+import { TabId } from '@/app/components/fiches/Fiches';
+import { ACTIVE_TAB_KEY } from '../state-utils';
+
 
 export type Codes = {
 	codeRegion: string | null;
@@ -11,8 +15,8 @@ export type Codes = {
 	codeEtablissement: string | null;
 };
 
-type SetCode = (key: keyof Codes, code: string | null, isFicheOpen?: boolean) => void;
-type SetCodes = (codes: Codes, isFicheOpen?: boolean) => void;
+type SetCode = (key: keyof Codes, code: string | null, activeTab?: TabId | null) => void;
+type SetCodes = (codes: Codes, activeTab?: TabId | null) => void;
 
 type ReturnType = {
 	values: Codes;
@@ -27,7 +31,7 @@ export default function useURLParams(): ReturnType {
 	const pathname = usePathname();
 
 	const setCode: SetCode = useCallback(
-		(key, code, isFicheOpen) => {
+		(key, code, activeTab) => {
 			const newParams = new URLSearchParams(searchParams);
 
 			if (code === null) {
@@ -36,11 +40,10 @@ export default function useURLParams(): ReturnType {
 				newParams.set(key, code.toString());
 			}
 
-			if (isFicheOpen === false) {
-				newParams.delete(IS_FICHE_OPEN_KEY);
-			}
-			if (isFicheOpen === true) {
-				newParams.set(IS_FICHE_OPEN_KEY, isFicheOpen.toString());
+			if (activeTab) {
+				newParams.set(ACTIVE_TAB_KEY, activeTab.toString());
+			} else {
+				newParams.delete(ACTIVE_TAB_KEY);
 			}
 
 			router.push(`${pathname}?${newParams.toString()}`);
@@ -49,7 +52,7 @@ export default function useURLParams(): ReturnType {
 	);
 
 	const setCodes: SetCodes = useCallback(
-		(codes, isFicheOpen) => {
+		(codes, activeTab) => {
 			const newParams = new URLSearchParams();
 
 			const keys = Object.keys(codes) as unknown as (keyof Codes)[];
@@ -64,11 +67,10 @@ export default function useURLParams(): ReturnType {
 				newParams.set(key, code.toString());
 			});
 
-			if (isFicheOpen === false) {
-				newParams.delete(IS_FICHE_OPEN_KEY);
-			}
-			if (isFicheOpen === true) {
-				newParams.set(IS_FICHE_OPEN_KEY, isFicheOpen.toString());
+			if (activeTab) {
+				newParams.set(ACTIVE_TAB_KEY, activeTab.toString());
+			} else {
+				newParams.delete(ACTIVE_TAB_KEY);
 			}
 
 			router.push(`${pathname}?${newParams.toString()}`);
@@ -80,12 +82,21 @@ export default function useURLParams(): ReturnType {
 		router.push(pathname);
 	}, [pathname, router]);
 
-	const values = {
-		codeRegion: searchParams.get('codeRegion'),
-		codeDepartement: searchParams.get('codeDepartement'),
-		codeCommune: searchParams.get('codeCommune'),
-		codeEtablissement: searchParams.get('codeEtablissement'),
-	};
+	const codeRegion = searchParams.get('codeRegion');
+	const codeDepartement = searchParams.get('codeDepartement');
+	const codeCommune = searchParams.get('codeCommune');
+	const codeEtablissement = searchParams.get('codeEtablissement');
+
+	// avoid creation of new object reference if values do not change (causing re-run of an effect if used as dependency)
+	const values = useMemo(
+		() => ({
+			codeRegion,
+			codeDepartement,
+			codeCommune,
+			codeEtablissement,
+		}),
+		[codeRegion, codeDepartement, codeCommune, codeEtablissement],
+	);
 
 	return { values, setCode, setCodes, reset };
 }

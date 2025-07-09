@@ -76,7 +76,7 @@ function useChangeCodesOnSelection(selection: SearchResult | null, onChange?: ()
 					codeCommune: null,
 					codeEtablissement: null,
 				},
-				true,
+				'region',
 			);
 			onChange?.();
 		}
@@ -88,7 +88,7 @@ function useChangeCodesOnSelection(selection: SearchResult | null, onChange?: ()
 					codeCommune: null,
 					codeEtablissement: null,
 				},
-				true,
+				'departement',
 			);
 			onChange?.();
 		}
@@ -100,7 +100,7 @@ function useChangeCodesOnSelection(selection: SearchResult | null, onChange?: ()
 					codeCommune: commune.code_commune,
 					codeEtablissement: null,
 				},
-				true,
+				'commune',
 			);
 			onChange?.();
 		}
@@ -112,7 +112,7 @@ function useChangeCodesOnSelection(selection: SearchResult | null, onChange?: ()
 					codeCommune: etablissement.code_commune,
 					codeEtablissement: etablissement.identifiant_de_l_etablissement,
 				},
-				true,
+				'etablissement',
 			);
 			onChange?.();
 		}
