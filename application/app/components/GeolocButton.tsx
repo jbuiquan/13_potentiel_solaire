@@ -27,7 +27,7 @@ const GeolocButton: React.FC = () => {
 			codeEtablissement: null,
 		};
 
-		setCodes(codes, true);
+		setCodes(codes, 'commune');
 		if (isInitialView) closeInitialView();
 	}
 

@@ -336,7 +336,7 @@ export default function FranceMap() {
 			{ code: feature.properties.identifiant_de_l_etablissement, level: 'etablissement' },
 		];
 
-		setLayers(newLayers, true);
+		setLayers(newLayers, 'etablissement');
 
 		toggleInteractions(true);
 	}

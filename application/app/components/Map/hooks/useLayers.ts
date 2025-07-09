@@ -1,5 +1,6 @@
 import useURLParams, { Codes } from '@/app/utils/hooks/useURLParams';
 
+import { TabId } from '../../fiches/Fiches';
 import { Layer, Level } from '../interfaces';
 
 type URLValues = ReturnType<typeof useURLParams>['values'];
@@ -64,10 +65,10 @@ export default function useLayers() {
 		setCode(codeLabel, null);
 	}
 
-	function setLayers(layers: Layer[], isFicheOpen = false) {
+	function setLayers(layers: Layer[], activeTab: TabId | null = null) {
 		const codes = mapLayersToCodes(layers);
 
-		setCodes(codes, isFicheOpen);
+		setCodes(codes, activeTab);
 	}
 
 	function resetLayer() {

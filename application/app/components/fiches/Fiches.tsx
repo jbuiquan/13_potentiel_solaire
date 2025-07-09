@@ -1,19 +1,22 @@
-import { useEffect, useState } from 'react';
+'use client';
+
+import { useEffect, useRef } from 'react';
 
 import { Commune } from '@/app/models/communes';
 import { Departement } from '@/app/models/departements';
 import { Etablissement } from '@/app/models/etablissements';
 import { Region } from '@/app/models/regions';
-import useIsFicheOpen from '@/app/utils/hooks/useIsFicheOpen';
+import useActiveTab from '@/app/utils/hooks/useActiveTab';
 import useURLParams, { Codes } from '@/app/utils/hooks/useURLParams';
 import { X } from 'lucide-react';
 
+import Loading from '../Loading';
 import FicheCommune from './ficheCommune';
 import FicheDepartement from './ficheDepartement';
 import FicheEtablissement from './ficheEtablissement/ficheEtablissement';
 import FicheRegion from './ficheRegion';
 
-type TabId = 'region' | 'departement' | 'commune' | 'etablissement';
+export type TabId = 'region' | 'departement' | 'commune' | 'etablissement';
 type Tab = { id: TabId; label?: string }[];
 
 interface FichesProps {
@@ -21,6 +24,7 @@ interface FichesProps {
 	commune?: Commune;
 	departement?: Departement;
 	region?: Region;
+	isFetching?: boolean;
 }
 
 function getInitialTab(codes: Codes): TabId {
@@ -32,18 +36,39 @@ function getInitialTab(codes: Codes): TabId {
 	throw new Error(`Codes ${codes} is not supported to get initial tab`);
 }
 
-export default function Fiches({ etablissement, commune, departement, region }: FichesProps) {
+function codesDiffer(codes1: Codes, codes2: Codes): boolean {
+	return (
+		codes1.codeRegion !== codes2.codeRegion ||
+		codes1.codeDepartement !== codes2.codeDepartement ||
+		codes1.codeCommune !== codes2.codeCommune ||
+		codes1.codeEtablissement !== codes2.codeEtablissement
+	);
+}
+
+export default function Fiches({
+	etablissement,
+	commune,
+	departement,
+	region,
+	isFetching,
+}: FichesProps) {
 	const { values } = useURLParams();
-	const [activeTab, setActiveTab] = useState<TabId>(getInitialTab(values));
-	const [, setIsFicheOpen] = useIsFicheOpen();
-	// Update activeTab when values change
-	//FIXME: when clicking from a topcard and the url does not change, the active tab can't be updated -> use activeTab queryParam instead of isOpen
+	const [, activeTab, setActiveTab] = useActiveTab();
+	const prevValues = useRef(values);
+
 	useEffect(() => {
-		setActiveTab(getInitialTab(values));
-	}, [values]);
+		/**
+		 * `setActivetab` can be updated even if `values` are the same,
+		 * so we avoid calling setActiveTab with getInitialTab which could reset to the lowest tab even if we manually changed tab in the same hierarchy
+		 */
+		if (codesDiffer(prevValues.current, values)) {
+			setActiveTab(getInitialTab(values));
+		}
+		prevValues.current = values;
+	}, [values, setActiveTab]);
 
 	function handleClose() {
-		setIsFicheOpen(false);
+		setActiveTab(null);
 	}
 
 	const tabs: Tab = [
@@ -78,13 +103,25 @@ export default function Fiches({ etablissement, commune, departement, region }: 
 				))}
 			</div>
 			<div className='p-4'>
-				{activeTab === 'region' && region && <FicheRegion region={region} />}
-				{activeTab === 'departement' && departement && (
-					<FicheDepartement departement={departement} />
-				)}
-				{activeTab === 'commune' && commune && <FicheCommune commune={commune} />}
-				{activeTab === 'etablissement' && etablissement && (
-					<FicheEtablissement etablissement={etablissement} />
+				{isFetching ? (
+					<div
+						role='alert'
+						aria-label='Chargement de la fiche en cours'
+						aria-live='polite'
+					>
+						<Loading />
+					</div>
+				) : (
+					<>
+						{activeTab === 'region' && region && <FicheRegion region={region} />}
+						{activeTab === 'departement' && departement && (
+							<FicheDepartement departement={departement} />
+						)}
+						{activeTab === 'commune' && commune && <FicheCommune commune={commune} />}
+						{activeTab === 'etablissement' && etablissement && (
+							<FicheEtablissement etablissement={etablissement} />
+						)}
+					</>
 				)}
 			</div>
 		</div>
