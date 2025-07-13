@@ -2,8 +2,8 @@ import { Etablissement } from '@/app/models/etablissements';
 
 import {
 	ELU_BODY,
-	ELU_INTRO_SHORT,
 	PARTICULIER_BODY,
+	PARTICULIER_END,
 	PARTICULIER_INTRO_SHORT,
 } from '../../content/accordion-actions';
 import AccordionCard from '../shared/AccordionCard';
@@ -20,7 +20,6 @@ const actionsShort = [
 		title: 'Je suis un élu et je veux agir',
 		content: (
 			<>
-				{ELU_INTRO_SHORT}
 				{ELU_BODY}
 			</>
 		),
@@ -31,6 +30,7 @@ const actionsShort = [
 			<>
 				{PARTICULIER_INTRO_SHORT}
 				{PARTICULIER_BODY}
+        {PARTICULIER_END}
 			</>
 		),
 	},
@@ -60,7 +60,7 @@ export default function FicheEtablissement({ etablissement }: FicheEtablissement
 				<InstallationCard surfaceExploitableMax={etablissement.surface_exploitable_max} />
 				<GraphiqueCard />
 			</div>
-			<hr className='my-4' />
+			<hr className='my-2' />
 			<AccordionCard actions={actionsShort} />
 		</div>
 	);
