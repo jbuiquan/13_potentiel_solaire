@@ -24,7 +24,7 @@ const InstallationCard = ({ surfaceExploitableMax }: installationCardProps) => {
 				{hasSurface && 'M²'}
 			</p>
 			<br />
-      {/* Partie Graphique non implémentée pour l'instant */}
+			{/* Partie Graphique non implémentée pour l'instant */}
 			{/* <div className='flex gap-1 text-sm text-grey'>
 				<ChartPie />
 				<p className='font-bold'>

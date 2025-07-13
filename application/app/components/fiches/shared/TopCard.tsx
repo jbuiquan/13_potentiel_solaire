@@ -31,9 +31,9 @@ const TopCard = ({ topEtablissements }: Props) => {
 						<Tooltip.Provider>
 							<Tooltip.Root>
 								<Tooltip.Trigger asChild>
-									<button
-										className='hover:bg-gray-100 rounded p-2 text-darkgreen transition'
-										disabled
+									<span
+										className='hover:bg-gray-100 rounded text-darkgreen transition'
+										aria-disabled='true'
 									>
 										<span
 											// href={`/etablissements/${etab.id}`}
@@ -42,7 +42,7 @@ const TopCard = ({ topEtablissements }: Props) => {
 										>
 											{etab.libelle}
 										</span>
-									</button>
+									</span>
 								</Tooltip.Trigger>
 								<Tooltip.Portal>
 									<Tooltip.Content
