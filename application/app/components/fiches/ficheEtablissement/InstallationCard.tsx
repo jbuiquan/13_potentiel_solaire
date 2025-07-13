@@ -1,4 +1,4 @@
-import { ChartPie, Ruler } from 'lucide-react';
+import { Ruler } from 'lucide-react';
 
 const UNKNOWN_TEXTS = {
 	surfaceExploitableMax: 'Non disponible',
@@ -24,12 +24,13 @@ const InstallationCard = ({ surfaceExploitableMax }: installationCardProps) => {
 				{hasSurface && 'M²'}
 			</p>
 			<br />
-			<div className='flex gap-1 text-sm text-grey'>
+      {/* Partie Graphique non implémentée pour l'instant */}
+			{/* <div className='flex gap-1 text-sm text-grey'>
 				<ChartPie />
 				<p className='font-bold'>
 					Estimation des revenus mensuels maximaux de l&apos;installation
 				</p>
-			</div>
+			</div> */}
 		</div>
 	);
 };
