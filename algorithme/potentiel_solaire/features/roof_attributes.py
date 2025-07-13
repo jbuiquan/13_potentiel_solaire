@@ -15,11 +15,11 @@ from potentiel_solaire.constants import DATA_FOLDER
 
 
 def recuperation_flux_wms(
-        bbox: list[int],
-        layer: str,
-        srs: str,
-        width: int,
-        height: int
+    bbox: list[int],
+    layer: str,
+    srs: str,
+    width: int,
+    height: int
 ):
     """
     Retrieve geospatial data from a WMS service as a GeoTIFF image.
@@ -75,10 +75,10 @@ def recuperation_flux_wms(
 
 
 def recuperation_mnx(
-        zone_of_interest: gpd.GeoDataFrame,
-        srs: str,
-        layer: str,
-        cache: bool = False
+    zone_of_interest: gpd.GeoDataFrame,
+    srs: str,
+    layer: str,
+    cache: bool = False
 ):
     """
     Retrieve elevation raster data (MNS or MNT) for a specific building
@@ -119,13 +119,7 @@ def recuperation_mnx(
     bbox = zone_of_interest.total_bounds
     wigth = int((bbox[2] - bbox[0]) * 2)
     height = int((bbox[3] - bbox[1]) * 2)
-
-    if zone_of_interest.crs != srs:
-        raise ValueError(
-            "The zone of interest is of crs {} and for layer {} only crs {} is supported".format(
-                zone_of_interest.crs, layer, srs
-            ))
-
+    
     if not cache:
         flux = recuperation_flux_wms(
             bbox=bbox, layer=layer, srs=srs, width=wigth, height=height
@@ -157,25 +151,32 @@ def recuperation_mnx(
     return data
 
 
-def recuperation_mns(zone_of_interest: gpd.GeoDataFrame, cache: bool = False):
-    srs_mnx = 'EPSG:2154'
+def recuperation_mns(
+    zone_of_interest: gpd.GeoDataFrame, 
+    srs: str = 'EPSG:2154',
+    cache: bool = False
+):
     nom_couche_mns = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES.MNS"
     return recuperation_mnx(
-        zone_of_interest=zone_of_interest, srs=srs_mnx, layer=nom_couche_mns, cache=cache
+        zone_of_interest=zone_of_interest, srs=srs, layer=nom_couche_mns, cache=cache
     )
 
 
-def recuperation_mnt(zone_of_interest: gpd.GeoDataFrame, cache: bool = False):
-    srs_mnx = 'EPSG:2154'
+def recuperation_mnt(
+    zone_of_interest: gpd.GeoDataFrame, 
+    srs: str = 'EPSG:2154',
+    cache: bool = False
+):
     nom_couche_mnt = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES"
     return recuperation_mnx(
-        zone_of_interest=zone_of_interest, srs=srs_mnx, layer=nom_couche_mnt, cache=cache
+        zone_of_interest=zone_of_interest, srs=srs, layer=nom_couche_mnt, cache=cache
     )
 
 
 def recuperation_mnh(
-        zone_of_interest: gpd.GeoDataFrame,
-        cache: bool = False
+    zone_of_interest: gpd.GeoDataFrame,
+    srs: str = 'EPSG:2154',
+    cache: bool = False
 ):
     """
     Calculate the normalized height model (MNH) for a building by subtracting
@@ -201,8 +202,8 @@ def recuperation_mnh(
         the difference between MNS and MNT values.
     """
 
-    mns = recuperation_mns(zone_of_interest=zone_of_interest, cache=cache)
-    mnt = recuperation_mnt(zone_of_interest=zone_of_interest, cache=cache)
+    mns = recuperation_mns(zone_of_interest=zone_of_interest, srs=srs, cache=cache)
+    mnt = recuperation_mnt(zone_of_interest=zone_of_interest, srs=srs, cache=cache)
     return mns - mnt
 
 
