@@ -119,7 +119,7 @@ def recuperation_mnx(
     bbox = zone_of_interest.total_bounds
     wigth = int((bbox[2] - bbox[0]) * 2)
     height = int((bbox[3] - bbox[1]) * 2)
-    
+
     if not cache:
         flux = recuperation_flux_wms(
             bbox=bbox, layer=layer, srs=srs, width=wigth, height=height
@@ -279,6 +279,15 @@ def segmentation_toits(data, min_surface: float = 2):
         df_segment_toiture = pd.concat([df_segment_toiture,new_row])
 
     # Filter on Minimum surfact
-    final_segment_toiture = df_segment_toiture[df_segment_toiture["surface"]>min_surface].sort_values("surface")
+    final_segment_toiture = df_segment_toiture[df_segment_toiture["surface"]>min_surface]
+
+    # Handle empty DataFrame case
+    if final_segment_toiture.empty:
+        return pd.DataFrame({
+            "label": [0],
+            "surface": [0.0],
+            "slope": [0.0],
+            "azimut": [0.0]
+        })
 
     return final_segment_toiture
