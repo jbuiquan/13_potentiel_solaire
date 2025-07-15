@@ -1,6 +1,6 @@
-import Link from 'next/link';
-
+// import Link from 'next/link';
 import { TopEtablissement } from '@/app/models/etablissements';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { Sun } from 'lucide-react';
 
 const UNKNOWN_TEXTS = {
@@ -28,12 +28,33 @@ const TopCard = ({ topEtablissements }: Props) => {
 				{topEtablissements.slice(0, 3).map((etab, index) => (
 					<li key={etab.id}>
 						{medals[index]}{' '}
-						<Link
-							href={`/etablissements/${etab.id}`}
-							className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary'
-						>
-							{etab.libelle}
-						</Link>
+						<Tooltip.Provider>
+							<Tooltip.Root>
+								<Tooltip.Trigger asChild>
+									<span
+										className='hover:bg-gray-100 rounded text-darkgreen transition'
+										aria-disabled='true'
+									>
+										<span
+											// href={`/etablissements/${etab.id}`}
+											aria-disabled='true'
+											className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary'
+										>
+											{etab.libelle}
+										</span>
+									</span>
+								</Tooltip.Trigger>
+								<Tooltip.Portal>
+									<Tooltip.Content
+										className='z-50 rounded bg-blue px-3 py-1.5 text-xs text-white shadow'
+										sideOffset={5}
+									>
+										Cette fonctionnalité n&apos;est pas encore disponible !
+										<Tooltip.Arrow className='fill-black' />
+									</Tooltip.Content>
+								</Tooltip.Portal>
+							</Tooltip.Root>
+						</Tooltip.Provider>
 					</li>
 				))}
 			</ul>

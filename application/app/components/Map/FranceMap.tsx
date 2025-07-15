@@ -72,10 +72,16 @@ const MAP_STYLE_URL = `/map-styles/map-style.json`;
 // - Indiquer la date de mise à jour du fichier map-style.json
 // - Vérifier et respecter la licence (Licence Ouverte 2.0 ou ODbL)
 
-const initialViewState = {
-	longitude: 1.888334,
-	latitude: 45.603354,
-	zoom: 4,
+const MOBILE_VIEW_STATE = {
+	longitude: 2.388334,
+	latitude: 43.903354,
+	zoom: 4.1,
+} satisfies MapPropsReactMapLibre['initialViewState'];
+
+const DESKTOP_VIEW_STATE = {
+	longitude: 2.388334,
+	latitude: 44.803354,
+	zoom: 4.5,
 } satisfies MapPropsReactMapLibre['initialViewState'];
 
 const ANIMATION_TIME_MS = 800;
@@ -111,7 +117,6 @@ function interact(enabled: boolean) {
 		scrollZoom: enabled,
 		boxZoom: enabled,
 		dragRotate: enabled,
-		dragPan: enabled,
 		keyboard: enabled,
 		doubleClickZoom: enabled,
 		touchZoomRotate: enabled,
@@ -210,9 +215,12 @@ export default function FranceMap() {
 	}
 
 	const easeToInitialView = useCallback(() => {
+		const isDesktop = window.innerWidth >= 768;
+		const view = isDesktop ? DESKTOP_VIEW_STATE : MOBILE_VIEW_STATE;
+
 		easeTo({
-			center: [initialViewState.longitude, initialViewState.latitude],
-			zoom: initialViewState.zoom,
+			center: [view.longitude, view.latitude],
+			zoom: view.zoom,
 		});
 	}, []);
 
@@ -395,7 +403,7 @@ export default function FranceMap() {
 		<div className='relative flex h-full w-full flex-col'>
 			<MapFromReactMapLibre
 				ref={mapRef}
-				initialViewState={initialViewState}
+				initialViewState={MOBILE_VIEW_STATE}
 				mapStyle={MAP_STYLE_URL}
 				interactiveLayerIds={[
 					regionsLayer.id,
@@ -410,6 +418,14 @@ export default function FranceMap() {
 				onLoad={() => {
 					setIsLoaded(true);
 					toggleInteractions(false);
+					if (mapRef.current) {
+						const isDesktop = window.innerWidth >= 768;
+						const view = isDesktop ? DESKTOP_VIEW_STATE : MOBILE_VIEW_STATE;
+						mapRef.current.jumpTo({
+							center: [view.longitude, view.latitude],
+							zoom: view.zoom,
+						});
+					}
 				}}
 				{...interact(isInteractive)}
 			>
@@ -517,12 +533,12 @@ export default function FranceMap() {
 						)}
 					</Source>
 				)}
+				<div className='absolute inset-x-0 bottom-24 z-30 flex flex-col items-start justify-center px-4 md:flex-row md:items-center md:justify-center md:gap-4'>
+					<Legend thresholds={COLOR_THRESHOLDS[level]} />
+					<MenuDrom />
+				</div>
 			</MapFromReactMapLibre>
 			{level !== 'nation' && <BackButton onBack={goBackOneLevel} />}
-			<div className='z-30 !mb-24 flex flex-col items-start justify-center gap-4 px-4 md:mb-6 md:flex-row md:items-center md:justify-center'>
-				<Legend thresholds={COLOR_THRESHOLDS[level]} />
-				<MenuDrom />
-			</div>
 			{isLoading && (
 				<div className='absolute left-0 top-0 h-[100%] w-[100%] bg-slate-400 opacity-50'>
 					<Loading />
