@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Departement } from '@/app/models/departements';
 
 import NbEtablissements from './NbEtablissements';
-import AccordionCard from './shared/AccordionCard';
 import ActionButtons from './shared/ActionButtons';
 import CollectiviteHeaderCard from './shared/CollectiviteHeaderCard';
 import PotentielSolaireCard from './shared/PotentielSolaireCard';
@@ -83,8 +82,6 @@ export default function FicheDepartement({ departement }: FicheDepartementProps)
 					<TopCard topEtablissements={departement.top_etablissements_colleges} />
 				</>
 			)}
-			<br />
-			<AccordionCard />
 		</div>
 	);
 }
