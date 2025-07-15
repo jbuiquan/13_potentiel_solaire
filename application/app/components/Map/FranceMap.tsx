@@ -7,6 +7,7 @@ import {
 	LngLatLike,
 	Map as MapFromReactMapLibre,
 	MapMouseEvent,
+	MapProps as MapPropsReactMapLibre,
 	MapRef,
 	Source,
 } from 'react-map-gl/maplibre';
@@ -75,13 +76,13 @@ const MOBILE_VIEW_STATE = {
 	longitude: 2.388334,
 	latitude: 43.903354,
 	zoom: 4.1,
-};
+} satisfies MapPropsReactMapLibre['initialViewState'];
 
 const DESKTOP_VIEW_STATE = {
 	longitude: 2.388334,
 	latitude: 44.803354,
 	zoom: 4.5,
-};
+} satisfies MapPropsReactMapLibre['initialViewState'];
 
 const ANIMATION_TIME_MS = 800;
 
