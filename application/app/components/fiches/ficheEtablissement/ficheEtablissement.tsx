@@ -5,7 +5,7 @@ import AccordionCard from '../shared/AccordionCard';
 import ActionButtons from '../shared/ActionButtons';
 import PotentielSolaireCard from '../shared/PotentielSolaireCard';
 import EtablissementCard from './EtablissementCard';
-import GraphiqueCard from './GraphiqueCard';
+// import GraphiqueCard from './GraphiqueCard';
 import InstallationCard from './InstallationCard';
 import InterpretationMessage from './IntepretationMessage';
 import ProtectionCard from './ProtectionCard';
@@ -48,7 +48,7 @@ export default function FicheEtablissement({ etablissement }: FicheEtablissement
 			<hr className='my-4' />
 			<div className='ml-2'>
 				<InstallationCard surfaceExploitableMax={etablissement.surface_exploitable_max} />
-				<GraphiqueCard />
+				{/* <GraphiqueCard /> */}
 			</div>
 			<hr className='my-2' />
 			<AccordionCard actions={actionsShort} />

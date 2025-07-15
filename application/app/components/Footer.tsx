@@ -139,9 +139,7 @@ export default function Footer() {
 			{/* Close view */}
 			{!isOpen && (
 				<div className='flex items-center justify-center gap-4 bg-blue py-2'>
-					<Image src={partners[0].logo} alt='Logo Greenpeace' width={35} height={35} />
-					<span className='text-sm font-semibold italic text-white'>ft.</span>
-					<Image src={partners[1].logo} alt='Logo Data For Good' width={35} height={35} />
+					<h2 className='text-base font-bold'>{footerDescription.title}</h2>
 				</div>
 			)}
 		</footer>

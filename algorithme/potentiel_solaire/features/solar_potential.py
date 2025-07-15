@@ -4,7 +4,6 @@ from shapely.geometry import Point
 
 from potentiel_solaire.features.pvgis_api import get_potentiel_solaire_from_closest_building
 from potentiel_solaire.logger import get_logger
-from potentiel_solaire.features.protected_tag import link_protected_buildings
 from potentiel_solaire.constants import (
     CRS_FOR_BUFFERS
 )
@@ -14,14 +13,12 @@ logger = get_logger()
 
 def calculate_solar_potential(
     schools_buildings: gpd.GeoDataFrame,
-    areas_with_protected_buildings: gpd.GeoDataFrame,
     geom_of_interest: gpd.GeoDataFrame,
     crs_for_buffers: int = CRS_FOR_BUFFERS
 ) -> gpd.GeoDataFrame:
     """Fonction principale pour calculer le potentiel solaire.
 
     :param schools_buildings: les batiments rataches a une ecole
-    :param areas_with_protected_buildings: gdf des zones avec des batiments proteges
     :param geom_of_interest: geodataframe avec la geometrie d interet
     :param crs_for_buffers: crs utilise pour le calcul des buffers (en metres)
     :return: le geodataframe des batiments scolaires avec les features de potentiel solaire et le
@@ -59,14 +56,6 @@ def calculate_solar_potential(
 
     # On le multiplie par le peakpower de chaque batiment
     schools_buildings["potentiel_solaire"] = potentiel_solaire_unitaire * schools_buildings["peakpower"]
-
-    # Ajout du tag batiments proteges ou en zone protegee
-    schools_buildings["protection"] = schools_buildings.apply(
-        lambda building: link_protected_buildings(
-            building=building["geometry"],
-            areas_with_protected_buildings=areas_with_protected_buildings
-        ), axis=1
-    )
 
     return schools_buildings
 

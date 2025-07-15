@@ -2,11 +2,7 @@ import { DuckDBPreparedStatement } from '@duckdb/node-api';
 
 import { Commune, CommuneFeature, CommunesGeoJSON } from '../models/communes';
 import { Departement, DepartementsGeoJSON } from '../models/departements';
-import {
-	Etablissement,
-	EtablissementWithLatLng,
-	EtablissementsGeoJSON,
-} from '../models/etablissements';
+import { Etablissement, EtablissementsGeoJSON } from '../models/etablissements';
 import { Region } from '../models/regions';
 import { SearchResult } from '../models/search';
 import { isCodePostal, sanitizeString } from '../utils/string-utils';
@@ -47,77 +43,7 @@ export type SimpleLngLat = {
 	lng: number;
 };
 
-/**
- * A simple bounding box with only lat and lng of the south west and north east corners.
- */
-export type SimpleBoundingBox = {
-	southWest: SimpleLngLat;
-	northEast: SimpleLngLat;
-};
-
 // --- Etablissements ---
-export async function fetchEtablissements(
-	codeCommune: string | null,
-): Promise<EtablissementWithLatLng[]> {
-	try {
-		const connection = await db.connect();
-		await connection.run('LOAD SPATIAL;');
-
-		let prepared: DuckDBPreparedStatement;
-		if (codeCommune) {
-			prepared = await connection.prepare(
-				`
-        SELECT etab.* EXCLUDE (${ETABLISSEMENTS_COLUMNS.Geometry}), ST_X(etab.${ETABLISSEMENTS_COLUMNS.Geometry}) as longitude, ST_Y(etab.${ETABLISSEMENTS_COLUMNS.Geometry}) as latitude
-        FROM main.${ETABLISSEMENTS_TABLE} etab
-        WHERE etab.${ETABLISSEMENTS_COLUMNS.CodeCommune} = $1;
-        `,
-			);
-			prepared.bindVarchar(1, codeCommune);
-		} else {
-			prepared = await connection.prepare(
-				`
-        SELECT etab.* EXCLUDE (${ETABLISSEMENTS_COLUMNS.Geometry}), ST_X(etab.${ETABLISSEMENTS_COLUMNS.Geometry}) as longitude, ST_Y(etab.${ETABLISSEMENTS_COLUMNS.Geometry}) as latitude
-        FROM main.${ETABLISSEMENTS_TABLE} etab;
-        `,
-			);
-		}
-
-		const reader = await prepared.runAndReadAll();
-		return reader.getRowObjectsJson() as unknown as EtablissementWithLatLng[];
-	} catch (error) {
-		console.error('Database Error:', error);
-		throw new Error('Failed to fetch etablissements rows.');
-	}
-}
-
-export async function fetchEtablissementsFromBoundingBox({
-	southWest,
-	northEast,
-}: SimpleBoundingBox): Promise<EtablissementWithLatLng[]> {
-	try {
-		const connection = await db.connect();
-		await connection.run('LOAD SPATIAL;');
-
-		const prepared = await connection.prepare(
-			`
-        SELECT etab.* EXCLUDE (${ETABLISSEMENTS_COLUMNS.Geometry}), ST_X(etab.${ETABLISSEMENTS_COLUMNS.Geometry}) as longitude, ST_Y(etab.${ETABLISSEMENTS_COLUMNS.Geometry}) as latitude
-        FROM main.${COMMUNES_TABLE} com
-        INNER JOIN main.${ETABLISSEMENTS_TABLE} etab ON etab.${ETABLISSEMENTS_COLUMNS.CodeCommune} = com.${COMMUNES_COLUMNS.Id}
-        WHERE ST_Intersects(ST_MakeEnvelope($1, $2, $3, $4), com.${COMMUNES_COLUMNS.Geometry});
-		`,
-		);
-		prepared.bindDouble(1, southWest.lng);
-		prepared.bindDouble(2, southWest.lat);
-		prepared.bindDouble(3, northEast.lng);
-		prepared.bindDouble(4, northEast.lat);
-		const reader = await prepared.runAndReadAll();
-		return reader.getRowObjectsJson() as unknown as EtablissementWithLatLng[];
-	} catch (error) {
-		console.error('Database Error:', error);
-		throw new Error('Failed to fetch etablissements rows.');
-	}
-}
-
 export async function fetchEtablissementsGeoJSON(
 	codeCommune: string | null,
 ): Promise<EtablissementsGeoJSON> {
@@ -155,10 +81,8 @@ export async function fetchEtablissementsGeoJSON(
 					)
 				), [])
 			) as geojson FROM main.${ETABLISSEMENTS_TABLE} e
-		` +
-				(codeCommune
-					? `WHERE e.${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.CodeCommune]} = $1`
-					: ''),
+			WHERE e.${ETABLISSEMENTS_COLUMNS.Geometry} IS NOT NULL
+		` + (codeCommune ? `AND e.${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.CodeCommune]} = $1` : ''),
 		);
 		if (codeCommune) {
 			prepared.bindVarchar(1, codeCommune);
@@ -201,7 +125,7 @@ export async function fetchEtablissementById(id: string): Promise<Etablissement 
 			e.${ETABLISSEMENTS_COLUMNS.NiveauPotentiel} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.NiveauPotentiel]},
 			e.${ETABLISSEMENTS_COLUMNS.Protection} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.Protection]}
 			FROM main.${ETABLISSEMENTS_TABLE} e
-			WHERE e.${ETABLISSEMENTS_COLUMNS.Id} = $1
+			WHERE e.${ETABLISSEMENTS_COLUMNS.Id} = $1 AND e.${ETABLISSEMENTS_COLUMNS.Geometry} IS NOT NULL
 		`,
 		);
 		prepared.bindVarchar(1, id);
@@ -216,62 +140,6 @@ export async function fetchEtablissementById(id: string): Promise<Etablissement 
 }
 
 // --- Communes ---
-export async function fetchCommunesFromBoundingBox({
-	southWest,
-	northEast,
-}: SimpleBoundingBox): Promise<CommunesGeoJSON> {
-	try {
-		const connection = await db.connect();
-		await connection.run('LOAD SPATIAL;');
-
-		const prepared = await connection.prepare(
-			`
-			SELECT
-			json_object(
-			'type','FeatureCollection',
-			'features',
-			COALESCE(json_group_array(
-			json_object(
-				'type','Feature',
-				'properties',
-				json_object(
-				'${COMMUNES_GEOJSON_MAPPING[COMMUNES_COLUMNS.Id]}',
-				c.${COMMUNES_COLUMNS.Id},
-				'${COMMUNES_GEOJSON_MAPPING[COMMUNES_COLUMNS.Nom]}',
-				c.${COMMUNES_COLUMNS.Nom},
-				'${COMMUNES_GEOJSON_MAPPING[COMMUNES_COLUMNS.CodeDepartement]}',
-				c.${COMMUNES_COLUMNS.CodeDepartement},
-				'${COMMUNES_GEOJSON_MAPPING[COMMUNES_COLUMNS.CodeRegion]}',
-				c.${COMMUNES_COLUMNS.CodeRegion},
-				'${COMMUNES_GEOJSON_MAPPING[COMMUNES_COLUMNS.PotentielSolaireTotal]}',
-				c.${COMMUNES_COLUMNS.PotentielSolaireTotal},
-				'${COMMUNES_GEOJSON_MAPPING[COMMUNES_COLUMNS.PotentielSolaireLycees]}',
-				c.${COMMUNES_COLUMNS.PotentielSolaireLycees},
-				'${COMMUNES_GEOJSON_MAPPING[COMMUNES_COLUMNS.PotentielSolaireColleges]}',
-				c.${COMMUNES_COLUMNS.PotentielSolaireColleges},
-				'${COMMUNES_GEOJSON_MAPPING[COMMUNES_COLUMNS.PotentielSolairePrimaires]}',
-				c.${COMMUNES_COLUMNS.PotentielSolairePrimaires}
-				),
-				'${GEOJSON_GEOMETRY_KEY}', ST_AsGeoJSON(c.${COMMUNES_COLUMNS.Geometry})::JSON
-				)
-			), [])
-		) as geojson FROM main.${DEPARTEMENTS_TABLE} dept
-		INNER JOIN main.${COMMUNES_TABLE} c ON c.${COMMUNES_COLUMNS.CodeDepartement} = dept.${DEPARTEMENTS_COLUMNS.Id}
-		WHERE ST_Intersects(ST_MakeEnvelope($1, $2, $3, $4), dept.${DEPARTEMENTS_COLUMNS.Geometry});
-		`,
-		);
-		prepared.bindDouble(1, southWest.lng);
-		prepared.bindDouble(2, southWest.lat);
-		prepared.bindDouble(3, northEast.lng);
-		prepared.bindDouble(4, northEast.lat);
-		const reader = await prepared.runAndReadAll();
-		return JSON.parse(reader.getRowsJson()[0][0] as string);
-	} catch (error) {
-		console.error('Database Error:', error);
-		throw new Error('Failed to fetch communes rows.');
-	}
-}
-
 /**
  * Fetch one commune containing the provided latitude and longitude coordinates.
  * If nothing is enclosing the coordinates, it returns null.
@@ -606,10 +474,16 @@ export async function fetchRegionById(id: string): Promise<Region | null> {
 // --- Search ----
 
 const DEFAULT_LIMIT = 10;
+/**
+ * Place a limit to avoid querying too many words.
+ * This default value has been set by looking at the maximum number of words in the sanitized_libelle of etablissements (i.e: 24).
+ */
+const MAX_WORDS_LIMIT = 25;
 
 /**
  * Fetch results from the search view.
- * If the query is a code postal, the results will be limited to communes.
+ * If the query is a code postal, the results will be limited to communes by using the ref_code_postal.
+ * The result will be ordered by source (regions, departements, communes, etablissements) and then by libelle.
  * @param query
  * @param limit
  * @returns
@@ -621,7 +495,7 @@ export async function fetchSearchResults(
 	try {
 		const connection = await db.connect();
 
-		let prepared;
+		let prepared: DuckDBPreparedStatement;
 		if (isCodePostal(query)) {
 			prepared = await connection.prepare(
 				`
@@ -638,7 +512,18 @@ export async function fetchSearchResults(
 			`,
 			);
 			prepared.bindVarchar(1, `${query}%`);
+			prepared.bindInteger(2, limit);
 		} else {
+			// Split the query by spaces and build AND conditions for each word
+			const words = sanitizeString(query).toLowerCase().split(/\s+/).filter(Boolean);
+
+			if (words.length > MAX_WORDS_LIMIT) {
+				throw new Error('The query contains too many words.');
+			}
+
+			const whereClauses = words
+				.map((_, idx) => `sv.${SEARCH_VIEW_COLUMNS.SanitizedLibelle} like $${idx + 1}`)
+				.join(' AND ');
 			prepared = await connection.prepare(
 				`
 			SELECT
@@ -647,14 +532,24 @@ export async function fetchSearchResults(
 			sv.${SEARCH_VIEW_COLUMNS.Libelle} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Libelle]}, 
 			sv.${SEARCH_VIEW_COLUMNS.ExtraData} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.ExtraData]}
 			FROM main.${SEARCH_VIEW_TABLE} sv
-			WHERE sv.${SEARCH_VIEW_COLUMNS.SanitizedLibelle} like $1
-			ORDER BY sv.${SEARCH_VIEW_COLUMNS.Libelle}
-			LIMIT $2;
+			WHERE ${whereClauses}
+			ORDER BY 
+				CASE sv.${SEARCH_VIEW_COLUMNS.Source}
+					WHEN 'regions' THEN 1
+					WHEN 'departements' THEN 2
+					WHEN 'communes' THEN 3
+					WHEN 'etablissements' THEN 4
+					ELSE 5
+				END,
+				sv.${SEARCH_VIEW_COLUMNS.Libelle}
+			LIMIT $${words.length + 1};
 			`,
 			);
-			prepared.bindVarchar(1, `%${sanitizeString(query).toLowerCase()}%`);
+			words.forEach((word, idx) => {
+				prepared.bindVarchar(idx + 1, `%${word}%`);
+			});
+			prepared.bindInteger(words.length + 1, limit);
 		}
-		prepared.bindInteger(2, limit);
 
 		const reader = await prepared.runAndReadAll();
 		// TODO - query data with extra_data using duckdb directly

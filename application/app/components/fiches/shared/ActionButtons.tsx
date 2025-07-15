@@ -1,6 +1,7 @@
 'use client';
 
 import { toast } from '@/hooks/use-toast';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { Download, Share2 } from 'lucide-react';
 
 const ActionButtons = () => {
@@ -54,9 +55,27 @@ const ActionButtons = () => {
 			>
 				<Share2 className='h-5 w-5' />
 			</button>
-			<button className='hover:bg-gray-100 rounded p-2 text-darkgreen transition'>
-				<Download />
-			</button>
+			<Tooltip.Provider>
+				<Tooltip.Root>
+					<Tooltip.Trigger asChild>
+						<button
+							className='hover:bg-gray-100 rounded p-2 text-darkgreen transition'
+							disabled
+						>
+							<Download />
+						</button>
+					</Tooltip.Trigger>
+					<Tooltip.Portal>
+						<Tooltip.Content
+							className='z-50 rounded bg-blue px-3 py-1.5 text-xs text-white shadow'
+							sideOffset={5}
+						>
+							Cette fonctionnalité n&apos;est pas encore disponible !
+							<Tooltip.Arrow className='fill-black' />
+						</Tooltip.Content>
+					</Tooltip.Portal>
+				</Tooltip.Root>
+			</Tooltip.Provider>
 		</div>
 	);
 };

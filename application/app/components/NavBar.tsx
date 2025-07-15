@@ -5,6 +5,7 @@ import { KeyboardEvent, Suspense, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { ListFilter, Menu, X } from 'lucide-react';
 
 import GOOD from '../../public/images/GOOD.svg';
@@ -71,10 +72,30 @@ export default function NavBar() {
 					<div className='m-4 flex w-full items-center gap-2 xl:min-w-0 xl:max-w-[600px] xl:flex-grow'>
 						<Suspense>
 							<SearchBar />
-							<ListFilter
-								className='shrink-0 cursor-pointer stroke-green'
-								size={24}
-							/>
+							<Tooltip.Provider>
+								<Tooltip.Root>
+									<Tooltip.Trigger asChild>
+										<button
+											className='hover:bg-gray-100 rounded p-2 text-darkgreen transition'
+											disabled
+										>
+											<ListFilter
+												className='shrink-0 cursor-pointer stroke-green'
+												size={24}
+											/>
+										</button>
+									</Tooltip.Trigger>
+									<Tooltip.Portal>
+										<Tooltip.Content
+											className='z-50 rounded bg-blue px-3 py-1.5 text-xs text-white shadow'
+											sideOffset={5}
+										>
+											Cette fonctionnalité n&apos;est pas encore disponible !
+											<Tooltip.Arrow className='fill-black' />
+										</Tooltip.Content>
+									</Tooltip.Portal>
+								</Tooltip.Root>
+							</Tooltip.Provider>
 						</Suspense>
 					</div>
 				)}
@@ -120,7 +141,7 @@ export default function NavBar() {
 					</div>
 
 					{/* Liens verticaux */}
-					<div className='relative w-full space-y-4 bg-green px-6 pb-20 pt-4 text-base font-bold text-darkgreen overflow-hidden '>
+					<div className='relative w-full space-y-4 overflow-hidden bg-green px-6 pb-20 pt-4 text-base font-bold text-darkgreen'>
 						{links.map((link) => (
 							<Link
 								key={link.href}
