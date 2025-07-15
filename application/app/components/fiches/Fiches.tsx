@@ -11,10 +11,28 @@ import useURLParams, { Codes } from '@/app/utils/hooks/useURLParams';
 import { X } from 'lucide-react';
 
 import Loading from '../Loading';
+import { ELU_BODY, PARTICULIER_BODY, PARTICULIER_END } from '../content/accordion-actions';
 import FicheCommune from './ficheCommune';
 import FicheDepartement from './ficheDepartement';
 import FicheEtablissement from './ficheEtablissement/ficheEtablissement';
 import FicheRegion from './ficheRegion';
+import AccordionCard from './shared/AccordionCard';
+
+const actionsShort = [
+	{
+		title: 'Je suis un élu et je veux agir',
+		content: <>{ELU_BODY}</>,
+	},
+	{
+		title: 'Je suis un particulier et je veux agir',
+		content: (
+			<>
+				{PARTICULIER_BODY}
+				{PARTICULIER_END}
+			</>
+		),
+	},
+];
 
 export type TabId = 'region' | 'departement' | 'commune' | 'etablissement';
 type Tab = { id: TabId; label?: string }[];
@@ -129,6 +147,8 @@ export default function Fiches({
 						{activeTab === 'etablissement' && etablissement && (
 							<FicheEtablissement etablissement={etablissement} />
 						)}
+						<hr className='my-4' />
+						<AccordionCard actions={actionsShort} />
 					</>
 				)}
 			</div>

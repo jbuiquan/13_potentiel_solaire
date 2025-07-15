@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Region } from '@/app/models/regions';
 
 import NbEtablissements from './NbEtablissements';
-import AccordionCard from './shared/AccordionCard';
 import ActionButtons from './shared/ActionButtons';
 import CollectiviteHeaderCard from './shared/CollectiviteHeaderCard';
 import PotentielSolaireCard from './shared/PotentielSolaireCard';
@@ -84,8 +83,6 @@ export default function FicheRegion({ region }: FicheRegionProps) {
 					<TopCard topEtablissements={region.top_etablissements_lycees} />
 				</>
 			)}
-			<br />
-			<AccordionCard />
 		</div>
 	);
 }
