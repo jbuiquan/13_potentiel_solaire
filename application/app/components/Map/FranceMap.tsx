@@ -117,7 +117,6 @@ function interact(enabled: boolean) {
 		scrollZoom: enabled,
 		boxZoom: enabled,
 		dragRotate: enabled,
-		dragPan: enabled,
 		keyboard: enabled,
 		doubleClickZoom: enabled,
 		touchZoomRotate: enabled,
