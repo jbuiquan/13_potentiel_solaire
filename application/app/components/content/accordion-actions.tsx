@@ -33,6 +33,8 @@ export const ELU_BODY = (
 			</p>
 			<a
 				href={ACTION_LINKS.contact.url}
+				target='_blank'
+				rel='noopener noreferrer'
 				className='mt-3 block w-full rounded-md bg-green px-4 py-2 text-center font-bold text-darkgreen hover:underline'
 			>
 				{ACTION_LINKS.contact.label}
@@ -81,7 +83,7 @@ export const ELU_BODY = (
 				>
 					Mieux maîtriser le développement des EnR sur son territoire
 				</a>
-				&nbsp;de la banque des territoires
+				&nbsp;de la Banque des Territoires
 			</p>
 		</li>
 	</ul>
@@ -112,7 +114,6 @@ export const PARTICULIER_INTRO_LONG = (
 			sur les toitures, végétalisation des cours, sensibilisation à la transition écologique,
 			…
 		</p>
-		<br />
 	</>
 );
 

@@ -1,11 +1,6 @@
 import { Etablissement } from '@/app/models/etablissements';
 
-import {
-	ELU_BODY,
-	PARTICULIER_BODY,
-	PARTICULIER_END,
-	PARTICULIER_INTRO_SHORT,
-} from '../../content/accordion-actions';
+import { ELU_BODY, PARTICULIER_BODY, PARTICULIER_END } from '../../content/accordion-actions';
 import AccordionCard from '../shared/AccordionCard';
 import ActionButtons from '../shared/ActionButtons';
 import PotentielSolaireCard from '../shared/PotentielSolaireCard';
@@ -18,19 +13,14 @@ import ProtectionCard from './ProtectionCard';
 const actionsShort = [
 	{
 		title: 'Je suis un élu et je veux agir',
-		content: (
-			<>
-				{ELU_BODY}
-			</>
-		),
+		content: <>{ELU_BODY}</>,
 	},
 	{
 		title: 'Je suis un particulier et je veux agir',
 		content: (
 			<>
-				{PARTICULIER_INTRO_SHORT}
 				{PARTICULIER_BODY}
-        {PARTICULIER_END}
+				{PARTICULIER_END}
 			</>
 		),
 	},
