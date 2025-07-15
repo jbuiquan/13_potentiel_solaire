@@ -5,10 +5,14 @@ export const ACTION_LINKS = {
 	},
 	contact: {
 		label: 'Nous contacter',
-		url: 'mailto:contact@greenpeace.fr', // TODO : placer le correct email
+		url: 'https://www.greenpeace.fr/contact/', // TODO : placer le correct email
 	},
 	commentAgir: {
 		label: 'Comment agir ?',
 		url: '/comment-agir',
+	},
+	contactElu: {
+		label: 'Contacter par mail mon élu',
+		url: 'https://www.data.gouv.fr/reuses/adresses-mairies-fr/',
 	},
 };

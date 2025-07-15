@@ -1,5 +1,6 @@
 import { Etablissement } from '@/app/models/etablissements';
 
+import { ELU_BODY, PARTICULIER_BODY, PARTICULIER_END } from '../../content/accordion-actions';
 import AccordionCard from '../shared/AccordionCard';
 import ActionButtons from '../shared/ActionButtons';
 import PotentielSolaireCard from '../shared/PotentielSolaireCard';
@@ -8,6 +9,22 @@ import EtablissementCard from './EtablissementCard';
 import InstallationCard from './InstallationCard';
 import InterpretationMessage from './IntepretationMessage';
 import ProtectionCard from './ProtectionCard';
+
+const actionsShort = [
+	{
+		title: 'Je suis un élu et je veux agir',
+		content: <>{ELU_BODY}</>,
+	},
+	{
+		title: 'Je suis un particulier et je veux agir',
+		content: (
+			<>
+				{PARTICULIER_BODY}
+				{PARTICULIER_END}
+			</>
+		),
+	},
+];
 
 interface FicheEtablissementProps {
 	etablissement: Etablissement;
@@ -33,8 +50,8 @@ export default function FicheEtablissement({ etablissement }: FicheEtablissement
 				<InstallationCard surfaceExploitableMax={etablissement.surface_exploitable_max} />
 				{/* <GraphiqueCard /> */}
 			</div>
-			<hr className='my-4' />
-			<AccordionCard />
+			<hr className='my-2' />
+			<AccordionCard actions={actionsShort} />
 		</div>
 	);
 }
