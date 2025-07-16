@@ -5,7 +5,7 @@ import { KeyboardEvent, Suspense, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import * as Tooltip from '@radix-ui/react-tooltip';
+import * as Popover from '@radix-ui/react-popover';
 import { ListFilter, Menu, X } from 'lucide-react';
 
 import GOOD from '../../public/images/GOOD.svg';
@@ -72,30 +72,28 @@ export default function NavBar() {
 					<div className='m-4 flex w-full items-center gap-2 xl:min-w-0 xl:max-w-[600px] xl:flex-grow'>
 						<Suspense>
 							<SearchBar />
-							<Tooltip.Provider>
-								<Tooltip.Root>
-									<Tooltip.Trigger asChild>
-										<button
-											className='hover:bg-gray-100 rounded p-2 text-darkgreen transition'
-											disabled
-										>
-											<ListFilter
-												className='shrink-0 cursor-pointer stroke-green'
-												size={24}
-											/>
-										</button>
-									</Tooltip.Trigger>
-									<Tooltip.Portal>
-										<Tooltip.Content
-											className='z-50 rounded bg-blue px-3 py-1.5 text-xs text-white shadow'
-											sideOffset={5}
-										>
-											Cette fonctionnalité n&apos;est pas encore disponible !
-											<Tooltip.Arrow className='fill-black' />
-										</Tooltip.Content>
-									</Tooltip.Portal>
-								</Tooltip.Root>
-							</Tooltip.Provider>
+							<Popover.Root>
+								<Popover.Trigger asChild>
+									<button
+										aria-disabled='true'
+										className='hover:bg-gray-100 rounded p-2 text-darkgreen transition'
+									>
+										<ListFilter
+											className='shrink-0 cursor-pointer stroke-green'
+											size={24}
+										/>
+									</button>
+								</Popover.Trigger>
+								<Popover.Portal>
+									<Popover.Content
+										className='z-50 rounded bg-blue px-3 py-1.5 text-xs text-white shadow'
+										sideOffset={5}
+									>
+										Cette fonctionnalité n&apos;est pas encore disponible !
+										<Popover.Arrow className='fill-black' />
+									</Popover.Content>
+								</Popover.Portal>
+							</Popover.Root>
 						</Suspense>
 					</div>
 				)}
@@ -116,7 +114,7 @@ export default function NavBar() {
 
 			{/* Menu mobile plein écran */}
 			{isOpen && (
-				<div className='fixed inset-0 z-50 flex flex-col bg-blue'>
+				<div className='fixed inset-0 z-[9999] flex flex-col bg-blue'>
 					{/* Bouton de fermeture */}
 					<div className='flex items-start justify-between p-4'>
 						<button

@@ -1,7 +1,7 @@
 import { JSX } from 'react';
 
 import { getColorForPotentiel } from '@/app/utils/solar-utils';
-import * as Tooltip from '@radix-ui/react-tooltip';
+import * as Popover from '@radix-ui/react-popover';
 import { CircleHelp, HousePlug, Users, Zap } from 'lucide-react';
 
 import { getClosestEnergyUnit, getFormattedPotentielSolaire } from '../../../utils/energy-utils';
@@ -89,27 +89,25 @@ export default function PotentielSolaireCard({
 						<span className='font-bold'>2 personnes</span>
 					</div>
 				</div>
-				<Tooltip.Provider>
-					<Tooltip.Root>
-						<Tooltip.Trigger asChild>
-							<button
-								className='hover:bg-gray-100 rounded p-2 text-darkgreen transition'
-								disabled
-							>
-								<CircleHelp />
-							</button>
-						</Tooltip.Trigger>
-						<Tooltip.Portal>
-							<Tooltip.Content
-								className='z-50 rounded bg-blue px-3 py-1.5 text-xs text-white shadow'
-								sideOffset={5}
-							>
-								5000kwh/an pour un foyer de 2 personnes
-								<Tooltip.Arrow className='fill-black' />
-							</Tooltip.Content>
-						</Tooltip.Portal>
-					</Tooltip.Root>
-				</Tooltip.Provider>
+				<Popover.Root>
+					<Popover.Trigger asChild>
+						<button
+							aria-disabled='true'
+							className='hover:bg-gray-100 rounded p-2 text-darkgreen transition'
+						>
+							<CircleHelp />
+						</button>
+					</Popover.Trigger>
+					<Popover.Portal>
+						<Popover.Content
+							className='z-50 rounded bg-blue px-3 py-1.5 text-xs text-white shadow'
+							sideOffset={5}
+						>
+							5000 kWh/an pour un foyer de 2 personnes
+							<Popover.Arrow className='fill-black' />
+						</Popover.Content>
+					</Popover.Portal>
+				</Popover.Root>
 			</div>
 		</div>
 	);
