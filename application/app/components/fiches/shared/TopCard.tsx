@@ -31,17 +31,17 @@ const TopCard = ({ topEtablissements }: Props) => {
 						<Popover.Root>
 							<Popover.Trigger asChild>
 								<span
-										className='hover:bg-gray-100 rounded text-darkgreen transition'
+									className='hover:bg-gray-100 rounded text-darkgreen transition'
+									aria-disabled='true'
+								>
+									<span
+										// href={/etablissements/${etab.id}}
 										aria-disabled='true'
+										className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary'
 									>
-										<span
-											// href={/etablissements/${etab.id}}
-											aria-disabled='true'
-											className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary'
-										>
-											{etab.libelle}
-										</span>
+										{etab.libelle}
 									</span>
+								</span>
 							</Popover.Trigger>
 							<Popover.Portal>
 								<Popover.Content
