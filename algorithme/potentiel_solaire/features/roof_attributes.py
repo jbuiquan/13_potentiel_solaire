@@ -207,7 +207,7 @@ def recuperation_mnh(
     return mns - mnt
 
 
-def segmentation_toits(data, min_surface: float = 2):
+def segmentation_toits(data, min_surface: float = 2, debug: bool = False):
     """Calcule la pente, l'azimut et la surface des segments de toits.
 
     Voir notebook example_utilisation_segmentation_des_toits.ipynb pour illustrer
@@ -227,6 +227,7 @@ def segmentation_toits(data, min_surface: float = 2):
     dy = sobel(data[0], axis=1)  # Gradient selon l'axe Y (nord-sud)
     slope = np.arctan(np.sqrt(dx**2 + dy**2)) * (180 / np.pi)
     azimut = (360 - np.degrees(np.arctan2(dy, dx))) % 360
+    # azimuth 0 : north / 90 : east / 180 : south / 270 : west
 
     # Creating bins for the slope
     bins = list(np.arange(0, slope.max(),20)) 
@@ -283,11 +284,14 @@ def segmentation_toits(data, min_surface: float = 2):
 
     # Handle empty DataFrame case
     if final_segment_toiture.empty:
-        return pd.DataFrame({
+        final_segment_toiture = pd.DataFrame({
             "label": [0],
             "surface": [0.0],
             "slope": [0.0],
             "azimut": [0.0]
         })
+
+    if debug:
+        return final_segment_toiture, slope_filtered, azimut_filtered
 
     return final_segment_toiture
