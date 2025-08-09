@@ -14,27 +14,38 @@ logger = get_logger()
 
 
 PVGIS_BASE_URL = "https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?&"
-DEFAULT_QUERY_PARAMS = {
-    "outputformat": "json",
-    "loss": 14,  # The system's losses in percentage. Recommend between 15 - 30 %
-    "fixed": 1,  # Fixed versus solar tracking system. Fixed in case of solar rooftop.
-    "mountingplace": 'building',  # Param should impacts losses. We may be double counting.
-    "optimalangles": 1,  # Letting the engine optimise the ti
-}
 
 
 def get_potentiel_solaire_from_pvgis_api(
     latitude: float,
     longitude: float,
     peakpower: float,
+    loss: int = 14,
+    fixed: int = 1,
+    mountingplace: str = 'building',
+    optimalangles: int = 1,
+    angle: float = 0,
+    aspect: float = 0,
+    outputformat: str = "json",
 ) -> float:
     """
     Method used to build api url and calls the PVGIS API.
-    
+
+    Args:
+        latitude (float): Latitude of the location.
+        longitude (float): Longitude of the location.
+        peakpower (float): Peak power of the solar system in kW.
+        loss (int): The system's losses in percentage. Recommend between 15 - 30 %.
+        fixed (int): Fixed versus solar tracking system. Fixed in case of solar rooftop.
+        mountingplace (str): # Param should impacts losses. We may be double counting.
+        optimalangles (int): Letting the engine optimise the tilt angles.
+        angle (float): Inclination angle from horizontal plane of the (fixed) PV system.
+        aspect (float): Orientation (azimuth) angle of the (fixed) PV system, 0=south, 90=west, -90=east.
+        outputformat (str): Format of the output.
+
     Returns the annual energy production (kWh/yr)
     
     NOTE: Added sleep timer to ensure that we do not exceed the 30 calls / second rate limit.
-    TODO: There are many more output parameters available.
     """
     if peakpower <= 0:
         return 0.0
@@ -43,7 +54,13 @@ def get_potentiel_solaire_from_pvgis_api(
         "lat": latitude,
         "lon": longitude,
         "peakpower": peakpower,
-        **DEFAULT_QUERY_PARAMS
+        "loss": loss,
+        "fixed": fixed,
+        "mountingplace": mountingplace,
+        "optimalangles": optimalangles,
+        "angle": angle,
+        "aspect": aspect,
+        "outputformat": outputformat,
     }
 
     response = requests.get(PVGIS_BASE_URL, params=params)
