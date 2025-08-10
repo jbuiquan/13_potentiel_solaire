@@ -17,8 +17,8 @@ PVGIS_BASE_URL = "https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?&"
 
 
 def get_potentiel_solaire_from_pvgis_api(
-    latitude: float,
-    longitude: float,
+    lat: float,
+    lon: float,
     peakpower: float,
     loss: int = 14,
     fixed: int = 1,
@@ -27,6 +27,7 @@ def get_potentiel_solaire_from_pvgis_api(
     angle: float = 0,
     aspect: float = 0,
     outputformat: str = "json",
+    pvgis_base_url: str = PVGIS_BASE_URL,
 ) -> float:
     """
     Method used to build api url and calls the PVGIS API.
@@ -51,8 +52,8 @@ def get_potentiel_solaire_from_pvgis_api(
         return 0.0
 
     params = {
-        "lat": latitude,
-        "lon": longitude,
+        "lat": lat,
+        "lon": lon,
         "peakpower": peakpower,
         "loss": loss,
         "fixed": fixed,
@@ -63,7 +64,7 @@ def get_potentiel_solaire_from_pvgis_api(
         "outputformat": outputformat,
     }
 
-    response = requests.get(PVGIS_BASE_URL, params=params)
+    response = requests.get(pvgis_base_url, params=params)
     response.raise_for_status()
     
     if response.status_code == 200:
@@ -72,19 +73,11 @@ def get_potentiel_solaire_from_pvgis_api(
 
     if response.status_code == 429:
         sleep(0.04)
-        return get_potentiel_solaire_from_pvgis_api(
-            latitude=latitude,
-            longitude=longitude,
-            peakpower=peakpower
-        )
+        return get_potentiel_solaire_from_pvgis_api(**params)
 
     if response.status_code == 529:
         sleep(5)
-        return get_potentiel_solaire_from_pvgis_api(
-            latitude=latitude,
-            longitude=longitude,
-            peakpower=peakpower
-        )
+        return get_potentiel_solaire_from_pvgis_api(**params)
 
     logger.error(f'Failed to query API. Response: {response}')
     response.raise_for_status()
@@ -113,8 +106,8 @@ def get_potentiel_solaire_from_closest_building(
         
         try : 
             potentiel_solaire = get_potentiel_solaire_from_pvgis_api(
-                latitude=latitude,
-                longitude=longitude,
+                lat=latitude,
+                lon=longitude,
                 peakpower=peakpower
             )
 
