@@ -147,6 +147,7 @@ async def async_get_potentiel_solaire_from_pvgis_api(
             data = await response.json()
             if pbar is not None:
                 pbar.update(1)
+            # TODO : nous avons également besoin des données d irradiation annuelle fournies par 'H(i)_y' afin de calculer la surface utile
             return data['outputs']['totals']['fixed']['E_y']
 
         if response.status == 429:
