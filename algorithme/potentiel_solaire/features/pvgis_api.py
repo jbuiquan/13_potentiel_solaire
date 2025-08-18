@@ -20,6 +20,21 @@ logger = get_logger()
 PVGIS_BASE_URL = "https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?&"
 
 
+class PvgisApiResponse:
+    def __init__(self, data):
+        self.data = data
+
+    @property
+    def annual_production(self):
+        """Production annuelle d énergie (kWh/an)."""
+        return self.data.get('outputs', {}).get('totals', {}).get('fixed', {}).get('E_y', 0)
+
+    @property
+    def annual_irradiation(self):
+        """Irradiation annuelle (kWh/m2)."""
+        return self.data.get('outputs', {}).get('totals', {}).get('fixed', {}).get('H(i)_y', 0)
+
+
 def get_potentiel_solaire_from_pvgis_api(
     lat: float,
     lon: float,
@@ -124,7 +139,7 @@ async def async_get_potentiel_solaire_from_pvgis_api(
     Returns the annual energy production (kWh/yr)
     """
     if peakpower <= 0:
-        return 0.0
+        return PvgisApiResponse({})
 
     params = {
         "lat": lat,
@@ -147,8 +162,7 @@ async def async_get_potentiel_solaire_from_pvgis_api(
             data = await response.json()
             if pbar is not None:
                 pbar.update(1)
-            # TODO : nous avons également besoin des données d irradiation annuelle fournies par 'H(i)_y' afin de calculer la surface utile
-            return data['outputs']['totals']['fixed']['E_y']
+            return PvgisApiResponse(data)
 
         if response.status == 429:
             await asyncio.sleep(0.04)
