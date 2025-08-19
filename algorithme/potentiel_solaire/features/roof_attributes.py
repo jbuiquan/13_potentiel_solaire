@@ -15,11 +15,11 @@ from potentiel_solaire.constants import DATA_FOLDER
 
 
 def recuperation_flux_wms(
-        bbox: list[int],
-        layer: str,
-        srs: str,
-        width: int,
-        height: int
+    bbox: list[int],
+    layer: str,
+    srs: str,
+    width: int,
+    height: int
 ):
     """
     Retrieve geospatial data from a WMS service as a GeoTIFF image.
@@ -75,10 +75,10 @@ def recuperation_flux_wms(
 
 
 def recuperation_mnx(
-        zone_of_interest: gpd.GeoDataFrame,
-        srs: str,
-        layer: str,
-        cache: bool = False
+    zone_of_interest: gpd.GeoDataFrame,
+    srs: str,
+    layer: str,
+    cache: bool = False
 ):
     """
     Retrieve elevation raster data (MNS or MNT) for a specific building
@@ -120,12 +120,6 @@ def recuperation_mnx(
     wigth = int((bbox[2] - bbox[0]) * 2)
     height = int((bbox[3] - bbox[1]) * 2)
 
-    if zone_of_interest.crs != srs:
-        raise ValueError(
-            "The zone of interest is of crs {} and for layer {} only crs {} is supported".format(
-                zone_of_interest.crs, layer, srs
-            ))
-
     if not cache:
         flux = recuperation_flux_wms(
             bbox=bbox, layer=layer, srs=srs, width=wigth, height=height
@@ -157,25 +151,32 @@ def recuperation_mnx(
     return data
 
 
-def recuperation_mns(zone_of_interest: gpd.GeoDataFrame, cache: bool = False):
-    srs_mnx = 'EPSG:2154'
+def recuperation_mns(
+    zone_of_interest: gpd.GeoDataFrame, 
+    srs: str = 'EPSG:2154',
+    cache: bool = False
+):
     nom_couche_mns = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES.MNS"
     return recuperation_mnx(
-        zone_of_interest=zone_of_interest, srs=srs_mnx, layer=nom_couche_mns, cache=cache
+        zone_of_interest=zone_of_interest, srs=srs, layer=nom_couche_mns, cache=cache
     )
 
 
-def recuperation_mnt(zone_of_interest: gpd.GeoDataFrame, cache: bool = False):
-    srs_mnx = 'EPSG:2154'
+def recuperation_mnt(
+    zone_of_interest: gpd.GeoDataFrame, 
+    srs: str = 'EPSG:2154',
+    cache: bool = False
+):
     nom_couche_mnt = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES"
     return recuperation_mnx(
-        zone_of_interest=zone_of_interest, srs=srs_mnx, layer=nom_couche_mnt, cache=cache
+        zone_of_interest=zone_of_interest, srs=srs, layer=nom_couche_mnt, cache=cache
     )
 
 
 def recuperation_mnh(
-        zone_of_interest: gpd.GeoDataFrame,
-        cache: bool = False
+    zone_of_interest: gpd.GeoDataFrame,
+    srs: str = 'EPSG:2154',
+    cache: bool = False
 ):
     """
     Calculate the normalized height model (MNH) for a building by subtracting
@@ -201,12 +202,12 @@ def recuperation_mnh(
         the difference between MNS and MNT values.
     """
 
-    mns = recuperation_mns(zone_of_interest=zone_of_interest, cache=cache)
-    mnt = recuperation_mnt(zone_of_interest=zone_of_interest, cache=cache)
+    mns = recuperation_mns(zone_of_interest=zone_of_interest, srs=srs, cache=cache)
+    mnt = recuperation_mnt(zone_of_interest=zone_of_interest, srs=srs, cache=cache)
     return mns - mnt
 
 
-def segmentation_toits(data):
+def segmentation_toits(data, min_surface: float = 2, debug: bool = False):
     """Calcule la pente, l'azimut et la surface des segments de toits.
 
     Voir notebook example_utilisation_segmentation_des_toits.ipynb pour illustrer
@@ -215,6 +216,8 @@ def segmentation_toits(data):
     Parameters
     data : numpy.ndarray
         Masked elevation raster data corresponding to the building geometry.
+    min_surface : float
+        Minimum surface area in square meters for a segment to be considered valid.
 
     Return
       Dataframe with one mine equivalent to a utile segment with a slope and an azimut.
@@ -224,6 +227,7 @@ def segmentation_toits(data):
     dy = sobel(data[0], axis=1)  # Gradient selon l'axe Y (nord-sud)
     slope = np.arctan(np.sqrt(dx**2 + dy**2)) * (180 / np.pi)
     azimut = (360 - np.degrees(np.arctan2(dy, dx))) % 360
+    # azimuth 0 : north / 90 : east / 180 : south / 270 : west
 
     # Creating bins for the slope
     bins = list(np.arange(0, slope.max(),20)) 
@@ -259,7 +263,7 @@ def segmentation_toits(data):
 
     # Creating clusters
     labeled_bounds, num_features = label(final_bounds == 0)
-    mask = data == 0
+    mask = data[0] <= 0 # Mask to remove areas outside the building
     labeled_bounds = np.where(mask, None, labeled_bounds)
 
     # Final dataframe
@@ -276,7 +280,18 @@ def segmentation_toits(data):
         df_segment_toiture = pd.concat([df_segment_toiture,new_row])
 
     # Filter on Minimum surfact
-    min_surface = 50
-    final_segment_toiture = df_segment_toiture[df_segment_toiture["surface"]>min_surface].sort_values("surface")
+    final_segment_toiture = df_segment_toiture[df_segment_toiture["surface"]>min_surface]
+
+    # Handle empty DataFrame case
+    if final_segment_toiture.empty:
+        final_segment_toiture = pd.DataFrame({
+            "label": [0],
+            "surface": [0.0],
+            "slope": [0.0],
+            "azimut": [0.0]
+        })
+
+    if debug:
+        return final_segment_toiture, slope_filtered, azimut_filtered
 
     return final_segment_toiture
