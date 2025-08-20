@@ -24,6 +24,9 @@ new_columns = [
     ("est_seul_dans_sa_zone", "BOOLEAN", "NULL"),
     ("reussite_rattachement", "BOOLEAN", "NULL"),
     ("potentiel_solaire_zone", "BIGINT", 0),
+    ("surface_exploitable_max_zone", "INTEGER", 0),
+    ("potentiel_nb_foyers_zone", "INTEGER", 0),
+    ("niveau_potentiel_zone", "VARCHAR", "'3_LIMITED'")
 ]
 
 

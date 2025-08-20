@@ -340,15 +340,6 @@ def update_indicators_for_schools():
         logger.info("Update des indicateurs de la table etablissements")
 
         update_query = f"""
-        -- Calcul des niveaux de potentiel solaire
-        UPDATE {etablissements_table.name}
-        SET 
-            niveau_potentiel = s.niveau_potentiel,
-            potentiel_nb_foyers = FLOOR(potentiel_solaire / 5000)
-        FROM {seuils_niveaux_potentiels_table.name} s
-        WHERE potentiel_solaire >= s.min_potentiel_solaire
-              AND potentiel_solaire <= s.max_potentiel_solaire;
-
         -- Mise a jour des indicateurs de rattachement des batiments aux etablissements
         WITH
             indicateurs_rattachement AS (
@@ -366,7 +357,9 @@ def update_indicators_for_schools():
                     SUM(nb_batiments_associes) OVER (PARTITION BY identifiant_topo_zone_rattachee) > 0 AS reussite_rattachement,
 
                     -- vu que le potentiel solaire a ete affecte a un seul etablissement de la zone, on indique aussi le potentiel solaire a lechelle de la zone
-                    SUM(potentiel_solaire) OVER (PARTITION BY identifiant_topo_zone_rattachee) AS potentiel_solaire_zone
+                    -- de meme pour la surface exploitable max
+                    SUM(potentiel_solaire) OVER (PARTITION BY identifiant_topo_zone_rattachee) AS potentiel_solaire_zone,
+                    SUM(surface_exploitable_max) OVER (PARTITION BY identifiant_topo_zone_rattachee) AS surface_exploitable_max_zone
                 FROM {etablissements_table.name}
             )
 
@@ -374,9 +367,28 @@ def update_indicators_for_schools():
         SET 
             est_seul_dans_sa_zone = ir.est_seul_dans_sa_zone,
             reussite_rattachement = ir.reussite_rattachement,
-            potentiel_solaire_zone = ir.potentiel_solaire_zone
+            potentiel_solaire_zone = ir.potentiel_solaire_zone,
+            surface_exploitable_max_zone = ir.surface_exploitable_max_zone
         FROM indicateurs_rattachement ir
         WHERE {etablissements_table.name}.{etablissements_table.pkey} = ir.identifiant_de_l_etablissement;
+        
+        -- Calcul des niveaux de potentiel solaire
+        UPDATE {etablissements_table.name}
+        SET 
+            niveau_potentiel = s.niveau_potentiel,
+            potentiel_nb_foyers = FLOOR(potentiel_solaire / 5000)
+        FROM {seuils_niveaux_potentiels_table.name} s
+        WHERE potentiel_solaire >= s.min_potentiel_solaire
+              AND potentiel_solaire <= s.max_potentiel_solaire;
+
+        -- Calcul des niveaux de potentiel solaire pour la zone
+        UPDATE {etablissements_table.name}
+        SET 
+            niveau_potentiel_zone = s.niveau_potentiel,
+            potentiel_nb_foyers_zone = FLOOR(potentiel_solaire_zone / 5000)
+        FROM {seuils_niveaux_potentiels_table.name} s
+        WHERE potentiel_solaire_zone >= s.min_potentiel_solaire
+              AND potentiel_solaire_zone <= s.max_potentiel_solaire;
         """
 
         conn.execute(update_query)
