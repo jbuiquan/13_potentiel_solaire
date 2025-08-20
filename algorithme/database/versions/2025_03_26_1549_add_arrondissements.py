@@ -42,9 +42,9 @@ def upgrade() -> None:
             geom
         )
         SELECT
-            arr.insee_arm AS code_commune,
-            arr.nom AS nom_commune,
-            CONCAT('0', LPAD(arr.insee_arm, 2, '0')) AS code_departement,
+            arr.code_insee AS code_commune,
+            arr.nom_officiel AS nom_commune,
+            CONCAT('0', LPAD(arr.code_insee, 2, '0')) AS code_departement,
             NULL AS libelle_departement,
             NULL AS code_region,
             NULL AS libelle_region,
@@ -116,7 +116,7 @@ def upgrade() -> None:
         ) AS agg
         WHERE {communes_table}.code_commune = agg.code_commune
             AND ({communes_table}.code_commune IN (
-                    SELECT arr.insee_arm
+                    SELECT arr.code_insee
                     FROM ST_Read('{arrondissements_path}') arr
             ) OR {communes_table}.code_commune IN ('27676', '75105'))
     """)
@@ -138,7 +138,7 @@ def downgrade() -> None:
     op.execute(f"""
         DELETE FROM {communes_table}
         WHERE code_commune IN (
-            SELECT arr.insee_arm
+            SELECT arr.code_insee
             FROM ST_Read('{arrondissements_path}') arr
         )
     """)

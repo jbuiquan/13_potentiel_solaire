@@ -95,7 +95,7 @@ def remove_holes_and_overlap_for_cities(
     map_holes_to_arrondissements["overlap_arrondissement_avec_buffer"] = map_holes_to_arrondissements.to_crs(6933).apply(
         lambda hole: intersection(
             make_valid(hole["geometry"]), 
-            arrondissements_no_overlap[arrondissements_no_overlap["insee_arm"] == hole["insee_arm"]].to_crs(6933)["geometry"].buffer(50).iloc[0]
+            arrondissements_no_overlap[arrondissements_no_overlap["code_insee"] == hole["code_insee"]].to_crs(6933)["geometry"].buffer(50).iloc[0]
             ).area,
         axis=1
     )
@@ -107,12 +107,12 @@ def remove_holes_and_overlap_for_cities(
     arrondissements_no_overlap_no_holes = arrondissements_no_overlap.merge(
         map_holes_to_arrondissements,
         how="outer"
-    ).dissolve(by="insee_arm").reset_index()
+    ).dissolve(by="code_insee").reset_index()
     
     # On fait en sorte de n'avoir que des polygons valides
     arrondissements_no_overlap_no_holes["geometry"] = arrondissements_no_overlap_no_holes["geometry"].make_valid()
     arrondissements_no_overlap_no_holes = arrondissements_no_overlap_no_holes.explode()
-    arrondissements_no_overlap_no_holes = arrondissements_no_overlap_no_holes.dissolve(by="insee_arm").reset_index()
+    arrondissements_no_overlap_no_holes = arrondissements_no_overlap_no_holes.dissolve(by="code_insee").reset_index()
 
     return arrondissements_no_overlap_no_holes[arrondissements.columns]
 
@@ -124,7 +124,7 @@ def create_arrondissements_geojson(output_directory: str = DATA_FOLDER) -> str:
 
     sources = load_sources()
     communes = gpd.read_file(sources["communes"].filepath)
-    cities = communes[communes["codgeo"].isin(arrondissements["insee_com"].unique())]
+    cities = communes[communes["codgeo"].isin(arrondissements["code_insee_de_la_commune_de_rattach"].unique())]
 
     arrondissements_corrected = remove_holes_and_overlap_for_cities(
         arrondissements=arrondissements_simplified,
