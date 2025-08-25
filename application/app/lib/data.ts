@@ -62,27 +62,27 @@ export async function fetchEtablissementsGeoJSON(
 					'type','Feature',
 					'properties',
 					json_object(
-						'${ETABLISSEMENTS_COLUMNS.Id}',
-						e.${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.Id]},
-						'${ETABLISSEMENTS_COLUMNS.Nom}',
-						e.${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.Nom]},
-						'${ETABLISSEMENTS_COLUMNS.CodeCommune}',
-						e.${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.CodeCommune]},
-						'${ETABLISSEMENTS_COLUMNS.CodeDepartement}',
-						e.${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.CodeDepartement]},
-						'${ETABLISSEMENTS_COLUMNS.CodeRegion}',
-						e.${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.CodeRegion]},
-						'${ETABLISSEMENTS_COLUMNS.PotentielSolaire}',
-						e.${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.PotentielSolaire]},
-						'${ETABLISSEMENTS_COLUMNS.Protection}',
-						e.${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.Protection]}
+						'${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.Id]}',
+						e.${ETABLISSEMENTS_COLUMNS.Id},
+						'${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.Nom]}',
+						e.${ETABLISSEMENTS_COLUMNS.Nom},
+						'${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.CodeCommune]}',
+						e.${ETABLISSEMENTS_COLUMNS.CodeCommune},
+						'${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.CodeDepartement]}',
+						e.${ETABLISSEMENTS_COLUMNS.CodeDepartement},
+						'${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.CodeRegion]}',
+						e.${ETABLISSEMENTS_COLUMNS.CodeRegion},
+						'${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.PotentielSolaireZone]}',
+						e.${ETABLISSEMENTS_COLUMNS.PotentielSolaireZone},
+						'${ETABLISSEMENTS_GEOJSON_MAPPING[ETABLISSEMENTS_COLUMNS.Protection]}',
+						e.${ETABLISSEMENTS_COLUMNS.Protection}
 					),
 					'${GEOJSON_GEOMETRY_KEY}', ST_AsGeoJSON(e.${ETABLISSEMENTS_COLUMNS.Geometry})::JSON
 					)
 				), [])
 			) as geojson FROM main.${ETABLISSEMENTS_TABLE} e
 			WHERE e.${ETABLISSEMENTS_COLUMNS.Geometry} IS NOT NULL
-		` + (codeCommune ? `AND e.${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.CodeCommune]} = $1` : ''),
+		` + (codeCommune ? `AND e.${ETABLISSEMENTS_COLUMNS.CodeCommune} = $1` : ''),
 		);
 		if (codeCommune) {
 			prepared.bindVarchar(1, codeCommune);
@@ -96,6 +96,11 @@ export async function fetchEtablissementsGeoJSON(
 	}
 }
 
+/**
+ * Fetch one etablissement by its id.
+ * This sql use a duckdb syntax (`struct_pack`) to pack the result in a json object.
+ * With this type we don't need to parse it like json columns.
+ */
 export async function fetchEtablissementById(id: string): Promise<Etablissement | null> {
 	try {
 		const connection = await db.connect();
@@ -105,6 +110,7 @@ export async function fetchEtablissementById(id: string): Promise<Etablissement 
 			`
 			SELECT
 			e.${ETABLISSEMENTS_COLUMNS.Id} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.Id]},
+			e.${ETABLISSEMENTS_COLUMNS.IdZoneTopo} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.IdZoneTopo]},
 			e.${ETABLISSEMENTS_COLUMNS.Nom} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.Nom]},
 			e.${ETABLISSEMENTS_COLUMNS.Type} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.Type]},
 			e.${ETABLISSEMENTS_COLUMNS.LibelleNature} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.LibelleNature]},
@@ -119,14 +125,30 @@ export async function fetchEtablissementById(id: string): Promise<Etablissement 
 			e.${ETABLISSEMENTS_COLUMNS.LibelleDepartement} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.LibelleDepartement]},
 			e.${ETABLISSEMENTS_COLUMNS.CodeRegion} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.CodeRegion]},
 			e.${ETABLISSEMENTS_COLUMNS.LibelleRegion} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.LibelleRegion]},
-			e.${ETABLISSEMENTS_COLUMNS.SurfaceExploitableMax} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.SurfaceExploitableMax]},
-			e.${ETABLISSEMENTS_COLUMNS.PotentielSolaire} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.PotentielSolaire]},
-			e.${ETABLISSEMENTS_COLUMNS.PotentielNbFoyers} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.PotentielNbFoyers]},
-			e.${ETABLISSEMENTS_COLUMNS.NiveauPotentiel} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.NiveauPotentiel]},
-			e.${ETABLISSEMENTS_COLUMNS.Protection} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.Protection]}
+			e.${ETABLISSEMENTS_COLUMNS.SurfaceExploitableMaxZone} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.SurfaceExploitableMaxZone]},
+			e.${ETABLISSEMENTS_COLUMNS.PotentielSolaireZone} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.PotentielSolaireZone]},
+			e.${ETABLISSEMENTS_COLUMNS.PotentielNbFoyersZone} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.PotentielNbFoyersZone]},
+			e.${ETABLISSEMENTS_COLUMNS.NiveauPotentielZone} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.NiveauPotentielZone]},
+			e.${ETABLISSEMENTS_COLUMNS.Protection} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.Protection]},
+			e.${ETABLISSEMENTS_COLUMNS.EstSeulDansSaZone} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.EstSeulDansSaZone]},
+			e.${ETABLISSEMENTS_COLUMNS.ReussiteRattachement} as ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.ReussiteRattachement]},
+			(
+				SELECT list(
+					struct_pack(
+						${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.Id]} := e_a_rattacher.${ETABLISSEMENTS_COLUMNS.Id},
+						${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.Nom]} := e_a_rattacher.${ETABLISSEMENTS_COLUMNS.Nom}
+					)
+				)
+				FROM main.${ETABLISSEMENTS_TABLE} e_a_rattacher
+				WHERE
+					e.${ETABLISSEMENTS_COLUMNS.EstSeulDansSaZone} = false
+					AND e.${ETABLISSEMENTS_COLUMNS.ReussiteRattachement} = true
+					AND e_a_rattacher.${ETABLISSEMENTS_COLUMNS.IdZoneTopo} = e.${ETABLISSEMENTS_COLUMNS.IdZoneTopo}
+					AND e_a_rattacher.${ETABLISSEMENTS_COLUMNS.Id} <> e.${ETABLISSEMENTS_COLUMNS.Id}
+			) AS ${ETABLISSEMENTS_MAPPING[ETABLISSEMENTS_COLUMNS.EtablissementsRattaches]}
 			FROM main.${ETABLISSEMENTS_TABLE} e
 			WHERE e.${ETABLISSEMENTS_COLUMNS.Id} = $1 AND e.${ETABLISSEMENTS_COLUMNS.Geometry} IS NOT NULL
-		`,
+			`,
 		);
 		prepared.bindVarchar(1, id);
 
