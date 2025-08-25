@@ -25,6 +25,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 				new URL(`/?${codesParams.toString()}&${activeTabParam.toString()}`, baseUrl),
 			);
 		}
+		return NextResponse.redirect(new URL(`/not-found`, baseUrl));
 	} catch (e) {
 		console.error('Error while fetching etablissement:', e);
 		return NextResponse.error();
