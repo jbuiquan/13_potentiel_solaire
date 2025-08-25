@@ -77,6 +77,8 @@ EXPOSE 3000
 
 ENV DATABASE_PATH=/app/database/data.duckdb
 ENV PORT=3000
+# Must be provided at runtime
+#ENV NEXT_PUBLIC_BASE_URL=http://localhost:3000
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
