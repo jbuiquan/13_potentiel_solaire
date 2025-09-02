@@ -495,7 +495,7 @@ export async function fetchRegionById(id: string): Promise<Region | null> {
 
 // --- Search ----
 
-const DEFAULT_LIMIT = 10;
+const DEFAULT_LIMIT = 20;
 /**
  * Place a limit to avoid querying too many words.
  * This default value has been set by looking at the maximum number of words in the sanitized_libelle of etablissements (i.e: 24).
@@ -522,9 +522,9 @@ export async function fetchSearchResults(
 			prepared = await connection.prepare(
 				`
 			SELECT
-			sv.${SEARCH_VIEW_COLUMNS.Source} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Source]}, 
-			sv.${SEARCH_VIEW_COLUMNS.Id} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Id]}, 
-			sv.${SEARCH_VIEW_COLUMNS.Libelle} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Libelle]}, 
+			sv.${SEARCH_VIEW_COLUMNS.Source} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Source]},
+			sv.${SEARCH_VIEW_COLUMNS.Id} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Id]},
+			sv.${SEARCH_VIEW_COLUMNS.Libelle} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Libelle]},
 			sv.${SEARCH_VIEW_COLUMNS.ExtraData} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.ExtraData]}
 			FROM ${REF_CODE_POSTAL_TABLE} refCp
 			INNER JOIN ${SEARCH_VIEW_TABLE} sv ON sv.${SEARCH_VIEW_COLUMNS.Source} = 'communes' AND sv.${SEARCH_VIEW_COLUMNS.Id} = refCp.${REF_CODE_POSTAL_COLUMNS.CodeInsee}
@@ -549,13 +549,13 @@ export async function fetchSearchResults(
 			prepared = await connection.prepare(
 				`
 			SELECT
-			sv.${SEARCH_VIEW_COLUMNS.Source} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Source]}, 
-			sv.${SEARCH_VIEW_COLUMNS.Id} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Id]}, 
-			sv.${SEARCH_VIEW_COLUMNS.Libelle} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Libelle]}, 
+			sv.${SEARCH_VIEW_COLUMNS.Source} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Source]},
+			sv.${SEARCH_VIEW_COLUMNS.Id} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Id]},
+			sv.${SEARCH_VIEW_COLUMNS.Libelle} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Libelle]},
 			sv.${SEARCH_VIEW_COLUMNS.ExtraData} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.ExtraData]}
 			FROM main.${SEARCH_VIEW_TABLE} sv
 			WHERE ${whereClauses}
-			ORDER BY 
+			ORDER BY
 				CASE sv.${SEARCH_VIEW_COLUMNS.Source}
 					WHEN 'regions' THEN 1
 					WHEN 'departements' THEN 2
