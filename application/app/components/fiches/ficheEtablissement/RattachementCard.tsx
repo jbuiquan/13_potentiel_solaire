@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 
+import Link from 'next/link';
+
 import { EtablissementLite } from '@/app/models/etablissements';
-import * as Tooltip from '@radix-ui/react-tooltip';
 import { CircleAlert } from 'lucide-react';
 
 const RATTACHEMENT_TEXT = "D'autres établissements sont présents dans cette zone :";
@@ -27,39 +28,12 @@ const RattachementCard: React.FC<RattachementCardProps> = ({ etablissements_ratt
 				<ul className='list-none space-y-4 pl-0 font-bold text-darkgreen'>
 					{sortedEtablissements.map((etab) => (
 						<li key={etab.identifiant_de_l_etablissement}>
-							{/* <Link
-								href={`/etablissement/${etab.identifiant_de_l_etablissement}`}
+							<Link
+								href={`/etablissements/${etab.identifiant_de_l_etablissement}`}
 								className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary'
 							>
 								{etab.nom_etablissement}
-							</Link> */}
-							<Tooltip.Provider>
-								<Tooltip.Root>
-									<Tooltip.Trigger asChild>
-										<span
-											className='hover:bg-gray-100 rounded text-darkgreen transition'
-											aria-disabled='true'
-										>
-											<span
-												// href={`/etablissement/${etab.identifiant_de_l_etablissement}`}
-												aria-disabled='true'
-												className='underline decoration-dotted decoration-2 underline-offset-4 transition hover:text-primary'
-											>
-												{etab.nom_etablissement}
-											</span>
-										</span>
-									</Tooltip.Trigger>
-									<Tooltip.Portal>
-										<Tooltip.Content
-											className='z-50 rounded bg-blue px-3 py-1.5 text-xs text-white shadow'
-											sideOffset={5}
-										>
-											Cette fonctionnalité n&apos;est pas encore disponible !
-											<Tooltip.Arrow className='fill-black' />
-										</Tooltip.Content>
-									</Tooltip.Portal>
-								</Tooltip.Root>
-							</Tooltip.Provider>
+							</Link>
 						</li>
 					))}
 				</ul>

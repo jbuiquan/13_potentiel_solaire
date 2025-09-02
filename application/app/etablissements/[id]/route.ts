@@ -6,6 +6,9 @@ import { buildActiveTabParam, buildCodesParam } from '@/app/utils/state-utils';
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
 
+	const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+	if (!baseUrl) throw new Error('NEXT_PUBLIC_BASE_URL must be set!');
+
 	try {
 		const etablissement = await fetchEtablissementById(id);
 		if (etablissement) {
@@ -17,13 +20,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 				codeEtablissement: id,
 			});
 			const activeTabParam = buildActiveTabParam('etablissement');
+
 			return NextResponse.redirect(
-				new URL(
-					`/?${codesParams.toString()}&${activeTabParam.toString()}`,
-					request.nextUrl.origin,
-				),
+				new URL(`/?${codesParams.toString()}&${activeTabParam.toString()}`, baseUrl),
 			);
 		}
+		return NextResponse.redirect(new URL(`/not-found`, baseUrl));
 	} catch (e) {
 		console.error('Error while fetching etablissement:', e);
 		return NextResponse.error();

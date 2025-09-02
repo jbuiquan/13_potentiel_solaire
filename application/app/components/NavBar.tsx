@@ -10,7 +10,7 @@ import { ListFilter, Menu, X } from 'lucide-react';
 
 import GOOD from '../../public/images/GOOD.svg';
 import imgLogo from '../../public/images/logo.svg';
-import { useInitialView } from '../utils/providers/initialViewProvider';
+import useShowSearchBar from '../utils/hooks/useShowSearchBar';
 import SearchBar from './SearchBar/SearchBar';
 
 const links = [
@@ -21,7 +21,8 @@ const links = [
 ];
 
 export default function NavBar() {
-	const { isInitialView } = useInitialView();
+	const showSearchBar = useShowSearchBar();
+
 	const [isOpen, setIsOpen] = useState(false);
 
 	const handleToggle = () => setIsOpen(!isOpen);
@@ -67,8 +68,7 @@ export default function NavBar() {
 				</div>
 
 				{/* Bloc SearchBar + boutons */}
-				{/* //TODO: navbar should not be visible in other page than home */}
-				{!isInitialView && (
+				{showSearchBar && (
 					<div className='m-4 flex w-full items-center gap-2 xl:min-w-0 xl:max-w-[600px] xl:flex-grow'>
 						<Suspense>
 							<SearchBar />

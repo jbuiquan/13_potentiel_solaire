@@ -140,13 +140,13 @@ docker rm -f 13_potentiel_solaire_data_tmp
     Copier les données aux emplacements attendus par l'application
 
     ```sh
-	# revenir d'abord sur le répertoire application
-	# cd ../
-	docker create --name 13_potentiel_solaire_mock_data_tmp 13_potentiel_solaire_mock_data /bin/true && \
-	docker cp 13_potentiel_solaire_mock_data_tmp:/app/output/db/data.duckdb ./database && \
-	docker cp 13_potentiel_solaire_mock_data_tmp:/app/output/geojson/. ./public/data && \
-	docker rm -f 13_potentiel_solaire_mock_data_tmp
-	```
+    # revenir d'abord sur le répertoire application
+    # cd ../
+    docker create --name 13_potentiel_solaire_mock_data_tmp 13_potentiel_solaire_mock_data /bin/true && \
+    docker cp 13_potentiel_solaire_mock_data_tmp:/app/output/db/data.duckdb ./database && \
+    docker cp 13_potentiel_solaire_mock_data_tmp:/app/output/geojson/. ./public/data && \
+    docker rm -f 13_potentiel_solaire_mock_data_tmp
+    ```
 
 2. Manuellement :
 
@@ -251,6 +251,12 @@ npm run start
 ```
 
 ### Docker
+
+Il faut s'assurer qu'un fichier `.env` est présent à la racine du dossier application. Il contient :
+
+```
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+```
 
 #### Lancer la version en local
 
