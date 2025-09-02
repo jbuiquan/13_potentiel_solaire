@@ -12,7 +12,7 @@ import Tabs from './shared/Tabs';
 import TopCard from './shared/TopCard';
 
 const tabs = [
-	{ id: 'all', label: 'Tous' },
+	{ id: 'all', label: 'Tous types' },
 	{ id: 'managed', label: 'Écoles primaires' },
 ];
 

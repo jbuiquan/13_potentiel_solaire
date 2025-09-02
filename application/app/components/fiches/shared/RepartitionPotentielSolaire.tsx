@@ -43,7 +43,7 @@ export default function RepartitionPotentielSolaire({
 			<div>
 				<div className='flex items-center gap-2 text-sm font-bold text-grey'>
 					<div className='border-1 h-4 w-4 rounded-full border border-slate-400 bg-sol_ko' />
-					<span>{niveau} au potentiel solaire bas</span>
+					<span>{niveau} au potentiel solaire limité</span>
 				</div>
 				<p className='text-center text-base font-bold text-blue'>
 					{renderValeur(repartition['3_LIMITED'])}
