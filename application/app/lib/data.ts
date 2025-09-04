@@ -28,7 +28,7 @@ import {
 	SEARCH_VIEW_MAPPING,
 	SEARCH_VIEW_TABLE,
 } from './db-mapping';
-import db from './duckdb';
+import duckDbClient from './duckdb';
 
 /**
  * Key expected in a geojson for the geometry.
@@ -48,6 +48,7 @@ export async function fetchEtablissementsGeoJSON(
 	codeCommune: string | null,
 ): Promise<EtablissementsGeoJSON> {
 	try {
+		const db = await duckDbClient();
 		const connection = await db.connect();
 		await connection.run('LOAD SPATIAL;');
 
@@ -103,6 +104,7 @@ export async function fetchEtablissementsGeoJSON(
  */
 export async function fetchEtablissementById(id: string): Promise<Etablissement | null> {
 	try {
+		const db = await duckDbClient();
 		const connection = await db.connect();
 		await connection.run('LOAD SPATIAL;');
 
@@ -172,6 +174,7 @@ export async function fetchCommuneContainsLatLng({
 	lng,
 }: SimpleLngLat): Promise<CommuneFeature | null> {
 	try {
+		const db = await duckDbClient();
 		const connection = await db.connect();
 		await connection.run('LOAD SPATIAL;');
 
@@ -220,6 +223,7 @@ export async function fetchCommunesGeoJSON(
 	codeDepartement: string | null,
 ): Promise<CommunesGeoJSON> {
 	try {
+		const db = await duckDbClient();
 		const connection = await db.connect();
 		await connection.run('LOAD SPATIAL;');
 
@@ -271,6 +275,7 @@ export async function fetchCommunesGeoJSON(
 
 export async function fetchCommuneById(id: string): Promise<Commune | null> {
 	try {
+		const db = await duckDbClient();
 		const connection = await db.connect();
 		await connection.run('LOAD SPATIAL;');
 
@@ -333,6 +338,7 @@ export async function fetchDepartementsGeoJSON(
 	codeRegion: string | null,
 ): Promise<DepartementsGeoJSON> {
 	try {
+		const db = await duckDbClient();
 		const connection = await db.connect();
 		await connection.run('LOAD SPATIAL;');
 
@@ -382,6 +388,7 @@ export async function fetchDepartementsGeoJSON(
 
 export async function fetchDepartementById(id: string): Promise<Departement | null> {
 	try {
+		const db = await duckDbClient();
 		const connection = await db.connect();
 		await connection.run('LOAD SPATIAL;');
 
@@ -440,6 +447,7 @@ export async function fetchDepartementById(id: string): Promise<Departement | nu
 // --- Regions ---
 export async function fetchRegionById(id: string): Promise<Region | null> {
 	try {
+		const db = await duckDbClient();
 		const connection = await db.connect();
 		await connection.run('LOAD SPATIAL;');
 
@@ -515,6 +523,7 @@ export async function fetchSearchResults(
 	limit = DEFAULT_LIMIT,
 ): Promise<SearchResult[]> {
 	try {
+		const db = await duckDbClient();
 		const connection = await db.connect();
 
 		let prepared: DuckDBPreparedStatement;
@@ -522,9 +531,9 @@ export async function fetchSearchResults(
 			prepared = await connection.prepare(
 				`
 			SELECT
-			sv.${SEARCH_VIEW_COLUMNS.Source} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Source]},
-			sv.${SEARCH_VIEW_COLUMNS.Id} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Id]},
-			sv.${SEARCH_VIEW_COLUMNS.Libelle} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Libelle]},
+			sv.${SEARCH_VIEW_COLUMNS.Source} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Source]}, 
+			sv.${SEARCH_VIEW_COLUMNS.Id} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Id]}, 
+			sv.${SEARCH_VIEW_COLUMNS.Libelle} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Libelle]}, 
 			sv.${SEARCH_VIEW_COLUMNS.ExtraData} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.ExtraData]}
 			FROM ${REF_CODE_POSTAL_TABLE} refCp
 			INNER JOIN ${SEARCH_VIEW_TABLE} sv ON sv.${SEARCH_VIEW_COLUMNS.Source} = 'communes' AND sv.${SEARCH_VIEW_COLUMNS.Id} = refCp.${REF_CODE_POSTAL_COLUMNS.CodeInsee}
@@ -549,13 +558,13 @@ export async function fetchSearchResults(
 			prepared = await connection.prepare(
 				`
 			SELECT
-			sv.${SEARCH_VIEW_COLUMNS.Source} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Source]},
-			sv.${SEARCH_VIEW_COLUMNS.Id} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Id]},
-			sv.${SEARCH_VIEW_COLUMNS.Libelle} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Libelle]},
+			sv.${SEARCH_VIEW_COLUMNS.Source} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Source]}, 
+			sv.${SEARCH_VIEW_COLUMNS.Id} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Id]}, 
+			sv.${SEARCH_VIEW_COLUMNS.Libelle} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.Libelle]}, 
 			sv.${SEARCH_VIEW_COLUMNS.ExtraData} as ${SEARCH_VIEW_MAPPING[SEARCH_VIEW_COLUMNS.ExtraData]}
 			FROM main.${SEARCH_VIEW_TABLE} sv
 			WHERE ${whereClauses}
-			ORDER BY
+			ORDER BY 
 				CASE sv.${SEARCH_VIEW_COLUMNS.Source}
 					WHEN 'regions' THEN 1
 					WHEN 'departements' THEN 2
