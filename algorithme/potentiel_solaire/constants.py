@@ -9,6 +9,10 @@ RESULTS_FOLDER = DATA_FOLDER / 'results'
 SOURCES_FILEPATH = ALGORITHME_FOLDER / "sources.yaml"
 DUCK_DB_PATH = DATABASE_FOLDER / 'potentiel_solaire.duckdb'
 
+# Create data directories
+DATA_FOLDER.mkdir(parents=True, exist_ok=True)
+RESULTS_FOLDER.mkdir(parents=True, exist_ok=True)
+
 # BD TOPO
 BD_TOPO_PAGE = "https://geoservices.ign.fr/bdtopo"
 BD_TOPO_DATE = "2025-03-15"
