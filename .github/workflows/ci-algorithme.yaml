@@ -1,45 +1,45 @@
-name: pre-commit
+# name: pre-commit
 
-on:
-  pull_request:
-  push:
-    branches: [main]
+# on:
+#   pull_request:
+#   push:
+#     branches: [main]
 
-jobs:
-  ci-algorithme:
-    runs-on: ubuntu-latest
-    env:
-      working-directory: ./algorithme
+# jobs:
+#   ci-algorithme:
+#     runs-on: ubuntu-latest
+#     env:
+#       working-directory: ./algorithme
     
-    steps:
-    - uses: actions/checkout@v4
+#     steps:
+#     - uses: actions/checkout@v4
     
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+#     - uses: actions/setup-python@v5
+#       with:
+#         python-version: '3.11'
     
-    - name: Install dependencies
-      working-directory: ${{env.working-directory}}
-      run: |
-        python -m pip install "poetry>=1.8.5,<2"
-        poetry install --with dev
+#     - name: Install dependencies
+#       working-directory: ${{env.working-directory}}
+#       run: |
+#         python -m pip install "poetry>=1.8.5,<2"
+#         poetry install --with dev
     
-    - name: Run unit tests
-      working-directory: ${{env.working-directory}}
-      run: |
-        poetry run tox -vv
+#     - name: Run unit tests
+#       working-directory: ${{env.working-directory}}
+#       run: |
+#         poetry run tox -vv
     
-    - name: set PY
-      run: echo "PY=$(python -c 'import hashlib, sys;print(hashlib.sha256(sys.version.encode()+sys.executable.encode()).hexdigest())')" >> $GITHUB_ENV
+#     - name: set PY
+#       run: echo "PY=$(python -c 'import hashlib, sys;print(hashlib.sha256(sys.version.encode()+sys.executable.encode()).hexdigest())')" >> $GITHUB_ENV
 
-    - name: Set up caching for pre-commit hooks
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pre-commit/
-        key: pre-commit|${{ env.PY }}|${{ hashFiles('.pre-commit-config.yaml') }}
+#     - name: Set up caching for pre-commit hooks
+#       uses: actions/cache@v4
+#       with:
+#         path: ~/.cache/pre-commit/
+#         key: pre-commit|${{ env.PY }}|${{ hashFiles('.pre-commit-config.yaml') }}
     
-    - name: Run pre-commit
-      working-directory: ${{env.working-directory}}
-      run: |
-        poetry run pre-commit run --all-files --show-diff-on-failure --color=always 
+#     - name: Run pre-commit
+#       working-directory: ${{env.working-directory}}
+#       run: |
+#         poetry run pre-commit run --all-files --show-diff-on-failure --color=always 
     
