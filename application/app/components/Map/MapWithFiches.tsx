@@ -13,6 +13,8 @@ export default function MapWithFiches() {
 	const { etablissement, commune, departement, region, isFetching } = useSelectedPlaces();
 	const [isFicheOpen] = useActiveTab();
 
+	console.log('test 2');
+
 	return (
 		<div className='flex flex-1 flex-col'>
 			<div className='relative flex-1'>
