@@ -124,6 +124,7 @@ function interact(enabled: boolean) {
 }
 
 export default function FranceMap() {
+	console.log('test CI');
 	const mapRef = useRef<MapRef>(null);
 	const {
 		layers,
