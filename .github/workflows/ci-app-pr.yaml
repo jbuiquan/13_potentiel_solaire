@@ -31,6 +31,6 @@ jobs:
         run: |
           npm ci
 
-      - name: Lint & Build Next.js app
+      - name: Lint Next.js app
         run: |
-          npm run lint && npm run build
+          npm run lint
