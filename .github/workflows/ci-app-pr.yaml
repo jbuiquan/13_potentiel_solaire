@@ -1,14 +1,15 @@
-name: CI - Next.js Build (PR check)
+name: CI - Next.js Lint (PR check)
 
 on:
   pull_request:
+    branches: [main]
     paths:
       - "application/**"
       - ".github/workflows/ci-app-pr.yml"
 
 jobs:
   build:
-    name: Build Next.js App in /application
+    name: Lint Next.js App in /application
     runs-on: ubuntu-latest
     env:
       NEXT_TELEMETRY_DISABLED: 1
